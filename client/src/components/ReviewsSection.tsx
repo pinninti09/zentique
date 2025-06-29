@@ -68,8 +68,8 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
           key={i}
           className={`w-4 h-4 cursor-pointer transition-colors ${
             i <= (interactive ? (hoverRating || rating) : ratingValue)
-              ? 'fill-elegant-gold text-elegant-gold'
-              : 'text-sophisticated-gray/30'
+              ? 'fill-yellow-400 text-yellow-400'
+              : 'text-gray-300'
           }`}
           onMouseEnter={() => interactive && setHoverRating(i)}
           onMouseLeave={() => interactive && setHoverRating(0)}

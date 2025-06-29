@@ -79,16 +79,16 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     const hasHalfStar = rating % 1 !== 0;
 
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={i} className="w-3 h-3 fill-elegant-gold text-elegant-gold" />);
+      stars.push(<Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />);
     }
     
     if (hasHalfStar) {
-      stars.push(<Star key="half" className="w-3 h-3 fill-elegant-gold/50 text-elegant-gold" />);
+      stars.push(<Star key="half" className="w-3 h-3 fill-yellow-400/50 text-yellow-400" />);
     }
     
     const emptyStars = 5 - Math.ceil(rating);
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Star key={`empty-${i}`} className="w-3 h-3 text-sophisticated-gray/30" />);
+      stars.push(<Star key={`empty-${i}`} className="w-3 h-3 text-gray-300" />);
     }
     
     return stars;

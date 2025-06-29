@@ -141,8 +141,8 @@ export default function PaintingDetailModal({
                           key={star}
                           className={`w-4 h-4 ${
                             star <= (painting.averageRating || 0)
-                              ? 'fill-elegant-gold text-elegant-gold'
-                              : 'text-sophisticated-gray/30'
+                              ? 'fill-yellow-400 text-yellow-400'
+                              : 'text-gray-300'
                           }`}
                         />
                       ))}
