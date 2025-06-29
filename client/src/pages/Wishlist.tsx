@@ -64,10 +64,12 @@ export default function Wishlist() {
   });
 
   // Combine wishlist items with painting details
-  const wishlistWithPaintings: WishlistItemWithPainting[] = wishlistItems.map((item: WishlistItem) => ({
-    ...item,
-    painting: paintings.find((p: Painting) => p.id === item.paintingId)
-  })).filter((item: WishlistItemWithPainting) => item.painting);
+  const wishlistWithPaintings: WishlistItemWithPainting[] = Array.isArray(wishlistItems) && Array.isArray(paintings) 
+    ? (wishlistItems as WishlistItem[]).map((item: WishlistItem) => ({
+        ...item,
+        painting: (paintings as Painting[]).find((p: Painting) => p.id === item.paintingId)
+      })).filter((item: WishlistItemWithPainting) => item.painting)
+    : [];
 
   const handleQuickView = (painting: Painting) => {
     setSelectedPainting(painting);

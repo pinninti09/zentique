@@ -100,13 +100,13 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
           <h3 className="text-lg font-serif font-medium text-rich-brown mb-2">
             Customer Reviews
           </h3>
-          {painting.averageRating > 0 && (
+          {(painting.averageRating || 0) > 0 && (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
-                {renderStars(painting.averageRating)}
+                {renderStars(painting.averageRating || 0)}
               </div>
               <span className="text-sophisticated-gray font-light">
-                {painting.averageRating.toFixed(1)} out of 5 ({painting.totalReviews} review{painting.totalReviews !== 1 ? 's' : ''})
+                {(painting.averageRating || 0).toFixed(1)} out of 5 ({painting.totalReviews} review{painting.totalReviews !== 1 ? 's' : ''})
               </span>
             </div>
           )}
@@ -186,7 +186,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
 
       {/* Reviews List */}
       <div className="space-y-4">
-        {reviews.length === 0 ? (
+        {!Array.isArray(reviews) || reviews.length === 0 ? (
           <div className="text-center py-8 text-sophisticated-gray">
             <div className="w-16 h-16 bg-soft-taupe/20 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Star className="w-8 h-8 text-sophisticated-gray/50" />
@@ -194,7 +194,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
             <p className="font-light">No reviews yet. Be the first to share your thoughts!</p>
           </div>
         ) : (
-          reviews.map((review: Review) => (
+          (reviews as Review[]).map((review: Review) => (
             <Card key={review.id} className="border-soft-taupe/30">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
@@ -208,7 +208,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
                         {renderStars(review.rating)}
                       </div>
                       <span className="text-sm text-sophisticated-gray font-light">
-                        {formatDate(review.createdAt)}
+                        {formatDate(review.createdAt || new Date())}
                       </span>
                     </div>
                     {review.comment && (

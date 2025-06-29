@@ -29,12 +29,14 @@ export default function Gallery() {
   });
 
   useEffect(() => {
-    setCartCount(cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0));
+    if (Array.isArray(cartItems)) {
+      setCartCount(cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0));
+    }
   }, [cartItems, setCartCount]);
 
   const addToCartMutation = useMutation({
     mutationFn: async (paintingId: string) => {
-      return apiRequest('POST', '/api/cart', {
+      return apiRequest('/api/cart', 'POST', {
         sessionId,
         paintingId,
         quantity: 1,

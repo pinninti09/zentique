@@ -48,7 +48,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     }
   });
 
-  const isInWishlist = wishlistStatus?.isInWishlist === true;
+  const isInWishlist = (wishlistStatus as any)?.isInWishlist === true;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -190,7 +190,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           
           <Button
             onClick={handleAddToCart}
-            disabled={painting.sold}
+            disabled={painting.sold || false}
             size="sm"
             className={painting.sold ? 
               "bg-soft-taupe/30 text-sophisticated-gray cursor-not-allowed" : 

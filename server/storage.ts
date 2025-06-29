@@ -272,13 +272,18 @@ export class MemStorage implements IStorage {
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
     const id = uuidv4();
-    const newCartItem: CartItem = { ...cartItem, id };
+    const newCartItem: CartItem = { 
+      ...cartItem, 
+      id,
+      quantity: cartItem.quantity ?? 1
+    };
     this.cartItems.set(id, newCartItem);
     return newCartItem;
   }
 
   async updateCartItemQuantity(sessionId: string, paintingId: string, quantity: number): Promise<CartItem | undefined> {
-    for (const [id, item] of this.cartItems.entries()) {
+    const cartEntries = Array.from(this.cartItems.entries());
+    for (const [id, item] of cartEntries) {
       if (item.sessionId === sessionId && item.paintingId === paintingId) {
         const updatedItem = { ...item, quantity };
         this.cartItems.set(id, updatedItem);
@@ -289,7 +294,8 @@ export class MemStorage implements IStorage {
   }
 
   async removeFromCart(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const [id, item] of this.cartItems.entries()) {
+    const cartEntries = Array.from(this.cartItems.entries());
+    for (const [id, item] of cartEntries) {
       if (item.sessionId === sessionId && item.paintingId === paintingId) {
         this.cartItems.delete(id);
         return true;
@@ -300,7 +306,8 @@ export class MemStorage implements IStorage {
 
   async clearCart(sessionId: string): Promise<boolean> {
     let removed = false;
-    for (const [id, item] of this.cartItems.entries()) {
+    const cartEntries = Array.from(this.cartItems.entries());
+    for (const [id, item] of cartEntries) {
       if (item.sessionId === sessionId) {
         this.cartItems.delete(id);
         removed = true;
@@ -319,7 +326,8 @@ export class MemStorage implements IStorage {
     const newReview: Review = { 
       ...review, 
       id, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      comment: review.comment ?? null
     };
     this.reviews.set(id, newReview);
     
@@ -364,7 +372,8 @@ export class MemStorage implements IStorage {
   }
 
   async removeFromWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const [id, item] of this.wishlistItems.entries()) {
+    const wishlistEntries = Array.from(this.wishlistItems.entries());
+    for (const [id, item] of wishlistEntries) {
       if (item.sessionId === sessionId && item.paintingId === paintingId) {
         this.wishlistItems.delete(id);
         return true;
@@ -374,7 +383,8 @@ export class MemStorage implements IStorage {
   }
 
   async isInWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const item of this.wishlistItems.values()) {
+    const wishlistValues = Array.from(this.wishlistItems.values());
+    for (const item of wishlistValues) {
       if (item.sessionId === sessionId && item.paintingId === paintingId) {
         return true;
       }
@@ -402,7 +412,8 @@ export class MemStorage implements IStorage {
   }
 
   async markNotificationsSent(paintingId: string): Promise<void> {
-    for (const [id, notification] of this.availabilityNotifications.entries()) {
+    const notificationEntries = Array.from(this.availabilityNotifications.entries());
+    for (const [id, notification] of notificationEntries) {
       if (notification.paintingId === paintingId && !notification.notified) {
         const updatedNotification = { ...notification, notified: true };
         this.availabilityNotifications.set(id, updatedNotification);
