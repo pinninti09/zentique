@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { X, ShoppingBag, Truck, Star } from 'lucide-react';
+import { X, ShoppingBag, Truck, Star, Heart } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
+import { apiRequest } from '@/lib/queryClient';
+import { useApp } from '@/contexts/AppContext';
 import ReviewsSection from './ReviewsSection';
 import type { Painting } from '@shared/schema';
 
@@ -19,12 +22,60 @@ export default function PaintingDetailModal({
   onAddToCart 
 }: PaintingDetailModalProps) {
   const [imageZoomed, setImageZoomed] = useState(false);
+  const { sessionId, showToast } = useApp();
+  const queryClient = useQueryClient();
 
   if (!isOpen || !painting) return null;
+
+  // Check if painting is in wishlist
+  const { data: wishlistStatus } = useQuery<{ isInWishlist: boolean }>({
+    queryKey: ['/api/wishlist', sessionId, painting.id, 'check'],
+    enabled: !!painting && !!sessionId
+  });
+
+  const isInWishlist = wishlistStatus?.isInWishlist || false;
+
+  // Wishlist mutations
+  const addToWishlistMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('/api/wishlist', 'POST', {
+        sessionId,
+        paintingId: painting.id
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist', sessionId, painting.id, 'check'] });
+      showToast('Added to wishlist!', 'success');
+    },
+    onError: () => {
+      showToast('Failed to add to wishlist', 'error');
+    }
+  });
+
+  const removeFromWishlistMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest(`/api/wishlist/${sessionId}/${painting.id}`, 'DELETE');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist', sessionId, painting.id, 'check'] });
+      showToast('Removed from wishlist', 'success');
+    },
+    onError: () => {
+      showToast('Failed to remove from wishlist', 'error');
+    }
+  });
 
   const handleAddToCart = () => {
     onAddToCart(painting.id);
     onClose();
+  };
+
+  const handleWishlistToggle = () => {
+    if (isInWishlist) {
+      removeFromWishlistMutation.mutate();
+    } else {
+      addToWishlistMutation.mutate();
+    }
   };
 
   const handleImageClick = () => {
@@ -143,24 +194,41 @@ export default function PaintingDetailModal({
                   </div>
                 </div>
                 
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={painting.sold || false}
-                  className={`w-full py-4 text-lg font-medium ${
-                    painting.sold 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
-                  }`}
-                >
-                  {painting.sold ? (
-                    'Sold Out'
-                  ) : (
-                    <>
-                      <ShoppingBag className="mr-2" size={20} />
-                      Add to Cart
-                    </>
-                  )}
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={painting.sold || false}
+                    className={`flex-1 py-4 text-lg font-medium ${
+                      painting.sold 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
+                    }`}
+                  >
+                    {painting.sold ? (
+                      'Sold Out'
+                    ) : (
+                      <>
+                        <ShoppingBag className="mr-2" size={20} />
+                        Add to Cart
+                      </>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    onClick={handleWishlistToggle}
+                    disabled={addToWishlistMutation.isPending || removeFromWishlistMutation.isPending}
+                    className={`py-4 px-6 text-lg font-medium transition-all duration-200 ${
+                      isInWishlist
+                        ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100'
+                        : 'bg-gray-50 text-gray-600 border-2 border-gray-200 hover:bg-gray-100'
+                    }`}
+                    variant="outline"
+                  >
+                    <Heart 
+                      className={`w-5 h-5 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`}
+                    />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
