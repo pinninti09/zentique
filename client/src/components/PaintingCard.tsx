@@ -36,6 +36,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}/${painting.id}/check`] });
     }
   });
@@ -46,6 +47,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}/${painting.id}/check`] });
     }
   });

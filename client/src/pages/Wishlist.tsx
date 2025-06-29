@@ -22,7 +22,7 @@ export default function Wishlist() {
 
   // Fetch wishlist items
   const { data: wishlistItems = [], isLoading } = useQuery({
-    queryKey: ['/api/wishlist', sessionId],
+    queryKey: [`/api/wishlist/${sessionId}`],
     enabled: !!sessionId
   });
 
@@ -37,6 +37,7 @@ export default function Wishlist() {
       await apiRequest(`/api/wishlist/${sessionId}/${paintingId}`, 'DELETE');
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}`] });
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
       showToast('Removed from wishlist', 'success');
     },
