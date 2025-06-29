@@ -45,7 +45,7 @@ export default function Navigation() {
                   <item.icon className="mr-2" size={16} />
                   {item.label}
                   {item.badge && item.badge > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-elegant-gold text-rich-brown text-xs h-5 w-5 flex items-center justify-center p-0 rounded-full font-medium border-2 border-white">
+                    <Badge className="ml-2 bg-elegant-gold text-rich-brown text-xs h-5 min-w-5 px-1 flex items-center justify-center rounded-full font-medium">
                       {item.badge}
                     </Badge>
                   )}
