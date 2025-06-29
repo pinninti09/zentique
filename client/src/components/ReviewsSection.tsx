@@ -28,7 +28,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
     queryKey: [`/api/paintings/${painting.id}/reviews`]
   });
 
-  console.log('Reviews data:', reviews, 'isLoading:', isLoading, 'paintingId:', painting.id);
+
 
   // Submit review mutation
   const submitReviewMutation = useMutation({
