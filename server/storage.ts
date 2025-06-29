@@ -93,8 +93,8 @@ export class MemStorage implements IStorage {
       id: "july4-2024",
       text: "🇺🇸 July 4th Special: 25% OFF All Paintings! Use code JULY4 - Free Shipping on Orders Over $200",
       isActive: true,
-      backgroundColor: "#dc2626",
-      textColor: "#ffffff",
+      backgroundColor: "#1e40af",
+      textColor: "#f8fafc",
       createdAt: new Date(),
       updatedAt: new Date()
     };
