@@ -47,6 +47,7 @@ export default function Admin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
+      queryClient.refetchQueries({ queryKey: ['/api/paintings'] });
       showToast('Painting uploaded successfully!');
       setUploadForm({
         title: '',
