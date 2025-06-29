@@ -93,7 +93,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-reviews-section>
       {/* Reviews Summary */}
       <div className="flex items-center justify-between">
         <div>
@@ -116,6 +116,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
           <Button
             onClick={() => setShowReviewForm(true)}
             className="bg-elegant-gold text-rich-brown hover:bg-rich-brown hover:text-white font-medium"
+            data-write-review-btn
           >
             Write a Review
           </Button>

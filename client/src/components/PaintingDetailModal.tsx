@@ -131,26 +131,43 @@ export default function PaintingDetailModal({
                 </p>
               </div>
 
-              {/* Star Rating Display */}
-              {(painting.averageRating || 0) > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-4 h-4 ${
-                          star <= (painting.averageRating || 0)
-                            ? 'fill-elegant-gold text-elegant-gold'
-                            : 'text-sophisticated-gray/30'
-                        }`}
-                      />
-                    ))}
+              {/* Star Rating Display and Quick Review Access */}
+              <div className="space-y-3">
+                {(painting.averageRating || 0) > 0 && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= (painting.averageRating || 0)
+                              ? 'fill-elegant-gold text-elegant-gold'
+                              : 'text-sophisticated-gray/30'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm text-sophisticated-gray">
+                      {(painting.averageRating || 0).toFixed(1)} ({painting.totalReviews || 0} review{painting.totalReviews !== 1 ? 's' : ''})
+                    </span>
                   </div>
-                  <span className="text-sm text-sophisticated-gray">
-                    {(painting.averageRating || 0).toFixed(1)} ({painting.totalReviews || 0} review{painting.totalReviews !== 1 ? 's' : ''})
-                  </span>
-                </div>
-              )}
+                )}
+                <button
+                  onClick={() => {
+                    const reviewsSection = document.querySelector('[data-reviews-section]');
+                    reviewsSection?.scrollIntoView({ behavior: 'smooth' });
+                    // Trigger the review form to open
+                    setTimeout(() => {
+                      const writeReviewBtn = document.querySelector('[data-write-review-btn]') as HTMLButtonElement;
+                      writeReviewBtn?.click();
+                    }, 500);
+                  }}
+                  className="text-sm text-elegant-gold hover:text-rich-brown font-medium transition-colors flex items-center gap-1"
+                >
+                  <Star className="w-4 h-4" />
+                  Rate this artwork
+                </button>
+              </div>
               
               <div>
                 <h3 className="text-lg font-semibold text-charcoal mb-2">Details</h3>
