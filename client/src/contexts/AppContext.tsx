@@ -37,13 +37,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToast(null), 3000);
   };
 
+  const handleSetAdminToken = (token: string | null) => {
+    setAdminToken(token);
+    if (token) {
+      localStorage.setItem('adminToken', token);
+    } else {
+      localStorage.removeItem('adminToken');
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       sessionId,
       cartCount,
       setCartCount,
       adminToken,
-      setAdminToken,
+      setAdminToken: handleSetAdminToken,
       showToast
     }}>
       {children}

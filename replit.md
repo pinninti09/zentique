@@ -99,7 +99,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- June 29, 2025: **NEW** - UI Improvements and Banner System
+- June 29, 2025: **NEW** - UI Improvements, Reviews, and Admin Fixes
+  - Fixed painting upload functionality with proper FormData handling and admin token authorization
+  - Enhanced star ratings with bright yellow fill colors for better visibility
+  - Added "Rate this artwork" button for easy access to review form
+  - Fixed review display and submission system - reviews now show properly
   - Removed statistics and feature list from gallery hero section for cleaner design
   - Updated promotional banner with navy blue color scheme for better aesthetics
   - Added dynamic promotional banner at top of website

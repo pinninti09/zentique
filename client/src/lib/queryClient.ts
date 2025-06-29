@@ -12,10 +12,25 @@ export async function apiRequest(
   method: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const isFormData = data instanceof FormData;
+  
+  // Get admin token from localStorage if available
+  const adminToken = localStorage.getItem('adminToken');
+  
+  const headers: Record<string, string> = {};
+  
+  if (!isFormData && data) {
+    headers["Content-Type"] = "application/json";
+  }
+  
+  if (adminToken && url.includes('/admin/')) {
+    headers["Authorization"] = `Bearer ${adminToken}`;
+  }
+  
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    headers,
+    body: isFormData ? data : data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
 
