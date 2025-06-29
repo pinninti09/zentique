@@ -210,7 +210,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
             size="lg"
             className={painting.sold ? 
               "bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-3" : 
-              "bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 font-medium px-6 py-3 shadow-lg"
+              "bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-200 font-medium px-6 py-3 shadow-lg hover:shadow-xl"
             }
           >
             {painting.sold ? (
