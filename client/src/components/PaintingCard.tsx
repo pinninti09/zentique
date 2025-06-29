@@ -163,6 +163,18 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
             {painting.description}
           </p>
           
+          {/* Star Rating Display */}
+          {painting.averageRating && (painting.totalReviews || 0) > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
+                {renderStars(painting.averageRating)}
+              </div>
+              <span className="text-xs text-sophisticated-gray">
+                {painting.averageRating.toFixed(1)} ({painting.totalReviews || 0} review{(painting.totalReviews || 0) !== 1 ? 's' : ''})
+              </span>
+            </div>
+          )}
+          
           <div className="flex items-center text-xs text-sophisticated-gray space-x-4">
             <span>{painting.medium || 'Oil on Canvas'}</span>
             <span>•</span>
