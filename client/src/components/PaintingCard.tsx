@@ -22,7 +22,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
 
   // Check if painting is in wishlist
   const { data: wishlistStatus } = useQuery({
-    queryKey: ['/api/wishlist', sessionId, painting.id, 'check'],
+    queryKey: [`/api/wishlist/${sessionId}/${painting.id}/check`],
     enabled: !!sessionId
   });
 
@@ -36,6 +36,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}/${painting.id}/check`] });
     }
   });
 
@@ -45,6 +46,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}/${painting.id}/check`] });
     }
   });
 
@@ -127,11 +129,11 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
             variant="ghost"
             size="sm"
             onClick={handleWishlistToggle}
-            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all ${
-              isInWishlist ? 'text-red-500' : 'text-sophisticated-gray hover:text-red-500'
+            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 ${
+              isInWishlist ? 'text-red-500 bg-red-50' : 'text-sophisticated-gray hover:text-red-500'
             }`}
           >
-            <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
+            <Heart className={`w-4 h-4 transition-all duration-200 ${isInWishlist ? 'fill-red-500 text-red-500 scale-110' : 'hover:scale-105'}`} />
           </Button>
           <div className="flex flex-col gap-1">
             {painting.salePrice && (
