@@ -43,7 +43,7 @@ export default function Admin() {
 
   const uploadPaintingMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return apiRequest('POST', '/api/admin/paintings', formData);
+      return apiRequest('/api/admin/paintings', 'POST', formData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
