@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { X, ShoppingBag, Truck } from 'lucide-react';
+import { X, ShoppingBag, Truck, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
+import ReviewsSection from './ReviewsSection';
 import type { Painting } from '@shared/schema';
 
 interface PaintingDetailModalProps {
@@ -74,6 +75,27 @@ export default function PaintingDetailModal({
                   {painting.description}
                 </p>
               </div>
+
+              {/* Star Rating Display */}
+              {(painting.averageRating || 0) > 0 && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-4 h-4 ${
+                          star <= (painting.averageRating || 0)
+                            ? 'fill-elegant-gold text-elegant-gold'
+                            : 'text-sophisticated-gray/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-sophisticated-gray">
+                    {(painting.averageRating || 0).toFixed(1)} ({painting.totalReviews || 0} review{painting.totalReviews !== 1 ? 's' : ''})
+                  </span>
+                </div>
+              )}
               
               <div>
                 <h3 className="text-lg font-semibold text-charcoal mb-2">Details</h3>
@@ -123,11 +145,11 @@ export default function PaintingDetailModal({
                 
                 <Button
                   onClick={handleAddToCart}
-                  disabled={painting.sold}
+                  disabled={painting.sold || false}
                   className={`w-full py-4 text-lg font-medium ${
                     painting.sold 
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-charcoal text-white hover:bg-elegant-gold'
+                      : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
                   }`}
                 >
                   {painting.sold ? (
@@ -141,6 +163,11 @@ export default function PaintingDetailModal({
                 </Button>
               </div>
             </div>
+          </div>
+          
+          {/* Reviews Section */}
+          <div className="mt-8 pt-8 border-t border-gray-200">
+            <ReviewsSection painting={painting} />
           </div>
         </div>
       </div>
