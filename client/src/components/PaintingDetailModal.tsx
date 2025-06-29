@@ -25,25 +25,22 @@ export default function PaintingDetailModal({
   const { sessionId, showToast } = useApp();
   const queryClient = useQueryClient();
 
-  if (!isOpen || !painting) return null;
-
-  // Check if painting is in wishlist
+  // Always call hooks at the top level
   const { data: wishlistStatus } = useQuery<{ isInWishlist: boolean }>({
-    queryKey: ['/api/wishlist', sessionId, painting.id, 'check'],
-    enabled: !!painting && !!sessionId
+    queryKey: ['/api/wishlist', sessionId, painting?.id, 'check'],
+    enabled: !!painting && !!sessionId && isOpen
   });
 
-  const isInWishlist = wishlistStatus?.isInWishlist || false;
-
-  // Wishlist mutations
   const addToWishlistMutation = useMutation({
     mutationFn: async () => {
+      if (!painting) throw new Error('No painting');
       await apiRequest('/api/wishlist', 'POST', {
         sessionId,
         paintingId: painting.id
       });
     },
     onSuccess: () => {
+      if (!painting) return;
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist', sessionId, painting.id, 'check'] });
       showToast('Added to wishlist!', 'success');
     },
@@ -54,9 +51,11 @@ export default function PaintingDetailModal({
 
   const removeFromWishlistMutation = useMutation({
     mutationFn: async () => {
+      if (!painting) throw new Error('No painting');
       await apiRequest(`/api/wishlist/${sessionId}/${painting.id}`, 'DELETE');
     },
     onSuccess: () => {
+      if (!painting) return;
       queryClient.invalidateQueries({ queryKey: ['/api/wishlist', sessionId, painting.id, 'check'] });
       showToast('Removed from wishlist', 'success');
     },
@@ -64,6 +63,11 @@ export default function PaintingDetailModal({
       showToast('Failed to remove from wishlist', 'error');
     }
   });
+
+  // Early return after all hooks are called
+  if (!isOpen || !painting) return null;
+
+  const isInWishlist = wishlistStatus?.isInWishlist || false;
 
   const handleAddToCart = () => {
     onAddToCart(painting.id);
