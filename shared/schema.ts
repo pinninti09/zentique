@@ -1,6 +1,7 @@
-import { pgTable, text, serial, real, boolean, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, real, boolean, integer, timestamp, varchar, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 export const paintings = pgTable("paintings", {
   id: text("id").primaryKey(),
@@ -14,6 +15,8 @@ export const paintings = pgTable("paintings", {
   dimensions: text("dimensions"),
   year: integer("year"),
   artist: text("artist"),
+  averageRating: real("average_rating").default(0),
+  totalReviews: integer("total_reviews").default(0),
 });
 
 export const cartItems = pgTable("cart_items", {
@@ -23,18 +26,100 @@ export const cartItems = pgTable("cart_items", {
   quantity: integer("quantity").notNull().default(1),
 });
 
+export const reviews = pgTable("reviews", {
+  id: text("id").primaryKey(),
+  paintingId: text("painting_id").notNull(),
+  customerName: text("customer_name").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const wishlistItems = pgTable("wishlist_items", {
+  id: text("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  paintingId: text("painting_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const availabilityNotifications = pgTable("availability_notifications", {
+  id: text("id").primaryKey(),
+  paintingId: text("painting_id").notNull(),
+  email: text("email").notNull(),
+  notified: boolean("notified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Relations
+export const paintingsRelations = relations(paintings, ({ many }) => ({
+  reviews: many(reviews),
+  wishlistItems: many(wishlistItems),
+  availabilityNotifications: many(availabilityNotifications),
+}));
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  painting: one(paintings, {
+    fields: [reviews.paintingId],
+    references: [paintings.id],
+  }),
+}));
+
+export const wishlistItemsRelations = relations(wishlistItems, ({ one }) => ({
+  painting: one(paintings, {
+    fields: [wishlistItems.paintingId],
+    references: [paintings.id],
+  }),
+}));
+
+export const availabilityNotificationsRelations = relations(availabilityNotifications, ({ one }) => ({
+  painting: one(paintings, {
+    fields: [availabilityNotifications.paintingId],
+    references: [paintings.id],
+  }),
+}));
+
+// Insert schemas
 export const insertPaintingSchema = createInsertSchema(paintings).omit({
   id: true,
+  averageRating: true,
+  totalReviews: true,
 });
 
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({
   id: true,
 });
 
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+});
+
+export const insertWishlistItemSchema = createInsertSchema(wishlistItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAvailabilityNotificationSchema = createInsertSchema(availabilityNotifications).omit({
+  id: true,
+  notified: true,
+  createdAt: true,
+}).extend({
+  email: z.string().email(),
+});
+
+// Types
 export type InsertPainting = z.infer<typeof insertPaintingSchema>;
 export type Painting = typeof paintings.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type CartItem = typeof cartItems.$inferSelect;
+export type InsertReview = z.infer<typeof insertReviewSchema>;
+export type Review = typeof reviews.$inferSelect;
+export type InsertWishlistItem = z.infer<typeof insertWishlistItemSchema>;
+export type WishlistItem = typeof wishlistItems.$inferSelect;
+export type InsertAvailabilityNotification = z.infer<typeof insertAvailabilityNotificationSchema>;
+export type AvailabilityNotification = typeof availabilityNotifications.$inferSelect;
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

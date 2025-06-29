@@ -97,7 +97,31 @@ Atelier is a full-stack painting gallery application built with React, Express.j
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- June 29, 2025: Added comprehensive ratings and reviews system
+  - Customer reviews with 5-star ratings and comments
+  - Real-time rating aggregation and display on paintings
+  - Reviews component with interactive star selection
+  - Sample reviews data for demonstration
+
+- June 29, 2025: Implemented wishlist functionality
+  - Heart button on painting cards for adding/removing from wishlist
+  - Dedicated wishlist page with painting management
+  - Session-based wishlist storage
+  - Navigation integration with wishlist link
+
+- June 29, 2025: Enhanced painting cards with new features
+  - Star ratings display showing average rating and review count
+  - Wishlist toggle functionality with visual feedback
+  - Improved Ballard Designs-inspired aesthetic
+
+- June 29, 2025: Added availability notification system (backend ready)
+  - Email notifications for sold painting availability
+  - Database schema for tracking notification requests
+  - API endpoints for managing notifications
+
 ## Changelog
 
 Changelog:
-- June 29, 2025. Initial setup
+- June 29, 2025. Initial setup with ratings, reviews, and wishlist features

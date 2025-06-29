@@ -1,7 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertPaintingSchema, insertCartItemSchema } from "@shared/schema";
+import { 
+  insertPaintingSchema, 
+  insertCartItemSchema, 
+  insertReviewSchema,
+  insertWishlistItemSchema,
+  insertAvailabilityNotificationSchema 
+} from "@shared/schema";
 import multer from "multer";
 import { z } from "zod";
 
@@ -96,6 +102,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to clear cart" });
+    }
+  });
+
+  // Review routes
+  app.get("/api/paintings/:paintingId/reviews", async (req, res) => {
+    try {
+      const { paintingId } = req.params;
+      const reviews = await storage.getReviewsByPaintingId(paintingId);
+      res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  app.post("/api/paintings/:paintingId/reviews", async (req, res) => {
+    try {
+      const { paintingId } = req.params;
+      const reviewData = insertReviewSchema.parse({ ...req.body, paintingId });
+      const review = await storage.createReview(reviewData);
+      res.status(201).json(review);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid review data", errors: error.errors });
+      } else {
+        console.error("Error creating review:", error);
+        res.status(500).json({ message: "Failed to create review" });
+      }
+    }
+  });
+
+  // Wishlist routes
+  app.get("/api/wishlist/:sessionId", async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const wishlistItems = await storage.getWishlistItems(sessionId);
+      res.json(wishlistItems);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      res.status(500).json({ message: "Failed to fetch wishlist" });
+    }
+  });
+
+  app.post("/api/wishlist", async (req, res) => {
+    try {
+      const wishlistData = insertWishlistItemSchema.parse(req.body);
+      const wishlistItem = await storage.addToWishlist(wishlistData);
+      res.status(201).json(wishlistItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid wishlist data", errors: error.errors });
+      } else {
+        console.error("Error adding to wishlist:", error);
+        res.status(500).json({ message: "Failed to add to wishlist" });
+      }
+    }
+  });
+
+  app.delete("/api/wishlist/:sessionId/:paintingId", async (req, res) => {
+    try {
+      const { sessionId, paintingId } = req.params;
+      const removed = await storage.removeFromWishlist(sessionId, paintingId);
+      
+      if (removed) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ message: "Wishlist item not found" });
+      }
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      res.status(500).json({ message: "Failed to remove from wishlist" });
+    }
+  });
+
+  app.get("/api/wishlist/:sessionId/:paintingId/check", async (req, res) => {
+    try {
+      const { sessionId, paintingId } = req.params;
+      const isInWishlist = await storage.isInWishlist(sessionId, paintingId);
+      res.json({ isInWishlist });
+    } catch (error) {
+      console.error("Error checking wishlist:", error);
+      res.status(500).json({ message: "Failed to check wishlist" });
+    }
+  });
+
+  // Availability notification routes
+  app.post("/api/paintings/:paintingId/notify", async (req, res) => {
+    try {
+      const { paintingId } = req.params;
+      const notificationData = insertAvailabilityNotificationSchema.parse({ 
+        ...req.body, 
+        paintingId 
+      });
+      const notification = await storage.createAvailabilityNotification(notificationData);
+      res.status(201).json(notification);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid notification data", errors: error.errors });
+      } else {
+        console.error("Error creating notification:", error);
+        res.status(500).json({ message: "Failed to create notification" });
+      }
     }
   });
 

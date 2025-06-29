@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Navigation from "./components/Navigation";
 import Gallery from "./pages/Gallery";
 import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
 import Admin from "./pages/Admin";
 import NotFound from "@/pages/not-found";
 
@@ -14,6 +15,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Gallery} />
+      <Route path="/wishlist" component={Wishlist} />
       <Route path="/cart" component={Cart} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />

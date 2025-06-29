@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ShoppingBag, Palette, Shield, Menu, X } from 'lucide-react';
+import { ShoppingBag, Palette, Shield, Menu, X, Heart } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ export default function Navigation() {
 
   const navItems = [
     { path: '/', label: 'Gallery', icon: Palette },
+    { path: '/wishlist', label: 'Wishlist', icon: Heart },
     { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
     { path: '/admin', label: 'Admin', icon: Shield },
   ];

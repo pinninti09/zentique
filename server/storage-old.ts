@@ -73,12 +73,12 @@ export class MemStorage implements IStorage {
     this.availabilityNotifications = new Map();
     this.currentUserId = 1;
     
-    this.initializeSampleData();
+    // Add sample paintings for demonstration
+    this.initializeSamplePaintings();
   }
 
-  private initializeSampleData() {
-    // Sample paintings with ratings
-    const samplePaintings: Painting[] = [
+  private initializeSamplePaintings() {
+    const samplePaintings = [
       {
         id: "1",
         title: "Sunset Over the Ocean",
@@ -95,7 +95,7 @@ export class MemStorage implements IStorage {
         totalReviews: 12
       },
       {
-        id: "2",
+        id: "2", 
         title: "Urban Reflections",
         description: "A modern cityscape capturing the reflection of glass buildings in rain-soaked streets, showcasing the beauty found in urban environments.",
         price: 950,
@@ -120,9 +120,7 @@ export class MemStorage implements IStorage {
         medium: "Oil on Canvas",
         dimensions: "30\" × 40\"",
         year: 2023,
-        artist: "Sarah Thompson",
-        averageRating: 4.9,
-        totalReviews: 15
+        artist: "Sarah Thompson"
       },
       {
         id: "4",
@@ -132,12 +130,10 @@ export class MemStorage implements IStorage {
         salePrice: null,
         imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
         sold: true,
-        medium: "Oil on Canvas",
+        medium: "Oil on Canvas", 
         dimensions: "36\" × 48\"",
         year: 2024,
-        artist: "David Kim",
-        averageRating: 4.7,
-        totalReviews: 22
+        artist: "David Kim"
       },
       {
         id: "5",
@@ -148,11 +144,9 @@ export class MemStorage implements IStorage {
         imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
         sold: false,
         medium: "Acrylic on Canvas",
-        dimensions: "16\" × 20\"",
+        dimensions: "16\" × 20\"", 
         year: 2024,
-        artist: "Isabella Martinez",
-        averageRating: 4.1,
-        totalReviews: 6
+        artist: "Isabella Martinez"
       },
       {
         id: "6",
@@ -165,46 +159,12 @@ export class MemStorage implements IStorage {
         medium: "Oil on Canvas",
         dimensions: "18\" × 24\"",
         year: 2023,
-        artist: "Robert Wilson",
-        averageRating: 4.5,
-        totalReviews: 10
+        artist: "Robert Anderson"
       }
     ];
 
     samplePaintings.forEach(painting => {
       this.paintings.set(painting.id, painting);
-    });
-
-    // Sample reviews
-    const sampleReviews: Review[] = [
-      {
-        id: "r1",
-        paintingId: "1",
-        customerName: "Sarah M.",
-        rating: 5,
-        comment: "Absolutely stunning! The colors are so vibrant and peaceful.",
-        createdAt: new Date("2024-06-15")
-      },
-      {
-        id: "r2", 
-        paintingId: "1",
-        customerName: "John D.",
-        rating: 5,
-        comment: "This painting brings such tranquility to our living room.",
-        createdAt: new Date("2024-06-20")
-      },
-      {
-        id: "r3",
-        paintingId: "3",
-        customerName: "Emma L.",
-        rating: 5,
-        comment: "The detail in this forest scene is incredible. Love it!",
-        createdAt: new Date("2024-06-10")
-      }
-    ];
-
-    sampleReviews.forEach(review => {
-      this.reviews.set(review.id, review);
     });
   }
 
@@ -214,12 +174,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    for (const user of this.users.values()) {
-      if (user.username === username) {
-        return user;
-      }
-    }
-    return undefined;
+    return Array.from(this.users.values()).find(
+      (user) => user.username === username,
+    );
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -243,8 +200,6 @@ export class MemStorage implements IStorage {
     const newPainting: Painting = { 
       ...painting, 
       id,
-      averageRating: 0,
-      totalReviews: 0,
       sold: painting.sold ?? false,
       salePrice: painting.salePrice ?? null,
       medium: painting.medium ?? null,
@@ -267,147 +222,70 @@ export class MemStorage implements IStorage {
 
   // Cart methods
   async getCartItems(sessionId: string): Promise<CartItem[]> {
-    return Array.from(this.cartItems.values()).filter(item => item.sessionId === sessionId);
+    return Array.from(this.cartItems.values()).filter(
+      item => item.sessionId === sessionId
+    );
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
     const id = uuidv4();
-    const newCartItem: CartItem = { ...cartItem, id };
+    const newCartItem: CartItem = { 
+      ...cartItem, 
+      id,
+      quantity: cartItem.quantity ?? 1
+    };
+    
+    // Check if item already exists in cart
+    const existingItem = Array.from(this.cartItems.values()).find(
+      item => item.sessionId === cartItem.sessionId && item.paintingId === cartItem.paintingId
+    );
+    
+    if (existingItem) {
+      // Update quantity instead of adding new item
+      existingItem.quantity += (cartItem.quantity ?? 1);
+      this.cartItems.set(existingItem.id, existingItem);
+      return existingItem;
+    }
+    
     this.cartItems.set(id, newCartItem);
     return newCartItem;
   }
 
   async updateCartItemQuantity(sessionId: string, paintingId: string, quantity: number): Promise<CartItem | undefined> {
-    for (const [id, item] of this.cartItems.entries()) {
-      if (item.sessionId === sessionId && item.paintingId === paintingId) {
-        const updatedItem = { ...item, quantity };
-        this.cartItems.set(id, updatedItem);
-        return updatedItem;
-      }
+    const item = Array.from(this.cartItems.values()).find(
+      item => item.sessionId === sessionId && item.paintingId === paintingId
+    );
+    
+    if (!item) return undefined;
+    
+    if (quantity <= 0) {
+      this.cartItems.delete(item.id);
+      return undefined;
     }
-    return undefined;
+    
+    item.quantity = quantity;
+    this.cartItems.set(item.id, item);
+    return item;
   }
 
   async removeFromCart(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const [id, item] of this.cartItems.entries()) {
-      if (item.sessionId === sessionId && item.paintingId === paintingId) {
-        this.cartItems.delete(id);
-        return true;
-      }
-    }
-    return false;
+    const item = Array.from(this.cartItems.values()).find(
+      item => item.sessionId === sessionId && item.paintingId === paintingId
+    );
+    
+    if (!item) return false;
+    
+    this.cartItems.delete(item.id);
+    return true;
   }
 
   async clearCart(sessionId: string): Promise<boolean> {
-    let removed = false;
-    for (const [id, item] of this.cartItems.entries()) {
-      if (item.sessionId === sessionId) {
-        this.cartItems.delete(id);
-        removed = true;
-      }
-    }
-    return removed;
-  }
-
-  // Review methods
-  async getReviewsByPaintingId(paintingId: string): Promise<Review[]> {
-    return Array.from(this.reviews.values()).filter(review => review.paintingId === paintingId);
-  }
-
-  async createReview(review: InsertReview): Promise<Review> {
-    const id = uuidv4();
-    const newReview: Review = { 
-      ...review, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.reviews.set(id, newReview);
-    
-    // Update painting rating
-    await this.updatePaintingRating(review.paintingId);
-    
-    return newReview;
-  }
-
-  async updatePaintingRating(paintingId: string): Promise<void> {
-    const reviews = await this.getReviewsByPaintingId(paintingId);
-    const painting = this.paintings.get(paintingId);
-    
-    if (!painting) return;
-    
-    if (reviews.length === 0) {
-      painting.averageRating = 0;
-      painting.totalReviews = 0;
-    } else {
-      const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-      painting.averageRating = Number((totalRating / reviews.length).toFixed(1));
-      painting.totalReviews = reviews.length;
-    }
-    
-    this.paintings.set(paintingId, painting);
-  }
-
-  // Wishlist methods
-  async getWishlistItems(sessionId: string): Promise<WishlistItem[]> {
-    return Array.from(this.wishlistItems.values()).filter(item => item.sessionId === sessionId);
-  }
-
-  async addToWishlist(wishlistItem: InsertWishlistItem): Promise<WishlistItem> {
-    const id = uuidv4();
-    const newWishlistItem: WishlistItem = { 
-      ...wishlistItem, 
-      id, 
-      createdAt: new Date() 
-    };
-    this.wishlistItems.set(id, newWishlistItem);
-    return newWishlistItem;
-  }
-
-  async removeFromWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const [id, item] of this.wishlistItems.entries()) {
-      if (item.sessionId === sessionId && item.paintingId === paintingId) {
-        this.wishlistItems.delete(id);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  async isInWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    for (const item of this.wishlistItems.values()) {
-      if (item.sessionId === sessionId && item.paintingId === paintingId) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Availability notification methods
-  async createAvailabilityNotification(notification: InsertAvailabilityNotification): Promise<AvailabilityNotification> {
-    const id = uuidv4();
-    const newNotification: AvailabilityNotification = { 
-      ...notification, 
-      id, 
-      notified: false,
-      createdAt: new Date() 
-    };
-    this.availabilityNotifications.set(id, newNotification);
-    return newNotification;
-  }
-
-  async getNotificationsByPaintingId(paintingId: string): Promise<AvailabilityNotification[]> {
-    return Array.from(this.availabilityNotifications.values()).filter(
-      notification => notification.paintingId === paintingId
+    const itemsToDelete = Array.from(this.cartItems.values()).filter(
+      item => item.sessionId === sessionId
     );
-  }
-
-  async markNotificationsSent(paintingId: string): Promise<void> {
-    for (const [id, notification] of this.availabilityNotifications.entries()) {
-      if (notification.paintingId === paintingId && !notification.notified) {
-        const updatedNotification = { ...notification, notified: true };
-        this.availabilityNotifications.set(id, updatedNotification);
-      }
-    }
+    
+    itemsToDelete.forEach(item => this.cartItems.delete(item.id));
+    return true;
   }
 }
 

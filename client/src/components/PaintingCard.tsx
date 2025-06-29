@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Eye, ShoppingBag, Check } from 'lucide-react';
+import { Eye, ShoppingBag, Check, Heart, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/utils';
+import { useApp } from '@/contexts/AppContext';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import type { Painting } from '@shared/schema';
 
 interface PaintingCardProps {
@@ -14,6 +17,38 @@ interface PaintingCardProps {
 
 export default function PaintingCard({ painting, onQuickView, onAddToCart }: PaintingCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { sessionId } = useApp();
+  const queryClient = useQueryClient();
+
+  // Check if painting is in wishlist
+  const { data: wishlistStatus } = useQuery({
+    queryKey: ['/api/wishlist', sessionId, painting.id, 'check'],
+    enabled: !!sessionId
+  });
+
+  // Wishlist mutations
+  const addToWishlistMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest('/api/wishlist', 'POST', {
+        sessionId,
+        paintingId: painting.id
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+    }
+  });
+
+  const removeFromWishlistMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest(`/api/wishlist/${sessionId}/${painting.id}`, 'DELETE');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/wishlist'] });
+    }
+  });
+
+  const isInWishlist = wishlistStatus?.isInWishlist === true;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -23,6 +58,36 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
   const handleQuickView = (e: React.MouseEvent) => {
     e.stopPropagation();
     onQuickView(painting);
+  };
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInWishlist) {
+      removeFromWishlistMutation.mutate();
+    } else {
+      addToWishlistMutation.mutate();
+    }
+  };
+
+  const renderStars = (rating: number) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Star key={i} className="w-3 h-3 fill-elegant-gold text-elegant-gold" />);
+    }
+    
+    if (hasHalfStar) {
+      stars.push(<Star key="half" className="w-3 h-3 fill-elegant-gold/50 text-elegant-gold" />);
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Star key={`empty-${i}`} className="w-3 h-3 text-sophisticated-gray/30" />);
+    }
+    
+    return stars;
   };
 
   return (
@@ -57,17 +122,29 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           </Button>
         </div>
         
-        <div className="absolute top-4 right-4">
-          {painting.salePrice && (
-            <Badge className="bg-elegant-gold text-rich-brown font-medium px-3 py-1">
-              Sale
-            </Badge>
-          )}
-          {painting.sold && (
-            <Badge className="bg-sophisticated-gray text-white font-medium px-3 py-1">
-              Sold
-            </Badge>
-          )}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleWishlistToggle}
+            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all ${
+              isInWishlist ? 'text-red-500' : 'text-sophisticated-gray hover:text-red-500'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current' : ''}`} />
+          </Button>
+          <div className="flex flex-col gap-1">
+            {painting.salePrice && (
+              <Badge className="bg-elegant-gold text-rich-brown font-medium px-3 py-1">
+                Sale
+              </Badge>
+            )}
+            {painting.sold && (
+              <Badge className="bg-sophisticated-gray text-white font-medium px-3 py-1">
+                Sold
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
       
