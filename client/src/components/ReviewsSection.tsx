@@ -25,8 +25,10 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
 
   // Fetch reviews for this painting
   const { data: reviews = [], isLoading } = useQuery({
-    queryKey: ['/api/paintings', painting.id, 'reviews']
+    queryKey: [`/api/paintings/${painting.id}/reviews`]
   });
+
+  console.log('Reviews data:', reviews, 'isLoading:', isLoading, 'paintingId:', painting.id);
 
   // Submit review mutation
   const submitReviewMutation = useMutation({
@@ -38,7 +40,7 @@ export default function ReviewsSection({ painting }: ReviewsSectionProps) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/paintings', painting.id, 'reviews'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/paintings/${painting.id}/reviews`] });
       queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
       setShowReviewForm(false);
       setRating(0);
