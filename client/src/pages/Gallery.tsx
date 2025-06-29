@@ -121,40 +121,6 @@ export default function Gallery() {
             Each piece is carefully selected for its artistic merit and timeless appeal.
           </p>
           
-          <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-sophisticated-gray">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-elegant-gold rounded-full"></div>
-              <span>Original & Reproduction Art</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-elegant-gold rounded-full"></div>
-              <span>Museum-Quality Printing</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-elegant-gold rounded-full"></div>
-              <span>Ready to Hang</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Featured Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-white/60 backdrop-blur-sm rounded-2xl p-8 border border-soft-taupe/30">
-          <div className="text-center">
-            <div className="text-2xl font-serif font-semibold text-rich-brown mb-1">{paintings.length}</div>
-            <div className="text-sm text-sophisticated-gray uppercase tracking-wide">Artworks</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-serif font-semibold text-rich-brown mb-1">{new Set(paintings.map(p => p.artist)).size}</div>
-            <div className="text-sm text-sophisticated-gray uppercase tracking-wide">Artists</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-serif font-semibold text-elegant-gold mb-1">{paintings.filter(p => p.salePrice).length}</div>
-            <div className="text-sm text-sophisticated-gray uppercase tracking-wide">On Sale</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-serif font-semibold text-rich-brown mb-1">{paintings.filter(p => !p.sold).length}</div>
-            <div className="text-sm text-sophisticated-gray uppercase tracking-wide">Available</div>
-          </div>
         </div>
       </section>
 

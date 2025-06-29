@@ -99,7 +99,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- June 29, 2025: **NEW** - Promotional Banner System
+- June 29, 2025: **NEW** - UI Improvements and Banner System
+  - Removed statistics and feature list from gallery hero section for cleaner design
+  - Updated promotional banner with navy blue color scheme for better aesthetics
   - Added dynamic promotional banner at top of website
   - July 4th banner with customizable text, colors, and activation
   - Admin panel integration for easy banner management
