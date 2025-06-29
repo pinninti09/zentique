@@ -5,6 +5,7 @@ import { AppProvider } from "./contexts/AppContext";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Navigation from "./components/Navigation";
+import PromoBanner from "./components/PromoBanner";
 import Gallery from "./pages/Gallery";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
@@ -29,6 +30,7 @@ function App() {
       <AppProvider>
         <TooltipProvider>
           <div className="min-h-screen bg-warm-cream">
+            <PromoBanner />
             <Navigation />
             <Router />
             

@@ -99,6 +99,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 29, 2025: **NEW** - Promotional Banner System
+  - Added dynamic promotional banner at top of website
+  - July 4th banner with customizable text, colors, and activation
+  - Admin panel integration for easy banner management
+  - User-dismissible banners with localStorage persistence
+  - API endpoints for banner CRUD operations
+
 - June 29, 2025: **COMPLETED** - Full-featured painting store with all functionality working
   - Beautiful emerald green "Add to Cart" buttons on all painting cards
   - Real-time cart updates with proper cache invalidation

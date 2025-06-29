@@ -28,6 +28,12 @@ export default function Admin() {
     year: '',
     artist: '',
   });
+
+  const [bannerForm, setBannerForm] = useState({
+    text: '',
+    backgroundColor: '#dc2626',
+    textColor: '#ffffff'
+  });
   const queryClient = useQueryClient();
 
   const { data: paintings = [] } = useQuery<Painting[]>({
@@ -56,6 +62,24 @@ export default function Admin() {
     },
     onError: () => {
       showToast('Failed to upload painting', 'error');
+    },
+  });
+
+  const updateBannerMutation = useMutation({
+    mutationFn: async (bannerData: any) => {
+      return apiRequest('/api/admin/banner', 'POST', bannerData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/banner/active'] });
+      showToast('Banner updated successfully!');
+      setBannerForm({
+        text: '',
+        backgroundColor: '#dc2626',
+        textColor: '#ffffff'
+      });
+    },
+    onError: () => {
+      showToast('Failed to update banner', 'error');
     },
   });
 
@@ -160,6 +184,55 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Banner Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Package className="mr-2" size={20} />
+              Promotional Banner
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="banner-text">Banner Text</Label>
+              <Textarea
+                id="banner-text"
+                placeholder="Enter promotional message (e.g., July 4th Special: 25% OFF All Paintings!)"
+                value={bannerForm.text}
+                onChange={(e) => setBannerForm({ ...bannerForm, text: e.target.value })}
+                className="min-h-[80px]"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="bg-color">Background Color</Label>
+                <Input
+                  id="bg-color"
+                  type="color"
+                  value={bannerForm.backgroundColor}
+                  onChange={(e) => setBannerForm({ ...bannerForm, backgroundColor: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="text-color">Text Color</Label>
+                <Input
+                  id="text-color"
+                  type="color"
+                  value={bannerForm.textColor}
+                  onChange={(e) => setBannerForm({ ...bannerForm, textColor: e.target.value })}
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => updateBannerMutation.mutate(bannerForm)}
+              disabled={updateBannerMutation.isPending || !bannerForm.text.trim()}
+              className="w-full bg-elegant-gold text-rich-brown hover:bg-rich-brown hover:text-white"
+            >
+              {updateBannerMutation.isPending ? 'Updating...' : 'Update Banner'}
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Upload New Painting */}
         <Card>
           <CardHeader>

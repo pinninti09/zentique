@@ -207,6 +207,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Banner routes
+  app.get('/api/banner/active', async (req, res) => {
+    try {
+      const banner = await storage.getActiveBanner();
+      if (!banner) {
+        return res.status(404).json({ message: 'No active banner found' });
+      }
+      res.json(banner);
+    } catch (error) {
+      console.error('Error fetching active banner:', error);
+      res.status(500).json({ message: 'Failed to fetch banner' });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/paintings", upload.single("imageFile"), async (req, res) => {
     try {
@@ -273,6 +287,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(painting);
     } catch (error) {
       res.status(500).json({ error: "Failed to update painting" });
+    }
+  });
+
+  // Admin banner management routes
+  app.post('/api/admin/banner', async (req, res) => {
+    try {
+      if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      // Deactivate all existing banners first
+      await storage.deactivateAllBanners();
+      
+      // Create new banner
+      const bannerData = {
+        text: req.body.text,
+        isActive: true,
+        backgroundColor: req.body.backgroundColor || "#dc2626",
+        textColor: req.body.textColor || "#ffffff"
+      };
+
+      const newBanner = await storage.createBanner(bannerData);
+      res.status(201).json(newBanner);
+    } catch (error) {
+      console.error('Error creating banner:', error);
+      res.status(500).json({ message: 'Failed to create banner' });
+    }
+  });
+
+  app.put('/api/admin/banner/:id', async (req, res) => {
+    try {
+      if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      const updates = {
+        text: req.body.text,
+        isActive: req.body.isActive,
+        backgroundColor: req.body.backgroundColor,
+        textColor: req.body.textColor
+      };
+
+      const updatedBanner = await storage.updateBanner(req.params.id, updates);
+      if (!updatedBanner) {
+        return res.status(404).json({ message: 'Banner not found' });
+      }
+      
+      res.json(updatedBanner);
+    } catch (error) {
+      console.error('Error updating banner:', error);
+      res.status(500).json({ message: 'Failed to update banner' });
     }
   });
 

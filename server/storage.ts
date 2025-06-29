@@ -4,6 +4,7 @@ import {
   reviews,
   wishlistItems,
   availabilityNotifications,
+  promoBanners,
   type Painting, 
   type InsertPainting, 
   type CartItem, 
@@ -15,7 +16,9 @@ import {
   type WishlistItem,
   type InsertWishlistItem,
   type AvailabilityNotification,
-  type InsertAvailabilityNotification
+  type InsertAvailabilityNotification,
+  type PromoBanner,
+  type InsertPromoBanner
 } from "@shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -53,6 +56,12 @@ export interface IStorage {
   createAvailabilityNotification(notification: InsertAvailabilityNotification): Promise<AvailabilityNotification>;
   getNotificationsByPaintingId(paintingId: string): Promise<AvailabilityNotification[]>;
   markNotificationsSent(paintingId: string): Promise<void>;
+
+  // Banner methods
+  getActiveBanner(): Promise<PromoBanner | undefined>;
+  createBanner(banner: InsertPromoBanner): Promise<PromoBanner>;
+  updateBanner(id: string, updates: Partial<PromoBanner>): Promise<PromoBanner | undefined>;
+  deactivateAllBanners(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -62,6 +71,7 @@ export class MemStorage implements IStorage {
   private reviews: Map<string, Review>;
   private wishlistItems: Map<string, WishlistItem>;
   private availabilityNotifications: Map<string, AvailabilityNotification>;
+  private banners: Map<string, PromoBanner>;
   private currentUserId: number;
 
   constructor() {
@@ -71,12 +81,24 @@ export class MemStorage implements IStorage {
     this.reviews = new Map();
     this.wishlistItems = new Map();
     this.availabilityNotifications = new Map();
+    this.banners = new Map();
     this.currentUserId = 1;
     
     this.initializeSampleData();
   }
 
   private initializeSampleData() {
+    // Initialize July 4th banner
+    const july4Banner: PromoBanner = {
+      id: "july4-2024",
+      text: "🇺🇸 July 4th Special: 25% OFF All Paintings! Use code JULY4 - Free Shipping on Orders Over $200",
+      isActive: true,
+      backgroundColor: "#dc2626",
+      textColor: "#ffffff",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.banners.set(july4Banner.id, july4Banner);
     // Sample paintings with ratings
     const samplePaintings: Painting[] = [
       {
@@ -418,6 +440,49 @@ export class MemStorage implements IStorage {
         const updatedNotification = { ...notification, notified: true };
         this.availabilityNotifications.set(id, updatedNotification);
       }
+    }
+  }
+
+  // Banner methods
+  async getActiveBanner(): Promise<PromoBanner | undefined> {
+    const bannerValues = Array.from(this.banners.values());
+    return bannerValues.find(banner => banner.isActive);
+  }
+
+  async createBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
+    const id = uuidv4();
+    const newBanner: PromoBanner = {
+      ...banner,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.banners.set(id, newBanner);
+    return newBanner;
+  }
+
+  async updateBanner(id: string, updates: Partial<PromoBanner>): Promise<PromoBanner | undefined> {
+    const banner = this.banners.get(id);
+    if (!banner) return undefined;
+    
+    const updatedBanner = { 
+      ...banner, 
+      ...updates, 
+      updatedAt: new Date() 
+    };
+    this.banners.set(id, updatedBanner);
+    return updatedBanner;
+  }
+
+  async deactivateAllBanners(): Promise<void> {
+    const bannerEntries = Array.from(this.banners.entries());
+    for (const [id, banner] of bannerEntries) {
+      const updatedBanner = { 
+        ...banner, 
+        isActive: false, 
+        updatedAt: new Date() 
+      };
+      this.banners.set(id, updatedBanner);
     }
   }
 }

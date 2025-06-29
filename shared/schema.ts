@@ -50,6 +50,16 @@ export const availabilityNotifications = pgTable("availability_notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const promoBanners = pgTable("promo_banners", {
+  id: text("id").primaryKey(),
+  text: text("text").notNull(),
+  isActive: boolean("is_active").default(true),
+  backgroundColor: text("background_color").default("#dc2626"),
+  textColor: text("text_color").default("#ffffff"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const paintingsRelations = relations(paintings, ({ many }) => ({
   reviews: many(reviews),
@@ -134,3 +144,13 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Promo Banner schemas and types
+export const insertPromoBannerSchema = createInsertSchema(promoBanners).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPromoBanner = z.infer<typeof insertPromoBannerSchema>;
+export type PromoBanner = typeof promoBanners.$inferSelect;
