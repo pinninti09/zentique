@@ -18,7 +18,7 @@ export default function Cart() {
   const queryClient = useQueryClient();
 
   const { data: cartItems = [], isLoading } = useQuery<CartItem[]>({
-    queryKey: ['/api/cart', sessionId],
+    queryKey: [`/api/cart/${sessionId}`],
     enabled: !!sessionId,
   });
 
@@ -31,7 +31,7 @@ export default function Cart() {
       return apiRequest('PUT', `/api/cart/${sessionId}/${paintingId}`, { quantity });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Cart updated!');
     },
     onError: () => {
@@ -44,7 +44,7 @@ export default function Cart() {
       return apiRequest('DELETE', `/api/cart/${sessionId}/${paintingId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Item removed from cart!');
     },
     onError: () => {
@@ -57,7 +57,7 @@ export default function Cart() {
       return apiRequest('DELETE', `/api/cart/${sessionId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Cart cleared!');
     },
     onError: () => {

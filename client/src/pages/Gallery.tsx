@@ -24,7 +24,7 @@ export default function Gallery() {
   });
 
   const { data: cartItems = [] } = useQuery({
-    queryKey: ['/api/cart', sessionId],
+    queryKey: [`/api/cart/${sessionId}`],
     enabled: !!sessionId,
   });
 
@@ -43,7 +43,7 @@ export default function Gallery() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart', sessionId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Painting added to cart!');
     },
     onError: () => {
