@@ -17,34 +17,34 @@ export default function Navigation() {
   ];
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white/98 backdrop-blur-sm shadow-sm border-b border-soft-taupe/30 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center group">
-            <h1 className="text-3xl font-bold text-charcoal cursor-pointer font-serif flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-elegant-gold to-yellow-600 rounded-xl flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-200">
-                <Palette className="text-white" size={20} />
+            <h1 className="text-2xl font-serif font-light text-rich-brown cursor-pointer flex items-center">
+              <div className="w-8 h-8 bg-elegant-gold rounded-md flex items-center justify-center mr-3 group-hover:bg-rich-brown transition-colors duration-200">
+                <Palette className="text-white" size={16} />
               </div>
               Atelier
             </h1>
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
                 <Button
                   variant="ghost"
-                  className={`relative px-4 py-2 rounded-xl transition-all duration-200 ${
+                  className={`relative px-4 py-2 rounded-md transition-all duration-200 font-medium text-sm ${
                     location === item.path 
-                      ? "bg-elegant-gold text-white shadow-md" 
-                      : "text-charcoal hover:bg-elegant-gold/10 hover:text-elegant-gold"
+                      ? "bg-elegant-gold/20 text-rich-brown" 
+                      : "text-sophisticated-gray hover:bg-elegant-gold/10 hover:text-rich-brown"
                   }`}
                 >
-                  <item.icon className="mr-2" size={18} />
+                  <item.icon className="mr-2" size={16} />
                   {item.label}
                   {item.badge && item.badge > 0 && (
-                    <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs h-6 w-6 flex items-center justify-center p-0 rounded-full shadow-lg">
+                    <Badge className="absolute -top-1 -right-1 bg-elegant-gold text-rich-brown text-xs h-5 w-5 flex items-center justify-center p-0 rounded-full font-medium">
                       {item.badge}
                     </Badge>
                   )}

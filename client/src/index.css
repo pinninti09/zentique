@@ -26,11 +26,14 @@
   --ring: hsl(222, 84%, 5%);
   --radius: 0.5rem;
   
-  /* Custom colors */
-  --charcoal: hsl(0, 0%, 10%);
-  --warm-white: hsl(210, 17%, 98%);
-  --elegant-gold: hsl(47, 100%, 44%);
-  --sophisticated-gray: hsl(210, 16%, 47%);
+  /* Custom colors - Ballard Designs inspired */
+  --charcoal: hsl(25, 8%, 20%);
+  --warm-white: hsl(45, 15%, 98%);
+  --elegant-gold: hsl(45, 75%, 65%);
+  --sophisticated-gray: hsl(25, 5%, 45%);
+  --warm-cream: hsl(45, 25%, 95%);
+  --rich-brown: hsl(25, 15%, 30%);
+  --soft-taupe: hsl(35, 10%, 75%);
 }
 
 .dark {

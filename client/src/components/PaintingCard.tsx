@@ -27,79 +27,87 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
 
   return (
     <Card 
-      className="painting-card group bg-white rounded-3xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1 cursor-pointer border border-gray-100"
+      className="painting-card group bg-white rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border border-soft-taupe/30"
       onClick={() => onQuickView(painting)}
     >
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-warm-cream/30">
         <img 
           src={painting.imageUrl} 
           alt={painting.title}
-          className={`w-full h-72 object-cover transition-all duration-500 group-hover:scale-110 ${
+          className={`w-full h-80 object-cover transition-all duration-300 group-hover:scale-105 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setImageLoaded(true)}
         />
         {!imageLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
-            <div className="text-gray-400 font-medium">Loading artwork...</div>
+          <div className="absolute inset-0 bg-warm-cream animate-pulse flex items-center justify-center">
+            <div className="text-sophisticated-gray font-light">Loading...</div>
           </div>
         )}
         
-        <div className="painting-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+        <div className="painting-overlay absolute inset-0 bg-rich-brown/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
           <Button
             variant="secondary"
             size="sm"
             onClick={handleQuickView}
-            className="bg-white/95 backdrop-blur-sm text-charcoal hover:bg-elegant-gold hover:text-white border-0 shadow-lg"
+            className="bg-white text-rich-brown hover:bg-elegant-gold hover:text-white border-0 shadow-lg font-medium"
           >
             <Eye className="mr-2" size={16} />
-            View Details
+            Quick View
           </Button>
         </div>
         
-        <div className="absolute top-4 right-4 flex flex-col space-y-2">
+        <div className="absolute top-4 right-4">
           {painting.salePrice && (
-            <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white font-medium px-3 py-1 shadow-md">
+            <Badge className="bg-elegant-gold text-rich-brown font-medium px-3 py-1">
               Sale
             </Badge>
           )}
           {painting.sold && (
-            <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white font-medium px-3 py-1 shadow-md">
+            <Badge className="bg-sophisticated-gray text-white font-medium px-3 py-1">
               Sold
             </Badge>
           )}
         </div>
       </div>
       
-      <CardContent className="p-6 space-y-4">
-        <div>
-          <h3 className="font-serif text-xl font-bold mb-1 text-charcoal group-hover:text-elegant-gold transition-colors duration-300">
+      <CardContent className="p-6 space-y-3">
+        <div className="border-b border-soft-taupe/20 pb-3">
+          <h3 className="font-serif text-lg font-medium mb-1 text-rich-brown leading-tight">
             {painting.title}
           </h3>
-          <p className="text-sm text-muted-foreground font-medium">
-            by {painting.artist || 'Unknown Artist'}
+          <p className="text-sm text-sophisticated-gray font-light">
+            {painting.artist || 'Unknown Artist'}
           </p>
         </div>
         
-        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-          {painting.description}
-        </p>
+        <div className="space-y-2">
+          <p className="text-sophisticated-gray text-sm leading-relaxed line-clamp-2 font-light">
+            {painting.description}
+          </p>
+          
+          <div className="flex items-center text-xs text-sophisticated-gray space-x-4">
+            <span>{painting.medium || 'Oil on Canvas'}</span>
+            <span>•</span>
+            <span>{painting.dimensions || '24" × 36"'}</span>
+          </div>
+        </div>
         
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center justify-between pt-4">
           <div className="pricing">
             {painting.salePrice ? (
-              <div className="flex flex-col">
-                <span className="text-gray-400 line-through text-sm">
+              <div>
+                <div className="text-sophisticated-gray line-through text-sm font-light">
                   {formatPrice(painting.price)}
-                </span>
-                <span className="text-2xl font-bold text-elegant-gold">
+                </div>
+                <div className="text-xl font-serif font-medium text-elegant-gold">
                   {formatPrice(painting.salePrice)}
-                </span>
+                </div>
               </div>
             ) : (
-              <span className="text-2xl font-bold text-charcoal">
+              <div className="text-xl font-serif font-medium text-rich-brown">
                 {formatPrice(painting.price)}
-              </span>
+              </div>
             )}
           </div>
           
@@ -108,8 +116,8 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
             disabled={painting.sold}
             size="sm"
             className={painting.sold ? 
-              "bg-gray-200 text-gray-500 cursor-not-allowed border-gray-200" : 
-              "bg-charcoal text-white hover:bg-elegant-gold hover:scale-105 transform transition-all duration-200 shadow-md"
+              "bg-soft-taupe/30 text-sophisticated-gray cursor-not-allowed" : 
+              "bg-rich-brown text-white hover:bg-elegant-gold hover:text-rich-brown transition-all duration-200 font-medium"
             }
           >
             {painting.sold ? (
