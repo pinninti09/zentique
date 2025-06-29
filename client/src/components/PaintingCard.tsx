@@ -186,7 +186,7 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           </div>
         </div>
         
-        <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center justify-between pt-4 gap-4">
           <div className="pricing">
             {painting.salePrice ? (
               <div>
@@ -207,10 +207,10 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           <Button
             onClick={handleAddToCart}
             disabled={painting.sold || false}
-            size="sm"
+            size="lg"
             className={painting.sold ? 
-              "bg-soft-taupe/30 text-sophisticated-gray cursor-not-allowed" : 
-              "bg-rich-brown text-white hover:bg-elegant-gold hover:text-rich-brown transition-all duration-200 font-medium"
+              "bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-3" : 
+              "bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 font-medium px-6 py-3 shadow-lg"
             }
           >
             {painting.sold ? (
