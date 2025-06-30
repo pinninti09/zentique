@@ -37,6 +37,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Corporate gifts routes
+  app.get("/api/corporate-gifts", async (req, res) => {
+    try {
+      const corporateGifts = await storage.getAllCorporateGifts();
+      res.json(corporateGifts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch corporate gifts" });
+    }
+  });
+
   // Cart routes
   app.get("/api/cart/:sessionId", async (req, res) => {
     try {

@@ -67,6 +67,9 @@ export interface IStorage {
   getActiveCorporateBanner(): Promise<PromoBanner | undefined>;
   createCorporateBanner(banner: InsertPromoBanner): Promise<PromoBanner>;
   deactivateAllCorporateBanners(): Promise<void>;
+
+  // Corporate gift methods
+  getAllCorporateGifts(): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -78,6 +81,7 @@ export class MemStorage implements IStorage {
   private availabilityNotifications: Map<string, AvailabilityNotification>;
   private banners: Map<string, PromoBanner>;
   private corporateBanners: Map<string, PromoBanner>;
+  private corporateGifts: Map<string, any>;
   private currentUserId: number;
 
   constructor() {
@@ -89,6 +93,7 @@ export class MemStorage implements IStorage {
     this.availabilityNotifications = new Map();
     this.banners = new Map();
     this.corporateBanners = new Map();
+    this.corporateGifts = new Map();
     this.currentUserId = 1;
     
     this.initializeSampleData();
@@ -118,6 +123,62 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.corporateBanners.set(corporateBanner.id, corporateBanner);
+
+    // Initialize sample corporate gifts
+    const sampleCorporateGifts = [
+      {
+        id: "corp-1",
+        title: "Premium Coffee Mug",
+        description: "High-quality ceramic mug perfect for daily use",
+        price: 24.99,
+        salePrice: null,
+        imageUrl: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        category: "Drinkware",
+        material: "Ceramic",
+        minQuantity: 1,
+        maxQuantity: 500
+      },
+      {
+        id: "corp-2",
+        title: "Corporate T-Shirt",
+        description: "Comfortable cotton t-shirt with custom branding",
+        price: 19.99,
+        salePrice: null,
+        imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        category: "Apparel",
+        material: "Cotton",
+        minQuantity: 1,
+        maxQuantity: 500
+      },
+      {
+        id: "corp-3",
+        title: "Branded Notebook",
+        description: "Professional notebook for meetings and notes",
+        price: 12.99,
+        salePrice: null,
+        imageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        category: "Office",
+        material: "Paper",
+        minQuantity: 1,
+        maxQuantity: 500
+      },
+      {
+        id: "corp-4",
+        title: "Water Bottle",
+        description: "Insulated water bottle with company logo",
+        price: 18.99,
+        salePrice: null,
+        imageUrl: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        category: "Drinkware",
+        material: "Stainless Steel",
+        minQuantity: 1,
+        maxQuantity: 500
+      }
+    ];
+    
+    sampleCorporateGifts.forEach(gift => {
+      this.corporateGifts.set(gift.id, gift);
+    });
 
     // Sample paintings with ratings
     const samplePaintings: Painting[] = [
@@ -553,6 +614,11 @@ export class MemStorage implements IStorage {
       };
       this.corporateBanners.set(id, updatedBanner);
     }
+  }
+
+  // Corporate gift methods
+  async getAllCorporateGifts(): Promise<any[]> {
+    return Array.from(this.corporateGifts.values());
   }
 }
 
