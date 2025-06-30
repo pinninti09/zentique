@@ -100,7 +100,18 @@ Preferred communication style: Simple, everyday language.
 ## Checkpoint: gallery-complete (June 30, 2025)
 **Stable release point with full functionality working**
 
+## Checkpoint: corporate-sales-completed (June 30, 2025)
+**Stable release point with dual-purpose platform complete - art gallery and corporate gifting with comprehensive admin management**
+
 ## Recent Changes
+
+- June 30, 2025: **NEW** - Corporate Sales Overview Tab in Admin Panel
+  - Added tabbed interface to admin panel with Gallery Management and Corporate Sales sections
+  - Implemented comprehensive corporate metrics dashboard showing revenue, orders, and client tracking
+  - Created recent corporate orders section with collapsible functionality and order status tracking
+  - Added performance insights highlighting peak seasons, bulk order success, and growth opportunities
+  - Included top corporate products analytics showing best-selling items and revenue breakdown
+  - Enhanced admin workflow with dual-purpose management for both art gallery and corporate gifting operations
 
 - June 30, 2025: **NEW** - Enhanced Admin Panel with Artist Information
   - Added comprehensive artist fields to painting upload: biography, photo URL, born year, awards/recognitions
