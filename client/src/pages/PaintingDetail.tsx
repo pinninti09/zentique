@@ -17,7 +17,7 @@ interface PaintingDetailProps {
 
 export default function PaintingDetail({ params }: PaintingDetailProps) {
   const [, setLocation] = useLocation();
-  const { sessionId, showToast } = useApp();
+  const { sessionId, showToast, setCartCount } = useApp();
   const queryClient = useQueryClient();
 
   const { data: painting, isLoading } = useQuery<Painting>({
@@ -58,9 +58,17 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         quantity: 1,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       console.log('Add to cart success:', data);
-      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+      await queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+      
+      // Update cart count
+      const updatedCartItems = await queryClient.fetchQuery({
+        queryKey: [`/api/cart/${sessionId}`],
+      }) as CartItem[];
+      const totalQuantity = updatedCartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+      setCartCount(totalQuantity);
+      
       showToast('Added to cart successfully!', 'success');
     },
     onError: (error) => {
@@ -82,8 +90,15 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'PUT', { quantity: newQuantity });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+      
+      // Update cart count
+      const updatedCartItems = await queryClient.fetchQuery({
+        queryKey: [`/api/cart/${sessionId}`],
+      }) as CartItem[];
+      const totalQuantity = updatedCartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+      setCartCount(totalQuantity);
     },
     onError: (error) => {
       console.error('Error updating cart:', error);
@@ -95,8 +110,16 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
     mutationFn: async (paintingId: string) => {
       return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'DELETE');
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+      
+      // Update cart count
+      const updatedCartItems = await queryClient.fetchQuery({
+        queryKey: [`/api/cart/${sessionId}`],
+      }) as CartItem[];
+      const totalQuantity = updatedCartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+      setCartCount(totalQuantity);
+      
       showToast('Removed from cart', 'success');
     },
     onError: (error) => {
