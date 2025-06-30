@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut, Building2, Gift, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
+import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut, Building2, Gift, Megaphone, ChevronDown, ChevronUp, TrendingUp, Users, Target, Award } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -79,7 +79,10 @@ export default function Admin() {
     paintingManagement: false,
     corporateManagement: false,
     analytics: false,
+    corporateSales: false,
   });
+
+  const [activeTab, setActiveTab] = useState<'gallery' | 'corporate'>('gallery');
   const queryClient = useQueryClient();
 
   const { data: paintings = [] } = useQuery<Painting[]>({
@@ -288,6 +291,17 @@ export default function Admin() {
   const paintingsSold = paintings.filter(p => p.sold).length;
   const activePaintings = paintings.filter(p => !p.sold).length;
 
+  // Corporate Sales Data (sample)
+  const corporateOrders = [
+    { id: 'corp-001', company: 'TechFlow Solutions', amount: 2249.00, status: 'delivered', date: '2024-12-28' },
+    { id: 'corp-002', company: 'Creative Agency LLC', amount: 1299.00, status: 'processing', date: '2024-12-29' },
+    { id: 'corp-003', company: 'Global Enterprises', amount: 8796.00, status: 'shipped', date: '2024-12-30' }
+  ];
+  
+  const corporateRevenue = corporateOrders.reduce((sum, order) => sum + order.amount, 0);
+  const corporateOrdersCount = corporateOrders.length;
+  const uniqueCompanies = new Set(corporateOrders.map(order => order.company)).size;
+
   if (!adminToken) {
     return (
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -323,15 +337,39 @@ export default function Admin() {
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-serif font-bold text-charcoal">Admin Dashboard</h2>
+        <div>
+          <h2 className="text-3xl font-serif font-bold text-charcoal">Admin Dashboard</h2>
+          {/* Tab Navigation */}
+          <div className="flex space-x-4 mt-4">
+            <Button
+              variant={activeTab === 'gallery' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('gallery')}
+              className="flex items-center"
+            >
+              <Package className="mr-2" size={16} />
+              Gallery Management
+            </Button>
+            <Button
+              variant={activeTab === 'corporate' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('corporate')}
+              className="flex items-center"
+            >
+              <Building2 className="mr-2" size={16} />
+              Corporate Sales
+            </Button>
+          </div>
+        </div>
         <Button onClick={handleLogout} variant="outline">
           <LogOut className="mr-2" size={16} />
           Logout
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Gallery Banner Management */}
+      {/* Gallery Management Tab */}
+      {activeTab === 'gallery' && (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Gallery Banner Management */}
         <Card>
           <CardHeader>
             <CardTitle 
@@ -971,6 +1009,181 @@ export default function Admin() {
           </CardContent>
         )}
       </Card>
+        </>
+      )}
+
+      {/* Corporate Sales Overview Tab */}
+      {activeTab === 'corporate' && (
+        <>
+          {/* Corporate Sales Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Corporate Revenue</p>
+                    <p className="text-2xl font-bold text-green-600">{formatPrice(corporateRevenue)}</p>
+                  </div>
+                  <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  <span className="text-green-600">+12.5%</span> from last month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Corporate Orders</p>
+                    <p className="text-2xl font-bold text-blue-600">{corporateOrdersCount}</p>
+                  </div>
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Package className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  <span className="text-blue-600">+8.3%</span> from last month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active Clients</p>
+                    <p className="text-2xl font-bold text-purple-600">{uniqueCompanies}</p>
+                  </div>
+                  <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  <span className="text-purple-600">+2</span> new this month
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Corporate Orders and Insights */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Recent Corporate Orders */}
+            <Card>
+              <CardHeader>
+                <CardTitle 
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => toggleSection('corporateSales')}
+                >
+                  <div className="flex items-center">
+                    <Package className="mr-2" size={20} />
+                    Recent Corporate Orders
+                  </div>
+                  {collapsedSections.corporateSales ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                </CardTitle>
+              </CardHeader>
+              {!collapsedSections.corporateSales && (
+                <CardContent>
+                  <div className="space-y-4">
+                    {corporateOrders.map((order) => (
+                      <div key={order.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <h4 className="font-semibold text-charcoal">{order.company}</h4>
+                            <p className="text-sm text-muted-foreground">Order #{order.id}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-green-600">{formatPrice(order.amount)}</p>
+                            <Badge className={
+                              order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                              order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                              order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }>
+                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </Badge>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Order Date: {new Date(order.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Performance Insights */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="mr-2" size={20} />
+                  Performance Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-medium text-blue-800 mb-2">Peak Season Performance</h4>
+                    <p className="text-sm text-blue-700">December orders up 45% - holiday corporate gifting surge</p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <h4 className="font-medium text-green-800 mb-2">Bulk Order Success</h4>
+                    <p className="text-sm text-green-700">Average bulk discount: 20% driving larger order volumes</p>
+                  </div>
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <h4 className="font-medium text-purple-800 mb-2">Client Retention</h4>
+                    <p className="text-sm text-purple-700">67% repeat customer rate in corporate segment</p>
+                  </div>
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <h4 className="font-medium text-orange-800 mb-2">Growth Opportunity</h4>
+                    <p className="text-sm text-orange-700">Tech companies show highest order values - expand outreach</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Top Products */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Award className="mr-2" size={20} />
+                Top Corporate Products
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Premium Coffee Mug</p>
+                    <p className="text-sm text-muted-foreground">250 units sold</p>
+                  </div>
+                  <p className="font-semibold text-green-600">{formatPrice(6247.50)}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Water Bottle</p>
+                    <p className="text-sm text-muted-foreground">200 units sold</p>
+                  </div>
+                  <p className="font-semibold text-green-600">{formatPrice(3798.00)}</p>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium">Branded Notebook</p>
+                    <p className="text-sm text-muted-foreground">100 units sold</p>
+                  </div>
+                  <p className="font-semibold text-green-600">{formatPrice(1299.00)}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </section>
   );
 }
