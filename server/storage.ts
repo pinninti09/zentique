@@ -62,6 +62,11 @@ export interface IStorage {
   createBanner(banner: InsertPromoBanner): Promise<PromoBanner>;
   updateBanner(id: string, updates: Partial<PromoBanner>): Promise<PromoBanner | undefined>;
   deactivateAllBanners(): Promise<void>;
+
+  // Corporate banner methods
+  getActiveCorporateBanner(): Promise<PromoBanner | undefined>;
+  createCorporateBanner(banner: InsertPromoBanner): Promise<PromoBanner>;
+  deactivateAllCorporateBanners(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -72,6 +77,7 @@ export class MemStorage implements IStorage {
   private wishlistItems: Map<string, WishlistItem>;
   private availabilityNotifications: Map<string, AvailabilityNotification>;
   private banners: Map<string, PromoBanner>;
+  private corporateBanners: Map<string, PromoBanner>;
   private currentUserId: number;
 
   constructor() {
@@ -82,6 +88,7 @@ export class MemStorage implements IStorage {
     this.wishlistItems = new Map();
     this.availabilityNotifications = new Map();
     this.banners = new Map();
+    this.corporateBanners = new Map();
     this.currentUserId = 1;
     
     this.initializeSampleData();
@@ -99,6 +106,19 @@ export class MemStorage implements IStorage {
       updatedAt: new Date()
     };
     this.banners.set(july4Banner.id, july4Banner);
+
+    // Initialize corporate banner
+    const corporateBanner: PromoBanner = {
+      id: "corporate-2024",
+      text: "🎁 Corporate Gifting: Strengthen workplace relationships with meaningful gifts that show you value your team",
+      isActive: true,
+      backgroundColor: "#1e40af",
+      textColor: "#ffffff",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.corporateBanners.set(corporateBanner.id, corporateBanner);
+
     // Sample paintings with ratings
     const samplePaintings: Painting[] = [
       {
@@ -502,6 +522,36 @@ export class MemStorage implements IStorage {
         updatedAt: new Date() 
       };
       this.banners.set(id, updatedBanner);
+    }
+  }
+
+  // Corporate banner methods
+  async getActiveCorporateBanner(): Promise<PromoBanner | undefined> {
+    const bannerEntries = Array.from(this.corporateBanners.values());
+    return bannerEntries.find(banner => banner.isActive);
+  }
+
+  async createCorporateBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
+    const id = `corp-banner-${Date.now()}`;
+    const newBanner: PromoBanner = {
+      id,
+      ...banner,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.corporateBanners.set(id, newBanner);
+    return newBanner;
+  }
+
+  async deactivateAllCorporateBanners(): Promise<void> {
+    const bannerEntries = Array.from(this.corporateBanners.entries());
+    for (const [id, banner] of bannerEntries) {
+      const updatedBanner = { 
+        ...banner, 
+        isActive: false, 
+        updatedAt: new Date() 
+      };
+      this.corporateBanners.set(id, updatedBanner);
     }
   }
 }

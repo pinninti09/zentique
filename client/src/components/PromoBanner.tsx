@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useLocation } from 'wouter';
 
 interface BannerData {
   id: string;
@@ -14,10 +15,15 @@ interface BannerData {
 
 export default function PromoBanner() {
   const [isVisible, setIsVisible] = useState(true);
+  const [location] = useLocation();
 
-  // Fetch active banner from API
+  // Determine which banner to show based on current page
+  const isCorporatePage = location.includes('/corporate-gifting');
+  const bannerEndpoint = isCorporatePage ? '/api/corporate-banner/active' : '/api/banner/active';
+
+  // Fetch appropriate banner from API
   const { data: banner } = useQuery<BannerData>({
-    queryKey: ['/api/banner/active']
+    queryKey: [bannerEndpoint]
   });
 
   if (!isVisible || !banner || !banner.isActive) return null;

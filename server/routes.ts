@@ -221,6 +221,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/corporate-banner/active', async (req, res) => {
+    try {
+      const banner = await storage.getActiveCorporateBanner();
+      if (!banner) {
+        return res.status(404).json({ message: 'No active corporate banner found' });
+      }
+      res.json(banner);
+    } catch (error) {
+      console.error('Error fetching active corporate banner:', error);
+      res.status(500).json({ message: 'Failed to fetch corporate banner' });
+    }
+  });
+
   // Admin routes
   app.post("/api/admin/paintings", upload.single("imageFile"), async (req, res) => {
     try {
@@ -340,6 +353,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating banner:', error);
       res.status(500).json({ message: 'Failed to update banner' });
+    }
+  });
+
+  // Corporate banner management routes
+  app.post('/api/admin/corporate-banner', async (req, res) => {
+    try {
+      if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      // Deactivate all existing corporate banners first
+      await storage.deactivateAllCorporateBanners();
+      
+      // Create new corporate banner
+      const bannerData = {
+        text: req.body.text,
+        isActive: true,
+        backgroundColor: req.body.backgroundColor || "#1e40af",
+        textColor: req.body.textColor || "#ffffff"
+      };
+
+      const newBanner = await storage.createCorporateBanner(bannerData);
+      res.status(201).json(newBanner);
+    } catch (error) {
+      console.error('Error creating corporate banner:', error);
+      res.status(500).json({ message: 'Failed to create corporate banner' });
     }
   });
 
