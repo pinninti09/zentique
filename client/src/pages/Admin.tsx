@@ -67,6 +67,7 @@ export default function Admin() {
     price: '',
     salePrice: '',
     imageUrl: '',
+    imageFile: null as File | null,
     category: '',
     material: '',
     minQuantity: '1',
@@ -179,11 +180,18 @@ export default function Admin() {
         price: '',
         salePrice: '',
         imageUrl: '',
+        imageFile: null,
         category: '',
         material: '',
         minQuantity: '1',
         maxQuantity: '500',
       });
+      
+      // Reset file input
+      const fileInput = document.getElementById('gift-imageFile') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
     },
     onError: () => {
       showToast('Failed to add corporate gift', 'error');
@@ -257,12 +265,24 @@ export default function Admin() {
       return;
     }
 
+    if (!giftForm.imageUrl && !giftForm.imageFile) {
+      showToast('Please provide either an image URL or upload an image file', 'error');
+      return;
+    }
+
     const formData = new FormData();
+    
+    // Add all form fields except files
     Object.entries(giftForm).forEach(([key, value]) => {
-      if (value) {
-        formData.append(key, value);
+      if (value && key !== 'imageFile') {
+        formData.append(key, value.toString());
       }
     });
+
+    // Add image file if provided
+    if (giftForm.imageFile) {
+      formData.append('imageFile', giftForm.imageFile);
+    }
 
     uploadGiftMutation.mutate(formData);
   };
@@ -572,14 +592,39 @@ export default function Admin() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="gift-imageUrl">Image URL</Label>
-                <Input
-                  id="gift-imageUrl"
-                  placeholder="https://example.com/corporate-gift.jpg"
-                  value={giftForm.imageUrl}
-                  onChange={(e) => setGiftForm({ ...giftForm, imageUrl: e.target.value })}
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="gift-imageUrl">Image URL (or upload file below)</Label>
+                  <Input
+                    id="gift-imageUrl"
+                    placeholder="https://example.com/corporate-gift.jpg"
+                    value={giftForm.imageUrl}
+                    onChange={(e) => setGiftForm({ ...giftForm, imageUrl: e.target.value })}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="gift-imageFile">Or Upload Image File</Label>
+                  <Input
+                    id="gift-imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setGiftForm(prev => ({ ...prev, imageFile: file }));
+                      if (file) {
+                        // Clear URL if file is selected
+                        setGiftForm(prev => ({ ...prev, imageUrl: '' }));
+                      }
+                    }}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                  />
+                  {giftForm.imageFile && (
+                    <p className="text-sm text-green-600 mt-1">
+                      Selected: {giftForm.imageFile.name}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4">

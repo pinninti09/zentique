@@ -9,7 +9,7 @@ import {
   insertAvailabilityNotificationSchema 
 } from "@shared/schema";
 import { z } from "zod";
-import { upload, uploadArtistPhoto } from "./cloudinary";
+import { upload, uploadArtistPhoto, uploadCorporateGift } from "./cloudinary";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "secure-admin-token";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -400,6 +400,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error updating banner:', error);
       res.status(500).json({ message: 'Failed to update banner' });
+    }
+  });
+
+  // Corporate gifts management routes
+  app.post("/api/admin/corporate-gifts", uploadCorporateGift.single("imageFile"), async (req, res) => {
+    try {
+      if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      // Get image URL from Cloudinary upload or use provided URL
+      let imageUrl = req.body.imageUrl;
+      
+      if (req.file) {
+        // File was uploaded to Cloudinary, use the secure URL
+        imageUrl = (req.file as any).path;
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image is required (either upload file or provide URL)" });
+      }
+
+      const giftData = {
+        title: req.body.title,
+        description: req.body.description,
+        price: parseFloat(req.body.price),
+        salePrice: req.body.salePrice ? parseFloat(req.body.salePrice) : null,
+        imageUrl: imageUrl,
+        category: req.body.category || "Corporate Gift",
+        material: req.body.material || "Premium Quality",
+        minQuantity: req.body.minQuantity ? parseInt(req.body.minQuantity) : 1,
+        maxQuantity: req.body.maxQuantity ? parseInt(req.body.maxQuantity) : 500,
+      };
+
+      // Since we don't have a corporate gifts schema yet, we'll store it as a basic object
+      // This can be enhanced with proper database schema later
+      const gift = {
+        id: `corp-gift-${Date.now()}`,
+        ...giftData,
+        createdAt: new Date().toISOString(),
+      };
+
+      res.json(gift);
+    } catch (error) {
+      console.error("Error creating corporate gift:", error);
+      res.status(500).json({ error: "Failed to create corporate gift" });
     }
   });
 

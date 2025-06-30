@@ -52,6 +52,27 @@ const artistStorage = new CloudinaryStorage({
   },
 });
 
+// Configure Cloudinary storage for Corporate Gifts
+const corporateGiftStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: 'atelier-gallery/corporate-gifts', // Organize uploads in a folder
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'], // Restrict file types
+      transformation: [
+        {
+          width: 800,
+          height: 800,
+          crop: 'limit',
+          quality: 'auto:good',
+          format: 'auto'
+        }
+      ],
+      public_id: `corporate-gift-${Date.now()}`, // Unique filename
+    };
+  },
+});
+
 // Configure multer with Cloudinary storage for paintings
 export const upload = multer({
   storage: paintingStorage,
@@ -74,6 +95,23 @@ export const uploadArtistPhoto = multer({
   storage: artistStorage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit for artist photos
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      const error = new Error('Only image files are allowed!') as any;
+      cb(error);
+    }
+  },
+});
+
+// Configure multer with Cloudinary storage for corporate gifts
+export const uploadCorporateGift = multer({
+  storage: corporateGiftStorage,
+  limits: {
+    fileSize: 8 * 1024 * 1024, // 8MB limit for corporate gift images
   },
   fileFilter: (req, file, cb) => {
     // Check file type
