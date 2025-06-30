@@ -97,6 +97,9 @@ Atelier is a full-stack painting gallery application built with React, Express.j
 
 Preferred communication style: Simple, everyday language.
 
+## Checkpoint: gallery-complete (June 30, 2025)
+**Stable release point with full functionality working**
+
 ## Recent Changes
 
 - June 30, 2025: **COMPLETED** - Size and Frame Dropdown Functionality
