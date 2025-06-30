@@ -35,11 +35,12 @@ export default function PaintingDetailModal({
     enabled: !!sessionId,
   });
 
-  const { data: isInWishlist = false } = useQuery<{ isInWishlist: boolean }>({
+  const { data: wishlistData } = useQuery<{ isInWishlist: boolean }>({
     queryKey: [`/api/wishlist/${sessionId}/${painting?.id}/check`],
     enabled: !!sessionId && !!painting?.id,
-    select: (data) => data.isInWishlist,
   });
+
+  const isInWishlist = wishlistData?.isInWishlist ?? false;
 
   const addToCartMutation = useMutation({
     mutationFn: async () => {

@@ -34,22 +34,32 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
     enabled: !!sessionId,
   });
 
-  const { data: isInWishlist = false } = useQuery<{ isInWishlist: boolean }>({
+  const { data: wishlistData } = useQuery<{ isInWishlist: boolean }>({
     queryKey: [`/api/wishlist/${sessionId}/${params.id}/check`],
     enabled: !!sessionId && !!params.id,
-    select: (data) => data.isInWishlist,
   });
+
+  const isInWishlist = wishlistData?.isInWishlist ?? false;
 
   const addToCartMutation = useMutation({
     mutationFn: async () => {
-      if (!painting) return;
+      if (!painting) {
+        console.error('No painting data available');
+        throw new Error('No painting data available');
+      }
+      if (!sessionId) {
+        console.error('No session ID available');
+        throw new Error('No session ID available');
+      }
+      console.log('Adding to cart:', { sessionId, paintingId: painting.id, quantity: 1 });
       return apiRequest('POST', '/api/cart', {
         sessionId,
         paintingId: painting.id,
         quantity: 1,
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Add to cart success:', data);
       queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Added to cart successfully!', 'success');
     },
@@ -97,7 +107,20 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
 
   const toggleWishlistMutation = useMutation({
     mutationFn: async () => {
-      if (!painting) return;
+      if (!painting) {
+        console.error('No painting data available for wishlist');
+        throw new Error('No painting data available');
+      }
+      if (!sessionId) {
+        console.error('No session ID available for wishlist');
+        throw new Error('No session ID available');
+      }
+      
+      console.log('Toggling wishlist:', { 
+        sessionId, 
+        paintingId: painting.id, 
+        currentlyInWishlist: isInWishlist 
+      });
       
       if (isInWishlist) {
         return apiRequest('DELETE', `/api/wishlist/${sessionId}/${painting.id}`);
@@ -108,7 +131,8 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Wishlist toggle success:', data);
       queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}/${params.id}/check`] });
       showToast(isInWishlist ? 'Removed from wishlist' : 'Added to wishlist', 'success');
     },
