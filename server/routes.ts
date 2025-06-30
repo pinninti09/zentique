@@ -8,10 +8,8 @@ import {
   insertWishlistItemSchema,
   insertAvailabilityNotificationSchema 
 } from "@shared/schema";
-import multer from "multer";
 import { z } from "zod";
-
-const upload = multer({ storage: multer.memoryStorage() });
+import { upload, uploadArtistPhoto } from "./cloudinary";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "secure-admin-token";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -251,17 +249,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ error: "Unauthorized" });
       }
 
+      // Get image URL from Cloudinary upload or use provided URL
+      let imageUrl = req.body.imageUrl;
+      
+      if (req.file) {
+        // File was uploaded to Cloudinary, use the secure URL
+        imageUrl = (req.file as any).path;
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Image is required (either upload file or provide URL)" });
+      }
+
       const paintingData = {
         title: req.body.title,
         description: req.body.description,
         price: parseFloat(req.body.price),
         salePrice: req.body.salePrice ? parseFloat(req.body.salePrice) : null,
-        imageUrl: req.body.imageUrl || "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+        imageUrl: imageUrl,
         sold: false,
         medium: req.body.medium || "Oil on Canvas",
         dimensions: req.body.dimensions || "24\" × 36\"",
         year: req.body.year ? parseInt(req.body.year) : new Date().getFullYear(),
         artist: req.body.artist || "Unknown Artist",
+        artistBio: req.body.artistBio,
+        artistPhotoUrl: req.body.artistPhotoUrl,
+        artistBornYear: req.body.artistBornYear ? parseInt(req.body.artistBornYear) : null,
+        artistAwards: req.body.artistAwards,
         availableSizes: req.body.availableSizes ? JSON.parse(req.body.availableSizes) : [],
         availableFrames: req.body.availableFrames ? JSON.parse(req.body.availableFrames) : []
       };
@@ -272,9 +286,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(painting);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid painting data" });
+        return res.status(400).json({ error: "Invalid painting data", details: error.errors });
       }
+      console.error("Error creating painting:", error);
       res.status(500).json({ error: "Failed to create painting" });
+    }
+  });
+
+  // Artist photo upload route
+  app.post("/api/admin/upload-artist-photo", uploadArtistPhoto.single("artistPhoto"), async (req, res) => {
+    try {
+      if (req.headers.authorization !== `Bearer ${ADMIN_TOKEN}`) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      // Return the Cloudinary URL
+      res.json({ 
+        imageUrl: (req.file as any).path,
+        publicId: (req.file as any).filename
+      });
+    } catch (error) {
+      console.error("Error uploading artist photo:", error);
+      res.status(500).json({ error: "Failed to upload artist photo" });
     }
   });
 

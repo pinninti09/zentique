@@ -24,14 +24,16 @@ export default function Admin() {
     price: '',
     salePrice: '',
     imageUrl: '',
+    imageFile: null as File | null,
     medium: '',
     dimensions: '',
     year: '',
     artist: '',
     artistBio: '',
-    artistImageUrl: '',
+    artistPhotoUrl: '',
+    artistPhotoFile: null as File | null,
     artistBornYear: '',
-    artistRecognitions: '',
+    artistAwards: '',
     availableSizes: [] as string[],
     availableFrames: [] as string[],
   });
@@ -109,14 +111,16 @@ export default function Admin() {
         price: '',
         salePrice: '',
         imageUrl: '',
+        imageFile: null,
         medium: '',
         dimensions: '',
         year: '',
         artist: '',
         artistBio: '',
-        artistImageUrl: '',
+        artistPhotoUrl: '',
+        artistPhotoFile: null,
         artistBornYear: '',
-        artistRecognitions: '',
+        artistAwards: '',
         availableSizes: [],
         availableFrames: [],
       });
@@ -221,16 +225,28 @@ export default function Admin() {
       return;
     }
 
+    if (!uploadForm.imageUrl && !uploadForm.imageFile) {
+      showToast('Please provide either an image URL or upload an image file', 'error');
+      return;
+    }
+
     const formData = new FormData();
+    
+    // Add all form fields except files
     Object.entries(uploadForm).forEach(([key, value]) => {
-      if (value) {
+      if (value && key !== 'imageFile' && key !== 'artistPhotoFile') {
         if (Array.isArray(value)) {
           formData.append(key, JSON.stringify(value));
         } else {
-          formData.append(key, value);
+          formData.append(key, value.toString());
         }
       }
     });
+
+    // Add image file if provided
+    if (uploadForm.imageFile) {
+      formData.append('imageFile', uploadForm.imageFile);
+    }
 
     uploadPaintingMutation.mutate(formData);
   };
@@ -676,12 +692,12 @@ export default function Admin() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="artistImageUrl">Artist Photo URL</Label>
+                    <Label htmlFor="artistPhotoUrl">Artist Photo URL</Label>
                     <Input
-                      id="artistImageUrl"
+                      id="artistPhotoUrl"
                       placeholder="https://example.com/artist-photo.jpg"
-                      value={uploadForm.artistImageUrl}
-                      onChange={(e) => handleInputChange('artistImageUrl', e.target.value)}
+                      value={uploadForm.artistPhotoUrl}
+                      onChange={(e) => handleInputChange('artistPhotoUrl', e.target.value)}
                     />
                   </div>
                   <div>
@@ -699,10 +715,10 @@ export default function Admin() {
                 <div>
                   <Label htmlFor="artistRecognitions">Awards & Recognitions</Label>
                   <Textarea
-                    id="artistRecognitions"
+                    id="artistAwards"
                     placeholder="List major awards, exhibitions, or recognitions (e.g., 'Winner of the 2023 National Art Award, Featured in Metropolitan Museum')"
-                    value={uploadForm.artistRecognitions}
-                    onChange={(e) => handleInputChange('artistRecognitions', e.target.value)}
+                    value={uploadForm.artistAwards}
+                    onChange={(e) => handleInputChange('artistAwards', e.target.value)}
                     rows={3}
                   />
                 </div>
@@ -732,14 +748,39 @@ export default function Admin() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input
-                id="imageUrl"
-                placeholder="https://example.com/image.jpg"
-                value={uploadForm.imageUrl}
-                onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-              />
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="imageUrl">Image URL (or upload file below)</Label>
+                <Input
+                  id="imageUrl"
+                  placeholder="https://example.com/image.jpg"
+                  value={uploadForm.imageUrl}
+                  onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="imageFile">Or Upload Image File</Label>
+                <Input
+                  id="imageFile"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    setUploadForm(prev => ({ ...prev, imageFile: file }));
+                    if (file) {
+                      // Clear URL if file is selected
+                      setUploadForm(prev => ({ ...prev, imageUrl: '' }));
+                    }
+                  }}
+                  className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                {uploadForm.imageFile && (
+                  <p className="text-sm text-green-600 mt-1">
+                    Selected: {uploadForm.imageFile.name}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">

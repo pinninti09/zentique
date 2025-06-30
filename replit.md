@@ -111,6 +111,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Hybrid Architecture with Cloudinary Integration
+  - Implemented production-ready hybrid architecture with Neon PostgreSQL for data and Cloudinary for images
+  - Added Cloudinary configuration with automatic image optimization and CDN delivery
+  - Created separate storage folders for paintings and artist photos with optimized transformations
+  - Updated admin panel with file upload capabilities alongside URL inputs
+  - Added painting image upload (10MB limit, 1200x900 optimization) and artist photo upload (5MB limit, 400x400 with face detection)
+  - Enhanced production scalability with 25GB free image storage and global CDN performance
+  - Maintains existing database structure while enabling unlimited high-resolution artwork storage
+
 - June 30, 2025: **NEW** - Artists Page Implementation
   - Created comprehensive Artists page accessible via `/artists` route
   - Displays all artists with professional photos, biographical information, birth years, and awards
