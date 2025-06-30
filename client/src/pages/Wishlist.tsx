@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Heart, ShoppingBag, Trash2, Eye } from 'lucide-react';
+import { Heart, ShoppingBag, Trash2, Eye, ShoppingCart, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -68,7 +69,7 @@ export default function Wishlist() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
       showToast('Added to cart', 'success');
     },
     onError: () => {
@@ -237,6 +238,24 @@ export default function Wishlist() {
           </div>
         )}
       </div>
+
+      {/* Floating Cart Button */}
+      {cartItems.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Link href="/cart">
+            <Button
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full px-6 py-4 flex items-center gap-3"
+            >
+              <ShoppingCart size={20} />
+              <span className="font-medium">
+                View Cart ({cartItems.reduce((sum: any, item: any) => sum + item.quantity, 0)})
+              </span>
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Painting Detail Modal */}
       <PaintingDetailModal
