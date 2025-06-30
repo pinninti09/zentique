@@ -114,7 +114,9 @@ export class MemStorage implements IStorage {
         year: 2024,
         artist: "Elena Rodriguez",
         averageRating: 4.8,
-        totalReviews: 12
+        totalReviews: 12,
+        availableSizes: ["16\" x 20\"", "20\" x 24\"", "24\" x 30\"", "30\" x 40\""],
+        availableFrames: ["Frameless Stretch", "Black Wood Frame", "White Wood Frame", "Gold Ornate Frame"]
       },
       {
         id: "2",
@@ -129,7 +131,9 @@ export class MemStorage implements IStorage {
         year: 2024,
         artist: "Marcus Chen",
         averageRating: 4.2,
-        totalReviews: 8
+        totalReviews: 8,
+        availableSizes: ["12\" x 16\"", "16\" x 20\"", "20\" x 24\"", "24\" x 32\""],
+        availableFrames: ["Frameless Stretch", "Black Metal Frame", "Silver Frame", "Natural Wood Frame"]
       },
       {
         id: "3",
@@ -144,7 +148,9 @@ export class MemStorage implements IStorage {
         year: 2023,
         artist: "Sarah Thompson",
         averageRating: 4.9,
-        totalReviews: 15
+        totalReviews: 15,
+        availableSizes: ["20\" x 24\"", "24\" x 30\"", "30\" x 40\"", "36\" x 48\""],
+        availableFrames: ["Frameless Stretch", "Dark Walnut Frame", "Rustic Wood Frame", "Gallery Float Frame"]
       },
       {
         id: "4",
@@ -159,7 +165,9 @@ export class MemStorage implements IStorage {
         year: 2024,
         artist: "David Kim",
         averageRating: 4.7,
-        totalReviews: 22
+        totalReviews: 22,
+        availableSizes: ["24\" x 32\"", "30\" x 40\"", "36\" x 48\"", "40\" x 60\""],
+        availableFrames: ["Frameless Stretch", "Black Wood Frame", "Bronze Frame", "Custom Gallery Frame"]
       },
       {
         id: "5",
@@ -174,7 +182,9 @@ export class MemStorage implements IStorage {
         year: 2024,
         artist: "Isabella Martinez",
         averageRating: 4.1,
-        totalReviews: 6
+        totalReviews: 6,
+        availableSizes: ["12\" x 16\"", "16\" x 20\"", "20\" x 24\"", "24\" x 30\""],
+        availableFrames: ["Frameless Stretch", "White Frame", "Black Frame", "Colorful Pop Frame"]
       },
       {
         id: "6",
@@ -189,7 +199,9 @@ export class MemStorage implements IStorage {
         year: 2023,
         artist: "Robert Wilson",
         averageRating: 4.5,
-        totalReviews: 10
+        totalReviews: 10,
+        availableSizes: ["14\" x 18\"", "18\" x 24\"", "24\" x 30\"", "30\" x 36\""],
+        availableFrames: ["Frameless Stretch", "Classic Gold Frame", "Antique Silver Frame", "Traditional Wood Frame"]
       }
     ];
 
@@ -272,7 +284,9 @@ export class MemStorage implements IStorage {
       medium: painting.medium ?? null,
       dimensions: painting.dimensions ?? null,
       year: painting.year ?? null,
-      artist: painting.artist ?? null
+      artist: painting.artist ?? null,
+      availableSizes: painting.availableSizes || null,
+      availableFrames: painting.availableFrames || null
     };
     this.paintings.set(id, newPainting);
     return newPainting;
@@ -297,7 +311,9 @@ export class MemStorage implements IStorage {
     const newCartItem: CartItem = { 
       ...cartItem, 
       id,
-      quantity: cartItem.quantity ?? 1
+      quantity: cartItem.quantity ?? 1,
+      selectedSize: cartItem.selectedSize || null,
+      selectedFrame: cartItem.selectedFrame || null
     };
     this.cartItems.set(id, newCartItem);
     return newCartItem;
@@ -455,7 +471,10 @@ export class MemStorage implements IStorage {
       ...banner,
       id,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      isActive: banner.isActive ?? null,
+      backgroundColor: banner.backgroundColor ?? null,
+      textColor: banner.textColor ?? null
     };
     this.banners.set(id, newBanner);
     return newBanner;

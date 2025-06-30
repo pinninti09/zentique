@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { ArrowLeft, Star, Heart, Plus, Minus, Package, Shield, Truck, ShoppingCart, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatPrice } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
@@ -19,6 +20,8 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
   const [, setLocation] = useLocation();
   const { sessionId, showToast, setCartCount } = useApp();
   const queryClient = useQueryClient();
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedFrame, setSelectedFrame] = useState<string>('');
 
   const { data: painting, isLoading } = useQuery<Painting>({
     queryKey: [`/api/paintings/${params.id}`],
@@ -51,11 +54,13 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         console.error('No session ID available');
         throw new Error('No session ID available');
       }
-      console.log('Adding to cart:', { sessionId, paintingId: painting.id, quantity: 1 });
+      console.log('Adding to cart:', { sessionId, paintingId: painting.id, quantity: 1, selectedSize, selectedFrame });
       return apiRequest('/api/cart', 'POST', {
         sessionId,
         paintingId: painting.id,
         quantity: 1,
+        selectedSize: selectedSize || null,
+        selectedFrame: selectedFrame || null,
       });
     },
     onSuccess: async (data) => {
@@ -265,24 +270,42 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
               </div>
 
               {/* Size Selection */}
-              <div className="mb-10">
-                <h3 className="text-lg font-medium mb-4 text-gray-900">Size (Height x Width)</h3>
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="border border-gray-300 px-4 py-3 bg-gray-50 text-center">
-                    24" x 20" / 61 x 51 CM
-                  </div>
+              {painting.availableSizes && painting.availableSizes.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-lg font-medium mb-4 text-gray-900">Size (Height x Width)</h3>
+                  <Select value={selectedSize} onValueChange={setSelectedSize}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {painting.availableSizes.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
+              )}
 
               {/* Frame Options */}
-              <div className="mb-10">
-                <h3 className="text-lg font-medium mb-4 text-gray-900">Stretch or Frame</h3>
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="border border-gray-300 px-4 py-3 bg-gray-50 text-center">
-                    Frameless Stretch
-                  </div>
+              {painting.availableFrames && painting.availableFrames.length > 0 && (
+                <div className="mb-10">
+                  <h3 className="text-lg font-medium mb-4 text-gray-900">Stretch or Frame</h3>
+                  <Select value={selectedFrame} onValueChange={setSelectedFrame}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select frame option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {painting.availableFrames.map((frame) => (
+                        <SelectItem key={frame} value={frame}>
+                          {frame}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Action Buttons */}

@@ -238,7 +238,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         medium: req.body.medium || "Oil on Canvas",
         dimensions: req.body.dimensions || "24\" × 36\"",
         year: req.body.year ? parseInt(req.body.year) : new Date().getFullYear(),
-        artist: req.body.artist || "Unknown Artist"
+        artist: req.body.artist || "Unknown Artist",
+        availableSizes: req.body.availableSizes ? JSON.parse(req.body.availableSizes) : [],
+        availableFrames: req.body.availableFrames ? JSON.parse(req.body.availableFrames) : []
       };
 
       const validatedData = insertPaintingSchema.parse(paintingData);

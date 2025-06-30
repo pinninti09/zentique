@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { formatPrice } from '@/lib/utils';
 import type { Painting } from '@shared/schema';
 
@@ -27,7 +28,20 @@ export default function Admin() {
     dimensions: '',
     year: '',
     artist: '',
+    availableSizes: [] as string[],
+    availableFrames: [] as string[],
   });
+
+  const [sizeOptions] = useState([
+    "12\" x 16\"", "16\" x 20\"", "20\" x 24\"", "24\" x 30\"", 
+    "30\" x 40\"", "36\" x 48\"", "40\" x 60\""
+  ]);
+
+  const [frameOptions] = useState([
+    "Frameless Stretch", "Black Wood Frame", "White Wood Frame", 
+    "Natural Wood Frame", "Black Metal Frame", "Silver Frame", 
+    "Gold Ornate Frame", "Gallery Float Frame", "Custom Gallery Frame"
+  ]);
 
   const [bannerForm, setBannerForm] = useState({
     text: '',
@@ -59,6 +73,8 @@ export default function Admin() {
         dimensions: '',
         year: '',
         artist: '',
+        availableSizes: [],
+        availableFrames: [],
       });
     },
     onError: () => {
@@ -121,7 +137,13 @@ export default function Admin() {
 
     const formData = new FormData();
     Object.entries(uploadForm).forEach(([key, value]) => {
-      if (value) formData.append(key, value);
+      if (value) {
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, value);
+        }
+      }
     });
 
     uploadPaintingMutation.mutate(formData);
@@ -129,6 +151,24 @@ export default function Admin() {
 
   const handleInputChange = (field: string, value: string) => {
     setUploadForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleSizeOption = (size: string) => {
+    setUploadForm(prev => ({
+      ...prev,
+      availableSizes: prev.availableSizes.includes(size)
+        ? prev.availableSizes.filter(s => s !== size)
+        : [...prev.availableSizes, size]
+    }));
+  };
+
+  const toggleFrameOption = (frame: string) => {
+    setUploadForm(prev => ({
+      ...prev,
+      availableFrames: prev.availableFrames.includes(frame)
+        ? prev.availableFrames.filter(f => f !== frame)
+        : [...prev.availableFrames, frame]
+    }));
   };
 
   const markAsSold = (paintingId: string) => {
@@ -336,6 +376,44 @@ export default function Admin() {
                   value={uploadForm.year}
                   onChange={(e) => handleInputChange('year', e.target.value)}
                 />
+              </div>
+            </div>
+
+            {/* Available Sizes */}
+            <div>
+              <Label className="text-base font-medium mb-3 block">Available Sizes</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {sizeOptions.map((size) => (
+                  <div key={size} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`size-${size}`}
+                      checked={uploadForm.availableSizes.includes(size)}
+                      onCheckedChange={() => toggleSizeOption(size)}
+                    />
+                    <Label htmlFor={`size-${size}`} className="text-sm">
+                      {size}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Available Frames */}
+            <div>
+              <Label className="text-base font-medium mb-3 block">Available Frame Options</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {frameOptions.map((frame) => (
+                  <div key={frame} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`frame-${frame}`}
+                      checked={uploadForm.availableFrames.includes(frame)}
+                      onCheckedChange={() => toggleFrameOption(frame)}
+                    />
+                    <Label htmlFor={`frame-${frame}`} className="text-sm">
+                      {frame}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
 

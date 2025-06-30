@@ -17,6 +17,8 @@ export const paintings = pgTable("paintings", {
   artist: text("artist"),
   averageRating: real("average_rating").default(0),
   totalReviews: integer("total_reviews").default(0),
+  availableSizes: text("available_sizes").array().default([]),
+  availableFrames: text("available_frames").array().default([]),
 });
 
 export const cartItems = pgTable("cart_items", {
@@ -24,6 +26,8 @@ export const cartItems = pgTable("cart_items", {
   sessionId: text("session_id").notNull(),
   paintingId: text("painting_id").notNull(),
   quantity: integer("quantity").notNull().default(1),
+  selectedSize: text("selected_size"),
+  selectedFrame: text("selected_frame"),
 });
 
 export const reviews = pgTable("reviews", {
