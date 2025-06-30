@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut, Building2, Gift, Megaphone } from 'lucide-react';
+import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut, Building2, Gift, Megaphone, ChevronDown, ChevronUp } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -70,6 +70,16 @@ export default function Admin() {
     minQuantity: '1',
     maxQuantity: '500',
   });
+
+  const [collapsedSections, setCollapsedSections] = useState({
+    galleryBanner: false,
+    corporateBanner: false,
+    corporateGift: false,
+    painting: false,
+    paintingManagement: false,
+    corporateManagement: false,
+    analytics: false,
+  });
   const queryClient = useQueryClient();
 
   const { data: paintings = [] } = useQuery<Painting[]>({
@@ -77,7 +87,7 @@ export default function Admin() {
     enabled: !!adminToken,
   });
 
-  const { data: corporateGifts = [] } = useQuery({
+  const { data: corporateGifts = [] } = useQuery<any[]>({
     queryKey: ['/api/corporate-gifts'],
     enabled: !!adminToken,
   });
@@ -264,6 +274,13 @@ export default function Admin() {
     markAsSoldMutation.mutate(paintingId);
   };
 
+  const toggleSection = (section: keyof typeof collapsedSections) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   // Analytics
   const totalSales = paintings
     .filter(p => p.sold)
@@ -317,99 +334,115 @@ export default function Admin() {
         {/* Gallery Banner Management */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Package className="mr-2" size={20} />
-              Gallery Promotional Banner
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('galleryBanner')}
+            >
+              <div className="flex items-center">
+                <Package className="mr-2" size={20} />
+                Gallery Promotional Banner
+              </div>
+              {collapsedSections.galleryBanner ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="banner-text">Banner Text</Label>
-              <Textarea
-                id="banner-text"
-                placeholder="Enter promotional message (e.g., July 4th Special: 25% OFF All Paintings!)"
-                value={bannerForm.text}
-                onChange={(e) => setBannerForm({ ...bannerForm, text: e.target.value })}
-                className="min-h-[80px]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          {!collapsedSections.galleryBanner && (
+            <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="bg-color">Background Color</Label>
-                <Input
-                  id="bg-color"
-                  type="color"
-                  value={bannerForm.backgroundColor}
-                  onChange={(e) => setBannerForm({ ...bannerForm, backgroundColor: e.target.value })}
+                <Label htmlFor="banner-text">Banner Text</Label>
+                <Textarea
+                  id="banner-text"
+                  placeholder="Enter promotional message (e.g., July 4th Special: 25% OFF All Paintings!)"
+                  value={bannerForm.text}
+                  onChange={(e) => setBannerForm({ ...bannerForm, text: e.target.value })}
+                  className="min-h-[80px]"
                 />
               </div>
-              <div>
-                <Label htmlFor="text-color">Text Color</Label>
-                <Input
-                  id="text-color"
-                  type="color"
-                  value={bannerForm.textColor}
-                  onChange={(e) => setBannerForm({ ...bannerForm, textColor: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="bg-color">Background Color</Label>
+                  <Input
+                    id="bg-color"
+                    type="color"
+                    value={bannerForm.backgroundColor}
+                    onChange={(e) => setBannerForm({ ...bannerForm, backgroundColor: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="text-color">Text Color</Label>
+                  <Input
+                    id="text-color"
+                    type="color"
+                    value={bannerForm.textColor}
+                    onChange={(e) => setBannerForm({ ...bannerForm, textColor: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
-            <Button
-              onClick={() => updateBannerMutation.mutate(bannerForm)}
-              disabled={updateBannerMutation.isPending || !bannerForm.text.trim()}
-              className="w-full bg-elegant-gold text-rich-brown hover:bg-rich-brown hover:text-white"
-            >
-              {updateBannerMutation.isPending ? 'Updating...' : 'Update Gallery Banner'}
-            </Button>
-          </CardContent>
+              <Button
+                onClick={() => updateBannerMutation.mutate(bannerForm)}
+                disabled={updateBannerMutation.isPending || !bannerForm.text.trim()}
+                className="w-full bg-elegant-gold text-rich-brown hover:bg-rich-brown hover:text-white"
+              >
+                {updateBannerMutation.isPending ? 'Updating...' : 'Update Gallery Banner'}
+              </Button>
+            </CardContent>
+          )}
         </Card>
 
         {/* Corporate Banner Management */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Megaphone className="mr-2" size={20} />
-              Corporate Banner
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('corporateBanner')}
+            >
+              <div className="flex items-center">
+                <Megaphone className="mr-2" size={20} />
+                Corporate Banner
+              </div>
+              {collapsedSections.corporateBanner ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="corporate-banner-text">Corporate Banner Text</Label>
-              <Textarea
-                id="corporate-banner-text"
-                placeholder="Enter corporate promotional message (e.g., End of Year Corporate Gifts: 20% Bulk Discount!)"
-                value={corporateBannerForm.text}
-                onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, text: e.target.value })}
-                className="min-h-[80px]"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          {!collapsedSections.corporateBanner && (
+            <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="corp-bg-color">Background Color</Label>
-                <Input
-                  id="corp-bg-color"
-                  type="color"
-                  value={corporateBannerForm.backgroundColor}
-                  onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, backgroundColor: e.target.value })}
+                <Label htmlFor="corporate-banner-text">Corporate Banner Text</Label>
+                <Textarea
+                  id="corporate-banner-text"
+                  placeholder="Enter corporate promotional message (e.g., End of Year Corporate Gifts: 20% Bulk Discount!)"
+                  value={corporateBannerForm.text}
+                  onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, text: e.target.value })}
+                  className="min-h-[80px]"
                 />
               </div>
-              <div>
-                <Label htmlFor="corp-text-color">Text Color</Label>
-                <Input
-                  id="corp-text-color"
-                  type="color"
-                  value={corporateBannerForm.textColor}
-                  onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, textColor: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="corp-bg-color">Background Color</Label>
+                  <Input
+                    id="corp-bg-color"
+                    type="color"
+                    value={corporateBannerForm.backgroundColor}
+                    onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, backgroundColor: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="corp-text-color">Text Color</Label>
+                  <Input
+                    id="corp-text-color"
+                    type="color"
+                    value={corporateBannerForm.textColor}
+                    onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, textColor: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
-            <Button
-              onClick={() => updateCorporateBannerMutation.mutate(corporateBannerForm)}
-              disabled={updateCorporateBannerMutation.isPending || !corporateBannerForm.text.trim()}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {updateCorporateBannerMutation.isPending ? 'Updating...' : 'Update Corporate Banner'}
-            </Button>
-          </CardContent>
+              <Button
+                onClick={() => updateCorporateBannerMutation.mutate(corporateBannerForm)}
+                disabled={updateCorporateBannerMutation.isPending || !corporateBannerForm.text.trim()}
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
+              >
+                {updateCorporateBannerMutation.isPending ? 'Updating...' : 'Update Corporate Banner'}
+              </Button>
+            </CardContent>
+          )}
         </Card>
       </div>
 
@@ -417,129 +450,144 @@ export default function Admin() {
         {/* Upload New Corporate Gift */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Gift className="mr-2" size={20} />
-              Add New Corporate Gift
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('corporateGift')}
+            >
+              <div className="flex items-center">
+                <Gift className="mr-2" size={20} />
+                Add New Corporate Gift
+              </div>
+              {collapsedSections.corporateGift ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="gift-title">Title *</Label>
-                <Input
-                  id="gift-title"
-                  placeholder="Corporate gift name"
-                  value={giftForm.title}
-                  onChange={(e) => setGiftForm({ ...giftForm, title: e.target.value })}
-                />
+          {!collapsedSections.corporateGift && (
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="gift-title">Title *</Label>
+                  <Input
+                    id="gift-title"
+                    placeholder="Corporate gift name"
+                    value={giftForm.title}
+                    onChange={(e) => setGiftForm({ ...giftForm, title: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gift-category">Category</Label>
+                  <Input
+                    id="gift-category"
+                    placeholder="Drinkware, Apparel, Office"
+                    value={giftForm.category}
+                    onChange={(e) => setGiftForm({ ...giftForm, category: e.target.value })}
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="gift-category">Category</Label>
-                <Input
-                  id="gift-category"
-                  placeholder="Drinkware, Apparel, Office"
-                  value={giftForm.category}
-                  onChange={(e) => setGiftForm({ ...giftForm, category: e.target.value })}
-                />
-              </div>
-            </div>
 
-            <div>
-              <Label htmlFor="gift-description">Description *</Label>
-              <Textarea
-                id="gift-description"
-                placeholder="Describe the corporate gift item"
-                value={giftForm.description}
-                onChange={(e) => setGiftForm({ ...giftForm, description: e.target.value })}
-                rows={3}
-              />
-            </div>
+              <div>
+                <Label htmlFor="gift-description">Description *</Label>
+                <Textarea
+                  id="gift-description"
+                  placeholder="Describe the corporate gift item"
+                  value={giftForm.description}
+                  onChange={(e) => setGiftForm({ ...giftForm, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="gift-price">Price ($) *</Label>
-                <Input
-                  id="gift-price"
-                  type="number"
-                  placeholder="0.00"
-                  value={giftForm.price}
-                  onChange={(e) => setGiftForm({ ...giftForm, price: e.target.value })}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="gift-price">Price ($) *</Label>
+                  <Input
+                    id="gift-price"
+                    type="number"
+                    placeholder="0.00"
+                    value={giftForm.price}
+                    onChange={(e) => setGiftForm({ ...giftForm, price: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gift-salePrice">Bulk Price ($)</Label>
+                  <Input
+                    id="gift-salePrice"
+                    type="number"
+                    placeholder="0.00 (bulk discount)"
+                    value={giftForm.salePrice}
+                    onChange={(e) => setGiftForm({ ...giftForm, salePrice: e.target.value })}
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="gift-salePrice">Bulk Price ($)</Label>
-                <Input
-                  id="gift-salePrice"
-                  type="number"
-                  placeholder="0.00 (bulk discount)"
-                  value={giftForm.salePrice}
-                  onChange={(e) => setGiftForm({ ...giftForm, salePrice: e.target.value })}
-                />
-              </div>
-            </div>
 
-            <div>
-              <Label htmlFor="gift-imageUrl">Image URL</Label>
-              <Input
-                id="gift-imageUrl"
-                placeholder="https://example.com/corporate-gift.jpg"
-                value={giftForm.imageUrl}
-                onChange={(e) => setGiftForm({ ...giftForm, imageUrl: e.target.value })}
-              />
-            </div>
+              <div>
+                <Label htmlFor="gift-imageUrl">Image URL</Label>
+                <Input
+                  id="gift-imageUrl"
+                  placeholder="https://example.com/corporate-gift.jpg"
+                  value={giftForm.imageUrl}
+                  onChange={(e) => setGiftForm({ ...giftForm, imageUrl: e.target.value })}
+                />
+              </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="gift-material">Material</Label>
-                <Input
-                  id="gift-material"
-                  placeholder="Ceramic, Cotton, Metal"
-                  value={giftForm.material}
-                  onChange={(e) => setGiftForm({ ...giftForm, material: e.target.value })}
-                />
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="gift-material">Material</Label>
+                  <Input
+                    id="gift-material"
+                    placeholder="Ceramic, Cotton, Metal"
+                    value={giftForm.material}
+                    onChange={(e) => setGiftForm({ ...giftForm, material: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gift-minQuantity">Min Quantity</Label>
+                  <Input
+                    id="gift-minQuantity"
+                    type="number"
+                    placeholder="1"
+                    value={giftForm.minQuantity}
+                    onChange={(e) => setGiftForm({ ...giftForm, minQuantity: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gift-maxQuantity">Max Quantity</Label>
+                  <Input
+                    id="gift-maxQuantity"
+                    type="number"
+                    placeholder="500"
+                    value={giftForm.maxQuantity}
+                    onChange={(e) => setGiftForm({ ...giftForm, maxQuantity: e.target.value })}
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="gift-minQuantity">Min Quantity</Label>
-                <Input
-                  id="gift-minQuantity"
-                  type="number"
-                  placeholder="1"
-                  value={giftForm.minQuantity}
-                  onChange={(e) => setGiftForm({ ...giftForm, minQuantity: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="gift-maxQuantity">Max Quantity</Label>
-                <Input
-                  id="gift-maxQuantity"
-                  type="number"
-                  placeholder="500"
-                  value={giftForm.maxQuantity}
-                  onChange={(e) => setGiftForm({ ...giftForm, maxQuantity: e.target.value })}
-                />
-              </div>
-            </div>
 
-            <Button
-              onClick={handleGiftUpload}
-              disabled={uploadGiftMutation.isPending}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700"
-            >
-              <Gift className="mr-2" size={16} />
-              Add Corporate Gift
-            </Button>
-          </CardContent>
+              <Button
+                onClick={handleGiftUpload}
+                disabled={uploadGiftMutation.isPending}
+                className="w-full bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <Gift className="mr-2" size={16} />
+                Add Corporate Gift
+              </Button>
+            </CardContent>
+          )}
         </Card>
 
         {/* Upload New Painting */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Plus className="mr-2" size={20} />
-              Upload New Painting
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('painting')}
+            >
+              <div className="flex items-center">
+                <Plus className="mr-2" size={20} />
+                Upload New Painting
+              </div>
+              {collapsedSections.painting ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          {!collapsedSections.painting && (
+            <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="title">Title *</Label>
@@ -733,18 +781,28 @@ export default function Admin() {
               <Plus className="mr-2" size={16} />
               Upload Painting
             </Button>
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Manage Paintings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Edit className="mr-2" size={20} />
-              Manage Paintings ({paintings.length})
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('paintingManagement')}
+            >
+              <div className="flex items-center">
+                <Edit className="mr-2" size={20} />
+                Manage Paintings ({paintings.length})
+              </div>
+              {collapsedSections.paintingManagement ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          {!collapsedSections.paintingManagement && (
+            <CardContent>
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {paintings.map((painting) => (
                 <div
@@ -800,19 +858,27 @@ export default function Admin() {
               )}
             </div>
           </CardContent>
+          )}
         </Card>
 
         {/* Manage Corporate Gifts */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Building2 className="mr-2" size={20} />
-              Manage Corporate Gifts ({corporateGifts.length})
+            <CardTitle 
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => toggleSection('corporateManagement')}
+            >
+              <div className="flex items-center">
+                <Building2 className="mr-2" size={20} />
+                Manage Corporate Gifts ({corporateGifts.length})
+              </div>
+              {collapsedSections.corporateManagement ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          {!collapsedSections.corporateManagement && (
+            <CardContent>
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {corporateGifts.map((gift: any) => (
+              {(corporateGifts as any[]).map((gift: any) => (
                 <div
                   key={gift.id}
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -849,25 +915,33 @@ export default function Admin() {
                 </div>
               ))}
 
-              {corporateGifts.length === 0 && (
+              {(corporateGifts as any[]).length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   No corporate gifts added yet
                 </div>
               )}
             </div>
           </CardContent>
+          )}
         </Card>
       </div>
 
       {/* Sales Analytics */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <DollarSign className="mr-2" size={20} />
-            Sales Overview
+          <CardTitle 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={() => toggleSection('analytics')}
+          >
+            <div className="flex items-center">
+              <DollarSign className="mr-2" size={20} />
+              Sales Overview
+            </div>
+            {collapsedSections.analytics ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        {!collapsedSections.analytics && (
+          <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center p-6 bg-yellow-50 rounded-xl">
               <div className="text-3xl font-bold text-elegant-gold">
@@ -894,7 +968,8 @@ export default function Admin() {
               <div className="text-muted-foreground">Pending Orders</div>
             </div>
           </div>
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
     </section>
   );
