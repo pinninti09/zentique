@@ -261,7 +261,7 @@ export default function PaintingDetailModal({
                 
                 <div className="flex gap-3">
                   {currentCartItem ? (
-                    <div className="flex-1 flex items-center gap-3 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4">
+                    <div className="flex-1 flex items-center gap-3 bg-emerald-50 border-2 border-emerald-200 rounded-lg py-4 px-4">
                       <div className="flex items-center gap-2">
                         <Button
                           onClick={() => handleQuantityChange(-1)}
@@ -289,10 +289,10 @@ export default function PaintingDetailModal({
                       <Button
                         onClick={() => removeFromCartMutation.mutate()}
                         variant="outline"
-                        size="sm"
-                        className="text-red-600 border-red-300 hover:bg-red-50"
+                        size="icon"
+                        className="h-8 w-8 text-pink-600 border-pink-300 hover:bg-pink-50 hover:border-pink-400"
                       >
-                        Remove
+                        <X size={16} />
                       </Button>
                     </div>
                   ) : (
