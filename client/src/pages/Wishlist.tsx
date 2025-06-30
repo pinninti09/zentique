@@ -18,7 +18,7 @@ interface WishlistItemWithPainting extends WishlistItem {
 export default function Wishlist() {
   const [selectedPainting, setSelectedPainting] = useState<Painting | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { sessionId, setCartCount, showToast } = useApp();
+  const { sessionId, cartCount, setCartCount, showToast } = useApp();
   const queryClient = useQueryClient();
 
   // Fetch wishlist items
@@ -240,7 +240,7 @@ export default function Wishlist() {
       </div>
 
       {/* Floating Proceed to Checkout Button */}
-      {cartItems.length > 0 && (
+      {cartCount > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <Link href="/cart">
             <Button
@@ -249,7 +249,7 @@ export default function Wishlist() {
             >
               <ShoppingCart size={20} />
               <span className="font-medium">
-                Proceed to Checkout ({cartItems.reduce((sum: any, item: any) => sum + item.quantity, 0)})
+                Proceed to Checkout ({cartCount})
               </span>
               <ArrowRight size={16} />
             </Button>

@@ -35,12 +35,6 @@ export default function Gallery() {
     setCartCount(totalQuantity);
   }, [cartItems, setCartCount]);
 
-  useEffect(() => {
-    if (Array.isArray(cartItems)) {
-      setCartCount(cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0));
-    }
-  }, [cartItems, setCartCount]);
-
   const addToCartMutation = useMutation({
     mutationFn: async (paintingId: string) => {
       return apiRequest('/api/cart', 'POST', {
@@ -219,7 +213,7 @@ export default function Gallery() {
       )}
 
       {/* Floating Proceed to Checkout Button */}
-      {cartItems.length > 0 && (
+      {cartCount > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <Link href="/cart">
             <Button
@@ -228,7 +222,7 @@ export default function Gallery() {
             >
               <ShoppingCart size={20} />
               <span className="font-medium">
-                Proceed to Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+                Proceed to Checkout ({cartCount})
               </span>
               <ArrowRight size={16} />
             </Button>
