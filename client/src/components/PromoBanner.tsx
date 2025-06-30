@@ -18,12 +18,18 @@ export default function PromoBanner() {
   const [location] = useLocation();
 
   // Determine which banner to show based on current page
-  const isCorporatePage = location.includes('/corporate-gifting');
+  const isCorporatePage = location === '/corporate' || location.startsWith('/corporate');
   const bannerEndpoint = isCorporatePage ? '/api/corporate-banner/active' : '/api/banner/active';
+
+  // Debug logging
+  console.log('Current location:', location);
+  console.log('Is corporate page:', isCorporatePage);
+  console.log('Banner endpoint:', bannerEndpoint);
 
   // Fetch appropriate banner from API
   const { data: banner } = useQuery<BannerData>({
-    queryKey: [bannerEndpoint]
+    queryKey: [bannerEndpoint],
+    enabled: true
   });
 
   if (!isVisible || !banner || !banner.isActive) return null;
