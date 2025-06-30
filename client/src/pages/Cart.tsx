@@ -177,9 +177,23 @@ export default function Cart() {
                       <h3 className="font-serif text-xl font-semibold">
                         {item.painting?.title}
                       </h3>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground mb-2">
                         {item.painting?.description.slice(0, 80)}...
                       </p>
+                      {(item.selectedSize || item.selectedFrame) && (
+                        <div className="text-sm text-sophisticated-gray">
+                          {item.selectedSize && (
+                            <span className="inline-block bg-elegant-gold/10 px-2 py-1 rounded mr-2">
+                              Size: {item.selectedSize}
+                            </span>
+                          )}
+                          {item.selectedFrame && (
+                            <span className="inline-block bg-elegant-gold/10 px-2 py-1 rounded">
+                              Frame: {item.selectedFrame}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center space-x-4">
