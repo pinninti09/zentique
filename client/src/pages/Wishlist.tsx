@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Heart, ShoppingBag, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ interface WishlistItemWithPainting extends WishlistItem {
 export default function Wishlist() {
   const [selectedPainting, setSelectedPainting] = useState<Painting | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { sessionId, showToast } = useApp();
+  const { sessionId, setCartCount, showToast } = useApp();
   const queryClient = useQueryClient();
 
   // Fetch wishlist items
@@ -30,6 +30,18 @@ export default function Wishlist() {
   const { data: paintings = [] } = useQuery({
     queryKey: ['/api/paintings']
   });
+
+  // Fetch cart items for updating count
+  const { data: cartItems = [] } = useQuery<any[]>({
+    queryKey: [`/api/cart/${sessionId}`],
+    enabled: !!sessionId
+  });
+
+  // Update cart count when cart items change
+  useEffect(() => {
+    const totalQuantity = cartItems.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    setCartCount(totalQuantity);
+  }, [cartItems, setCartCount]);
 
   // Remove from wishlist mutation
   const removeFromWishlistMutation = useMutation({

@@ -34,7 +34,7 @@ export default function Cart() {
 
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ paintingId, quantity }: { paintingId: string; quantity: number }) => {
-      return apiRequest('PUT', `/api/cart/${sessionId}/${paintingId}`, { quantity });
+      return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'PUT', { quantity });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });

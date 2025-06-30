@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Search } from 'lucide-react';
+import { ArrowDown, Search, ShoppingCart, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
 import PaintingCard from '@/components/PaintingCard';
@@ -12,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Painting, CartItem } from '@shared/schema';
 
 export default function Gallery() {
-  const { sessionId, setCartCount, showToast } = useApp();
+  const { sessionId, cartCount, setCartCount, showToast } = useApp();
   const [selectedPainting, setSelectedPainting] = useState<Painting | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -214,6 +215,24 @@ export default function Gallery() {
             <ArrowDown className="mr-2" size={16} />
             View More Artworks
           </Button>
+        </div>
+      )}
+
+      {/* Floating Cart Button */}
+      {cartCount > 0 && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Link href="/cart">
+            <Button
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full px-6 py-4 flex items-center gap-3"
+            >
+              <ShoppingCart size={20} />
+              <span className="font-medium">
+                {cartCount} item{cartCount !== 1 ? 's' : ''}
+              </span>
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
         </div>
       )}
 
