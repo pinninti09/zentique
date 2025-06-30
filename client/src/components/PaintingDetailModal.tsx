@@ -303,7 +303,7 @@ export default function PaintingDetailModal({
         </div>
 
         {/* Artist Information Section - Full Width */}
-        {(painting?.artist || painting?.artistBio || painting?.artistBornYear || painting?.artistAwards) && (
+        {painting && painting.artist && (
           <div className="border-t bg-white">
             <div className="p-8 lg:p-12">
               <h3 className="font-brand text-2xl font-bold mb-6 text-gray-900 uppercase tracking-wide">
