@@ -111,7 +111,7 @@ export default function Gallery() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-rich-brown leading-tight uppercase tracking-wide">
             Atelier
           </h1>
-          <p className="text-lg text-sophisticated-gray max-w-2xl mx-auto leading-relaxed mb-8 font-brand">
+          <p className="text-lg text-sophisticated-gray max-w-5xl mx-auto leading-relaxed mb-8 font-brand">
             An experience of elegance — painted just for you. Each masterwork here isn't simply a painting; it's the exclamation point in a room's story. Curated for those who believe that art is the signature accessory of every interior, our collection turns walls into wonders and corners into conversations.
           </p>
           
