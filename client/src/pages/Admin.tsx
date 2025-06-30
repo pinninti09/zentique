@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut } from 'lucide-react';
+import { Shield, Plus, Edit, Package, DollarSign, Truck, LogOut, Building2, Gift, Megaphone } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
@@ -48,10 +48,33 @@ export default function Admin() {
     backgroundColor: '#dc2626',
     textColor: '#ffffff'
   });
+
+  const [corporateBannerForm, setCorporateBannerForm] = useState({
+    text: '',
+    backgroundColor: '#1e40af',
+    textColor: '#ffffff'
+  });
+
+  const [giftForm, setGiftForm] = useState({
+    title: '',
+    description: '',
+    price: '',
+    salePrice: '',
+    imageUrl: '',
+    category: '',
+    material: '',
+    minQuantity: '1',
+    maxQuantity: '500',
+  });
   const queryClient = useQueryClient();
 
   const { data: paintings = [] } = useQuery<Painting[]>({
     queryKey: ['/api/paintings'],
+    enabled: !!adminToken,
+  });
+
+  const { data: corporateGifts = [] } = useQuery({
+    queryKey: ['/api/corporate-gifts'],
     enabled: !!adminToken,
   });
 
@@ -97,6 +120,48 @@ export default function Admin() {
     },
     onError: () => {
       showToast('Failed to update banner', 'error');
+    },
+  });
+
+  const updateCorporateBannerMutation = useMutation({
+    mutationFn: async (bannerData: any) => {
+      return apiRequest('/api/admin/corporate-banner', 'POST', bannerData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/corporate-banner/active'] });
+      showToast('Corporate banner updated successfully!');
+      setCorporateBannerForm({
+        text: '',
+        backgroundColor: '#1e40af',
+        textColor: '#ffffff'
+      });
+    },
+    onError: () => {
+      showToast('Failed to update corporate banner', 'error');
+    },
+  });
+
+  const uploadGiftMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return apiRequest('/api/admin/corporate-gifts', 'POST', formData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/corporate-gifts'] });
+      showToast('Corporate gift added successfully!');
+      setGiftForm({
+        title: '',
+        description: '',
+        price: '',
+        salePrice: '',
+        imageUrl: '',
+        category: '',
+        material: '',
+        minQuantity: '1',
+        maxQuantity: '500',
+      });
+    },
+    onError: () => {
+      showToast('Failed to add corporate gift', 'error');
     },
   });
 
@@ -147,6 +212,22 @@ export default function Admin() {
     });
 
     uploadPaintingMutation.mutate(formData);
+  };
+
+  const handleGiftUpload = () => {
+    if (!giftForm.title || !giftForm.description || !giftForm.price) {
+      showToast('Please fill in all required fields', 'error');
+      return;
+    }
+
+    const formData = new FormData();
+    Object.entries(giftForm).forEach(([key, value]) => {
+      if (value) {
+        formData.append(key, value);
+      }
+    });
+
+    uploadGiftMutation.mutate(formData);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -225,12 +306,12 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        {/* Banner Management */}
+        {/* Gallery Banner Management */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Package className="mr-2" size={20} />
-              Promotional Banner
+              Gallery Promotional Banner
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -269,7 +350,175 @@ export default function Admin() {
               disabled={updateBannerMutation.isPending || !bannerForm.text.trim()}
               className="w-full bg-elegant-gold text-rich-brown hover:bg-rich-brown hover:text-white"
             >
-              {updateBannerMutation.isPending ? 'Updating...' : 'Update Banner'}
+              {updateBannerMutation.isPending ? 'Updating...' : 'Update Gallery Banner'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Corporate Banner Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Megaphone className="mr-2" size={20} />
+              Corporate Banner
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="corporate-banner-text">Corporate Banner Text</Label>
+              <Textarea
+                id="corporate-banner-text"
+                placeholder="Enter corporate promotional message (e.g., End of Year Corporate Gifts: 20% Bulk Discount!)"
+                value={corporateBannerForm.text}
+                onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, text: e.target.value })}
+                className="min-h-[80px]"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="corp-bg-color">Background Color</Label>
+                <Input
+                  id="corp-bg-color"
+                  type="color"
+                  value={corporateBannerForm.backgroundColor}
+                  onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, backgroundColor: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="corp-text-color">Text Color</Label>
+                <Input
+                  id="corp-text-color"
+                  type="color"
+                  value={corporateBannerForm.textColor}
+                  onChange={(e) => setCorporateBannerForm({ ...corporateBannerForm, textColor: e.target.value })}
+                />
+              </div>
+            </div>
+            <Button
+              onClick={() => updateCorporateBannerMutation.mutate(corporateBannerForm)}
+              disabled={updateCorporateBannerMutation.isPending || !corporateBannerForm.text.trim()}
+              className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            >
+              {updateCorporateBannerMutation.isPending ? 'Updating...' : 'Update Corporate Banner'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        {/* Upload New Corporate Gift */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Gift className="mr-2" size={20} />
+              Add New Corporate Gift
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="gift-title">Title *</Label>
+                <Input
+                  id="gift-title"
+                  placeholder="Corporate gift name"
+                  value={giftForm.title}
+                  onChange={(e) => setGiftForm({ ...giftForm, title: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gift-category">Category</Label>
+                <Input
+                  id="gift-category"
+                  placeholder="Drinkware, Apparel, Office"
+                  value={giftForm.category}
+                  onChange={(e) => setGiftForm({ ...giftForm, category: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="gift-description">Description *</Label>
+              <Textarea
+                id="gift-description"
+                placeholder="Describe the corporate gift item"
+                value={giftForm.description}
+                onChange={(e) => setGiftForm({ ...giftForm, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="gift-price">Price ($) *</Label>
+                <Input
+                  id="gift-price"
+                  type="number"
+                  placeholder="0.00"
+                  value={giftForm.price}
+                  onChange={(e) => setGiftForm({ ...giftForm, price: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gift-salePrice">Bulk Price ($)</Label>
+                <Input
+                  id="gift-salePrice"
+                  type="number"
+                  placeholder="0.00 (bulk discount)"
+                  value={giftForm.salePrice}
+                  onChange={(e) => setGiftForm({ ...giftForm, salePrice: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="gift-imageUrl">Image URL</Label>
+              <Input
+                id="gift-imageUrl"
+                placeholder="https://example.com/corporate-gift.jpg"
+                value={giftForm.imageUrl}
+                onChange={(e) => setGiftForm({ ...giftForm, imageUrl: e.target.value })}
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="gift-material">Material</Label>
+                <Input
+                  id="gift-material"
+                  placeholder="Ceramic, Cotton, Metal"
+                  value={giftForm.material}
+                  onChange={(e) => setGiftForm({ ...giftForm, material: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gift-minQuantity">Min Quantity</Label>
+                <Input
+                  id="gift-minQuantity"
+                  type="number"
+                  placeholder="1"
+                  value={giftForm.minQuantity}
+                  onChange={(e) => setGiftForm({ ...giftForm, minQuantity: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="gift-maxQuantity">Max Quantity</Label>
+                <Input
+                  id="gift-maxQuantity"
+                  type="number"
+                  placeholder="500"
+                  value={giftForm.maxQuantity}
+                  onChange={(e) => setGiftForm({ ...giftForm, maxQuantity: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <Button
+              onClick={handleGiftUpload}
+              disabled={uploadGiftMutation.isPending}
+              className="w-full bg-blue-600 text-white hover:bg-blue-700"
+            >
+              <Gift className="mr-2" size={16} />
+              Add Corporate Gift
             </Button>
           </CardContent>
         </Card>
@@ -488,6 +737,62 @@ export default function Admin() {
               {paintings.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   No paintings uploaded yet
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Manage Corporate Gifts */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Building2 className="mr-2" size={20} />
+              Manage Corporate Gifts ({corporateGifts.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {corporateGifts.map((gift: any) => (
+                <div
+                  key={gift.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={gift.imageUrl}
+                      alt={gift.title}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-semibold">{gift.title}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {formatPrice(gift.salePrice || gift.price)} • {gift.category}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Qty: {gift.minQuantity}-{gift.maxQuantity}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant="default">Active</Badge>
+                      </div>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => showToast('Corporate gift management coming soon!')}
+                        className="text-xs"
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {corporateGifts.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  No corporate gifts added yet
                 </div>
               )}
             </div>
