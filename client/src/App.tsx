@@ -16,6 +16,7 @@ import NotFound from "@/pages/not-found";
 
 // Gallery footer pages
 import About from "./pages/About";
+import Artists from "./pages/Artists";
 import CustomerCare from "./pages/CustomerCare";
 import ShippingInfo from "./pages/ShippingInfo";
 import Returns from "./pages/Returns";
@@ -44,6 +45,7 @@ function Router() {
       
       {/* Gallery footer pages */}
       <Route path="/about" component={About} />
+      <Route path="/artists" component={Artists} />
       <Route path="/customer-care" component={CustomerCare} />
       <Route path="/shipping-info" component={ShippingInfo} />
       <Route path="/returns" component={Returns} />

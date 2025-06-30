@@ -111,6 +111,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Artists Page Implementation
+  - Created comprehensive Artists page accessible via `/artists` route
+  - Displays all artists with professional photos, biographical information, birth years, and awards
+  - Groups paintings by artist showing featured works for each artist
+  - Includes hover effects and navigation to individual artworks
+  - Professional layout with artist statistics and "View All Works" functionality
+  - Integrated into footer navigation system for complete artist discovery experience
+
 - June 30, 2025: **NEW** - Comprehensive Footer Pages Implementation
   - Created 12 complete footer pages with professional content and beautiful designs
   - Gallery footer pages: About, Customer Care, Shipping Info, Returns, Care Instructions, Contact
