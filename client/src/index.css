@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 0%, 100%);
+  --background: hsl(45, 25%, 96%);
   --foreground: hsl(0, 0%, 10%);
   --muted: hsl(210, 40%, 96%);
   --muted-foreground: hsl(215, 16%, 47%);

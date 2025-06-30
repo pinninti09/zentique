@@ -105,7 +105,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-- June 30, 2025: **NEW** - Brand Typography Update
+- June 30, 2025: **NEW** - Visual Design Enhancement
+  - Changed website background from white to warm light beige for elegant appearance
+  - Added beautiful background images to introduction sections (art studio for Gallery, office space for Corporate)
+  - Enhanced text with white styling and drop shadows for readability over images
+  - Expanded introduction text width for better visual balance
   - Added Montserrat font family for distinctive brand elements
   - Updated "ATELIER" and "CORPORATE GIFTING" to use uppercase styling with Montserrat font
   - Applied brand font to all navigation items and main page headings

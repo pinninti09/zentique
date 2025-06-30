@@ -283,14 +283,21 @@ export default function CorporateGifting() {
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Corporate Hero Section */}
-      <section className="mb-16 animate-fade-in">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-rich-brown leading-tight uppercase tracking-wide">
-            Corporate Gifting
-          </h1>
-          <p className="text-lg text-sophisticated-gray max-w-5xl mx-auto leading-relaxed mb-8 font-brand">
-            We believe gifting is more than a gesture—it's a message. Every hand-selected gift we create is a reminder to your team that they matter, that they're valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.
-          </p>
+      <section className="mb-16 animate-fade-in relative">
+        <div 
+          className="relative rounded-2xl overflow-hidden bg-cover bg-center bg-no-repeat min-h-[400px] flex items-center"
+          style={{
+            backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2126&q=80')"
+          }}
+        >
+          <div className="text-center mb-12 w-full px-8 py-16">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
+              Corporate Gifting
+            </h1>
+            <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
+              We believe gifting is more than a gesture—it's a message. Every hand-selected gift we create is a reminder to your team that they matter, that they're valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.
+            </p>
+          </div>
         </div>
       </section>
 
