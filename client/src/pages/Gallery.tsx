@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowDown, Search, ShoppingCart, ArrowRight } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
 import PaintingCard from '@/components/PaintingCard';
-import PaintingDetailModal from '@/components/PaintingDetailModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,10 +13,9 @@ import type { Painting, CartItem } from '@shared/schema';
 
 export default function Gallery() {
   const { sessionId, cartCount, setCartCount, showToast } = useApp();
-  const [selectedPainting, setSelectedPainting] = useState<Painting | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('featured');
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
   const { data: paintings = [], isLoading } = useQuery<Painting[]>({
@@ -53,8 +51,7 @@ export default function Gallery() {
   });
 
   const handleQuickView = (painting: Painting) => {
-    setSelectedPainting(painting);
-    setModalOpen(true);
+    setLocation(`/painting/${painting.id}`);
   };
 
   const handleAddToCart = (paintingId: string) => {
@@ -214,13 +211,7 @@ export default function Gallery() {
 
 
 
-      {/* Painting Detail Modal */}
-      <PaintingDetailModal
-        painting={selectedPainting}
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onAddToCart={handleAddToCart}
-      />
+
     </main>
   );
 }

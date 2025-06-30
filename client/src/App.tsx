@@ -10,12 +10,14 @@ import Gallery from "./pages/Gallery";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Admin from "./pages/Admin";
+import PaintingDetail from "./pages/PaintingDetail";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Gallery} />
+      <Route path="/painting/:id" component={PaintingDetail} />
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/cart" component={Cart} />
       <Route path="/admin" component={Admin} />
