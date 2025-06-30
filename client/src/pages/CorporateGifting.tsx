@@ -289,7 +289,7 @@ export default function CorporateGifting() {
             Corporate Gifting
           </h1>
           <p className="text-lg text-sophisticated-gray max-w-2xl mx-auto leading-relaxed mb-8">
-            Elevate your corporate relationships with thoughtfully curated gifts that make lasting impressions. From executive appreciation to team recognition, our collection transforms business gestures into meaningful connections.
+            We believe gifting is more than a gesture—it's a message. Every hand-selected gift we create is a reminder to your team that they matter, that they're valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.
           </p>
         </div>
       </section>
