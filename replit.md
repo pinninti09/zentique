@@ -105,6 +105,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Footer Text Contrast Enhancement
+  - Fixed footer text visibility issues by changing background from `bg-charcoal` to `bg-gray-900`
+  - Enhanced text contrast with `text-white` headings and `text-gray-200` body text for better readability
+  - Updated copyright text to `text-gray-300` for improved visibility
+  - Applied consistent contrast improvements to both Gallery and Corporate Gifting footers
+  - Ensured all footer sections (Quick Links, Business Support, Connect) are clearly visible
+
 - June 30, 2025: **NEW** - Visual Design Enhancement
   - Changed website background from white to warm light beige for elegant appearance
   - Added stunning "Sunset Over the Ocean" background image to both introduction sections
