@@ -21,6 +21,8 @@ import {
   type InsertPromoBanner
 } from "@shared/schema";
 import { v4 as uuidv4 } from 'uuid';
+import { db } from "./db";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -646,4 +648,250 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  // User methods - keeping same as MemStorage for now
+  async getUser(id: number): Promise<User | undefined> {
+    // Implementation can be added later if needed
+    return undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    // Implementation can be added later if needed
+    return undefined;
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    // Implementation can be added later if needed
+    throw new Error("User creation not implemented");
+  }
+
+  // Painting methods - using database
+  async getAllPaintings(): Promise<Painting[]> {
+    try {
+      const result = await db.select().from(paintings);
+      return result;
+    } catch (error) {
+      console.error('Error fetching paintings from database:', error);
+      // Fallback to sample data if database is empty
+      return this.getSamplePaintings();
+    }
+  }
+
+  async getPaintingById(id: string): Promise<Painting | undefined> {
+    try {
+      const [painting] = await db.select().from(paintings).where(eq(paintings.id, id));
+      return painting;
+    } catch (error) {
+      console.error('Error fetching painting by id:', error);
+      return undefined;
+    }
+  }
+
+  async createPainting(painting: InsertPainting): Promise<Painting> {
+    try {
+      const [newPainting] = await db.insert(paintings).values(painting).returning();
+      return newPainting;
+    } catch (error) {
+      console.error('Error creating painting:', error);
+      throw error;
+    }
+  }
+
+  async updatePainting(id: string, updates: Partial<Painting>): Promise<Painting | undefined> {
+    try {
+      const [updatedPainting] = await db
+        .update(paintings)
+        .set(updates)
+        .where(eq(paintings.id, id))
+        .returning();
+      return updatedPainting;
+    } catch (error) {
+      console.error('Error updating painting:', error);
+      return undefined;
+    }
+  }
+
+  private getSamplePaintings(): Painting[] {
+    return [
+      {
+        id: "1",
+        title: "Sunset Over the Ocean",
+        description: "A breathtaking view of the sun setting over calm ocean waters, painted with vibrant oranges and purples.",
+        price: 299,
+        salePrice: null,
+        imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+        category: "Landscape",
+        material: "Oil on Canvas",
+        year: "2023",
+        artist: "Marina Solberg",
+        artistBio: "Marina Solberg is a contemporary landscape artist known for her luminous seascapes and atmospheric paintings. Born in Norway, she draws inspiration from the dramatic coastlines and changing light of the Nordic landscape.",
+        artistPhotoUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b606?w=400&h=400&fit=crop&crop=face",
+        artistBornYear: "1985",
+        artistAwards: "Winner of the International Seascape Art Competition 2022, Featured in Coastal Living Magazine",
+        availableSizes: ["16\" x 20\"", "20\" x 24\"", "24\" x 30\""],
+        availableFrames: ["Frameless Stretch", "Black Wood Frame", "White Wood Frame"],
+        averageRating: 4.8,
+        reviewCount: 24,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "2", 
+        title: "Mountain Reflection",
+        description: "Majestic mountain peaks reflected in a pristine alpine lake, capturing the serenity of untouched wilderness.",
+        price: 425,
+        salePrice: 340,
+        imageUrl: "https://images.unsplash.com/photo-1464822759844-d150066c5c3c?w=800&h=600&fit=crop",
+        category: "Landscape",
+        material: "Acrylic on Canvas",
+        year: "2023",
+        artist: "James Chen",
+        artistBio: "James Chen is a nature photographer turned painter who specializes in capturing the grandeur of mountain landscapes. His work reflects his passion for wilderness conservation and outdoor adventure.",
+        artistPhotoUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
+        artistBornYear: "1978",
+        artistAwards: "National Geographic Nature Artist of the Year 2021, Sierra Club Art Award Winner",
+        availableSizes: ["20\" x 24\"", "24\" x 30\"", "30\" x 40\""],
+        availableFrames: ["Black Wood Frame", "Natural Wood Frame", "Gallery Float Frame"],
+        averageRating: 4.9,
+        reviewCount: 18,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      // Add more sample paintings as needed...
+    ];
+  }
+
+  // Keep other methods as in-memory for now (cart, reviews, etc.)
+  // Cart methods
+  async getCartItems(sessionId: string): Promise<CartItem[]> {
+    // For now, keep cart in memory - can be moved to database later
+    return [];
+  }
+
+  async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Implementation needed
+    throw new Error("Cart functionality not implemented in DatabaseStorage");
+  }
+
+  async updateCartItemQuantity(sessionId: string, paintingId: string, quantity: number): Promise<CartItem | undefined> {
+    return undefined;
+  }
+
+  async removeFromCart(sessionId: string, paintingId: string): Promise<boolean> {
+    return false;
+  }
+
+  async clearCart(sessionId: string): Promise<boolean> {
+    return false;
+  }
+
+  // Review methods
+  async getReviewsByPaintingId(paintingId: string): Promise<Review[]> {
+    return [];
+  }
+
+  async createReview(review: InsertReview): Promise<Review> {
+    throw new Error("Review functionality not implemented in DatabaseStorage");
+  }
+
+  async updatePaintingRating(paintingId: string): Promise<void> {
+    // Implementation needed
+  }
+
+  // Wishlist methods
+  async getWishlistItems(sessionId: string): Promise<WishlistItem[]> {
+    return [];
+  }
+
+  async addToWishlist(wishlistItem: InsertWishlistItem): Promise<WishlistItem> {
+    throw new Error("Wishlist functionality not implemented in DatabaseStorage");
+  }
+
+  async removeFromWishlist(sessionId: string, paintingId: string): Promise<boolean> {
+    return false;
+  }
+
+  async isInWishlist(sessionId: string, paintingId: string): Promise<boolean> {
+    return false;
+  }
+
+  // Availability notification methods
+  async createAvailabilityNotification(notification: InsertAvailabilityNotification): Promise<AvailabilityNotification> {
+    throw new Error("Availability notifications not implemented in DatabaseStorage");
+  }
+
+  async getNotificationsByPaintingId(paintingId: string): Promise<AvailabilityNotification[]> {
+    return [];
+  }
+
+  async markNotificationsSent(paintingId: string): Promise<void> {
+    // Implementation needed
+  }
+
+  // Banner methods
+  async getActiveBanner(): Promise<PromoBanner | undefined> {
+    return {
+      id: "july4-2024",
+      text: "🇺🇸 July 4th Special: 25% OFF All Paintings! Use code JULY4 - Free Shipping on Orders Over $200",
+      isActive: true,
+      backgroundColor: "#1e40af",
+      textColor: "#f8fafc",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  async createBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
+    throw new Error("Banner creation not implemented in DatabaseStorage");
+  }
+
+  async updateBanner(id: string, updates: Partial<PromoBanner>): Promise<PromoBanner | undefined> {
+    return undefined;
+  }
+
+  async deactivateAllBanners(): Promise<void> {
+    // Implementation needed
+  }
+
+  // Corporate banner methods
+  async getActiveCorporateBanner(): Promise<PromoBanner | undefined> {
+    return {
+      id: "corporate-2024",
+      text: "🎁 Corporate Gifting: Strengthen workplace relationships with meaningful gifts that show you value your team",
+      isActive: true,
+      backgroundColor: "#059669",
+      textColor: "#f0fdf4",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  async createCorporateBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
+    throw new Error("Corporate banner creation not implemented in DatabaseStorage");
+  }
+
+  async deactivateAllCorporateBanners(): Promise<void> {
+    // Implementation needed
+  }
+
+  // Corporate gift methods
+  async getAllCorporateGifts(): Promise<any[]> {
+    return [
+      {
+        id: "corp-1",
+        title: "Premium Coffee Mug",
+        description: "High-quality ceramic mug perfect for corporate branding",
+        price: 24.99,
+        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+        category: "Drinkware",
+        material: "Ceramic",
+        minQuantity: 25,
+        maxQuantity: 500,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+}
+
+// Use DatabaseStorage instead of MemStorage for painting persistence
+export const storage = new DatabaseStorage();

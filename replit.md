@@ -111,6 +111,22 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Database Persistence for Paintings
+  - Implemented DatabaseStorage class to replace MemStorage for painting data
+  - Paintings now persist permanently in PostgreSQL database across server restarts
+  - Fixed data loss issue where uploaded paintings were lost on server reload
+  - Maintained backward compatibility with existing API endpoints
+  - Sample paintings load from database with fallback to static data if needed
+  - Cloudinary integration preserved for image storage while data is stored in Neon database
+
+- June 30, 2025: **NEW** - Extended Cloudinary Integration to Corporate Gifts
+  - Added file upload capability to corporate gift form in admin panel
+  - Created API endpoint `/api/admin/corporate-gifts` with Cloudinary integration
+  - Updated corporate gift form with dual input options (URL or file upload)
+  - Configured automatic image optimization for corporate gift uploads to dedicated folder
+  - Added proper form validation and error handling for corporate gift uploads
+  - Both Gallery paintings and Corporate gifts now support production-ready file uploads
+
 - June 30, 2025: **NEW** - Hybrid Architecture with Cloudinary Integration
   - Implemented production-ready hybrid architecture with Neon PostgreSQL for data and Cloudinary for images
   - Added Cloudinary configuration with automatic image optimization and CDN delivery
