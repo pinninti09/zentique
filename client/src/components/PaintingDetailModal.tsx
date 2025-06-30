@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { X, ShoppingBag, Truck, Star, Heart } from 'lucide-react';
+import { X, ShoppingBag, Truck, Star, Heart, Plus, Minus } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
 import ReviewsSection from './ReviewsSection';
-import type { Painting } from '@shared/schema';
+import type { Painting, CartItem } from '@shared/schema';
 
 interface PaintingDetailModalProps {
   painting: Painting | null;
@@ -30,6 +30,14 @@ export default function PaintingDetailModal({
     queryKey: ['/api/wishlist', sessionId, painting?.id, 'check'],
     enabled: !!painting && !!sessionId && isOpen
   });
+
+  const { data: cartItems = [] } = useQuery<CartItem[]>({
+    queryKey: [`/api/cart/${sessionId}`],
+    enabled: !!sessionId && isOpen
+  });
+
+  // Find current cart item for this painting
+  const currentCartItem = cartItems.find(item => item.paintingId === painting?.id);
 
   const addToWishlistMutation = useMutation({
     mutationFn: async () => {
@@ -64,6 +72,33 @@ export default function PaintingDetailModal({
     }
   });
 
+  const updateQuantityMutation = useMutation({
+    mutationFn: async ({ quantity }: { quantity: number }) => {
+      if (!painting) throw new Error('No painting');
+      return apiRequest(`/api/cart/${sessionId}/${painting.id}`, 'PUT', { quantity });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+    },
+    onError: () => {
+      showToast('Failed to update quantity', 'error');
+    }
+  });
+
+  const removeFromCartMutation = useMutation({
+    mutationFn: async () => {
+      if (!painting) throw new Error('No painting');
+      return apiRequest(`/api/cart/${sessionId}/${painting.id}`, 'DELETE');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
+      showToast('Removed from cart!');
+    },
+    onError: () => {
+      showToast('Failed to remove from cart', 'error');
+    }
+  });
+
   // Early return after all hooks are called
   if (!isOpen || !painting) return null;
 
@@ -71,7 +106,6 @@ export default function PaintingDetailModal({
 
   const handleAddToCart = () => {
     onAddToCart(painting.id);
-    onClose();
   };
 
   const handleWishlistToggle = () => {
@@ -79,6 +113,16 @@ export default function PaintingDetailModal({
       removeFromWishlistMutation.mutate();
     } else {
       addToWishlistMutation.mutate();
+    }
+  };
+
+  const handleQuantityChange = (change: number) => {
+    if (!currentCartItem) return;
+    const newQuantity = currentCartItem.quantity + change;
+    if (newQuantity < 1) {
+      removeFromCartMutation.mutate();
+    } else {
+      updateQuantityMutation.mutate({ quantity: newQuantity });
     }
   };
 
@@ -216,24 +260,61 @@ export default function PaintingDetailModal({
                 </div>
                 
                 <div className="flex gap-3">
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={painting.sold || false}
-                    className={`flex-1 py-4 text-lg font-medium ${
-                      painting.sold 
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
-                    }`}
-                  >
-                    {painting.sold ? (
-                      'Sold Out'
-                    ) : (
-                      <>
-                        <ShoppingBag className="mr-2" size={20} />
-                        Add to Cart
-                      </>
-                    )}
-                  </Button>
+                  {currentCartItem ? (
+                    <div className="flex-1 flex items-center gap-3 bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => handleQuantityChange(-1)}
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 border-emerald-300 hover:bg-emerald-100"
+                        >
+                          <Minus size={16} />
+                        </Button>
+                        <span className="text-lg font-medium text-emerald-700 min-w-[3ch] text-center">
+                          {currentCartItem.quantity}
+                        </span>
+                        <Button
+                          onClick={() => handleQuantityChange(1)}
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 border-emerald-300 hover:bg-emerald-100"
+                        >
+                          <Plus size={16} />
+                        </Button>
+                      </div>
+                      <div className="flex-1 text-emerald-700 font-medium text-center">
+                        In Cart
+                      </div>
+                      <Button
+                        onClick={() => removeFromCartMutation.mutate()}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={painting.sold || false}
+                      className={`flex-1 py-4 text-lg font-medium ${
+                        painting.sold 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-lg transition-all duration-200'
+                      }`}
+                    >
+                      {painting.sold ? (
+                        'Sold Out'
+                      ) : (
+                        <>
+                          <ShoppingBag className="mr-2" size={20} />
+                          Add to Cart
+                        </>
+                      )}
+                    </Button>
+                  )}
                   
                   <Button
                     onClick={handleWishlistToggle}

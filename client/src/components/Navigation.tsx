@@ -13,7 +13,7 @@ export default function Navigation() {
   const navItems = [
     { path: '/', label: 'Gallery', icon: Palette },
     { path: '/wishlist', label: 'Wishlist', icon: Heart },
-    { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount },
+    { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount > 0 ? cartCount : undefined },
     { path: '/admin', label: 'Admin', icon: Shield },
   ];
 
