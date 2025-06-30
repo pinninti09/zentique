@@ -11,11 +11,13 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Admin from "./pages/Admin";
 import PaintingDetail from "./pages/PaintingDetail";
+import CorporateGifting from "./pages/CorporateGifting";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/corporate" component={CorporateGifting} />
       <Route path="/" component={Gallery} />
       <Route path="/painting/:id" component={PaintingDetail} />
       <Route path="/wishlist" component={Wishlist} />

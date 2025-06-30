@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ShoppingBag, Palette, Shield, Menu, X, Heart } from 'lucide-react';
+import { ShoppingBag, Palette, Shield, Menu, X, Heart, Building2 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ export default function Navigation() {
   const { cartCount } = useApp();
 
   const navItems = [
+    { path: '/corporate', label: 'Corporate Gifting', icon: Building2 },
     { path: '/', label: 'Gallery', icon: Palette },
     { path: '/wishlist', label: 'Wishlist', icon: Heart },
     { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount > 0 ? cartCount : undefined },

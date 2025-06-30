@@ -102,6 +102,16 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Corporate Gifting Page Added
+  - Created dedicated Corporate Gifting page with bulk ordering functionality
+  - Added navigation tab with Building2 icon before Gallery
+  - Corporate product imagery (mugs, t-shirts, notebooks, water bottles, etc.)
+  - Bulk quantity slider (1-500 items) replacing +/- buttons
+  - No size/frame dropdowns for corporate products
+  - Unique corporate banner text about business relationships
+  - Same filtering/sorting as Gallery but corporate-focused
+  - Integrates with existing cart and checkout system
+
 - June 30, 2025: **COMPLETED** - Size and Frame Dropdown Functionality
   - Added comprehensive size options (Canvas Print, Framed Print, Metal Print)
   - Implemented frame options (Gallery Wrap, Black Frame, White Frame, etc.)
