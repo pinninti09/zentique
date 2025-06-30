@@ -302,6 +302,66 @@ export default function PaintingDetailModal({
           </div>
         </div>
 
+        {/* Artist Information Section - Full Width */}
+        {(painting?.artist || painting?.artistBio || painting?.artistBornYear || painting?.artistAwards) && (
+          <div className="border-t bg-white">
+            <div className="p-8 lg:p-12">
+              <h3 className="font-brand text-2xl font-bold mb-6 text-gray-900 uppercase tracking-wide">
+                About the Artist
+              </h3>
+              
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* Artist Photo */}
+                {painting?.artistPhotoUrl && (
+                  <div className="flex-shrink-0">
+                    <img
+                      src={painting.artistPhotoUrl}
+                      alt={painting.artist || 'Artist'}
+                      className="w-32 h-32 lg:w-40 lg:h-40 rounded-lg object-cover shadow-md"
+                    />
+                  </div>
+                )}
+                
+                {/* Artist Details */}
+                <div className="flex-1">
+                  <div className="space-y-4">
+                    {painting?.artist && (
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-1">
+                          {painting.artist}
+                        </h4>
+                        {painting?.artistBornYear && (
+                          <p className="text-gray-600 text-lg">
+                            Born {painting.artistBornYear}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {painting?.artistBio && (
+                      <div>
+                        <h5 className="font-medium text-gray-800 mb-2">Biography</h5>
+                        <p className="text-gray-700 leading-relaxed">
+                          {painting.artistBio}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {painting?.artistAwards && (
+                      <div>
+                        <h5 className="font-medium text-gray-800 mb-2">Awards & Recognition</h5>
+                        <p className="text-gray-700 leading-relaxed">
+                          {painting.artistAwards}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Reviews Section - Full Width */}
         <div className="border-t bg-gray-50">
           <div className="p-8 lg:p-12">
