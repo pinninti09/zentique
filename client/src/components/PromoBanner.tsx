@@ -21,10 +21,10 @@ export default function PromoBanner() {
   const isCorporatePage = location === '/corporate' || location.startsWith('/corporate');
   const bannerEndpoint = isCorporatePage ? '/api/corporate-banner/active' : '/api/banner/active';
 
-  // Debug logging
-  console.log('Current location:', location);
-  console.log('Is corporate page:', isCorporatePage);
-  console.log('Banner endpoint:', bannerEndpoint);
+  // Debug logging (remove after testing)
+  // console.log('Current location:', location);
+  // console.log('Is corporate page:', isCorporatePage);
+  // console.log('Banner endpoint:', bannerEndpoint);
 
   // Fetch appropriate banner from API
   const { data: banner } = useQuery<BannerData>({

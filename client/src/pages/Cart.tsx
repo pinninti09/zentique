@@ -26,6 +26,10 @@ export default function Cart() {
     queryKey: ['/api/paintings'],
   });
 
+  const { data: corporateGifts = [] } = useQuery<any[]>({
+    queryKey: ['/api/corporate-gifts'],
+  });
+
   // Update cart count in context when cart items change
   useEffect(() => {
     const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -71,11 +75,16 @@ export default function Cart() {
     },
   });
 
-  // Enrich cart items with painting data
-  const enrichedCartItems: CartItemWithPainting[] = cartItems.map(item => ({
-    ...item,
-    painting: paintings.find(p => p.id === item.paintingId)
-  })).filter(item => item.painting); // Filter out items without painting data
+  // Enrich cart items with painting or corporate gift data
+  const enrichedCartItems: CartItemWithPainting[] = cartItems.map(item => {
+    const painting = paintings.find(p => p.id === item.paintingId);
+    const corporateGift = corporateGifts.find(g => g.id === item.paintingId);
+    
+    return {
+      ...item,
+      painting: painting || corporateGift // Use painting first, then corporate gift
+    };
+  }).filter(item => item.painting); // Filter out items without any product data
 
   const updateQuantity = (paintingId: string, change: number) => {
     const item = cartItems.find(item => item.paintingId === paintingId);
