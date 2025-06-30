@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Painting } from '@shared/schema';
+import type { Painting, CartItem } from '@shared/schema';
 
 export default function Gallery() {
   const { sessionId, setCartCount, showToast } = useApp();
@@ -23,10 +23,16 @@ export default function Gallery() {
     queryKey: ['/api/paintings'],
   });
 
-  const { data: cartItems = [] } = useQuery({
+  const { data: cartItems = [] } = useQuery<CartItem[]>({
     queryKey: [`/api/cart/${sessionId}`],
     enabled: !!sessionId,
   });
+
+  // Update cart count in context when cart items change
+  useEffect(() => {
+    const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+    setCartCount(totalQuantity);
+  }, [cartItems, setCartCount]);
 
   useEffect(() => {
     if (Array.isArray(cartItems)) {

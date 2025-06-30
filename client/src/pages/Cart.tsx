@@ -26,6 +26,12 @@ export default function Cart() {
     queryKey: ['/api/paintings'],
   });
 
+  // Update cart count in context when cart items change
+  useEffect(() => {
+    const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+    setCartCount(totalQuantity);
+  }, [cartItems, setCartCount]);
+
   const updateQuantityMutation = useMutation({
     mutationFn: async ({ paintingId, quantity }: { paintingId: string; quantity: number }) => {
       return apiRequest('PUT', `/api/cart/${sessionId}/${paintingId}`, { quantity });
@@ -41,7 +47,7 @@ export default function Cart() {
 
   const removeItemMutation = useMutation({
     mutationFn: async (paintingId: string) => {
-      return apiRequest('DELETE', `/api/cart/${sessionId}/${paintingId}`);
+      return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
@@ -54,7 +60,7 @@ export default function Cart() {
 
   const clearCartMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest('DELETE', `/api/cart/${sessionId}`);
+      return apiRequest(`/api/cart/${sessionId}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
