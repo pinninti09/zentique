@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, useLocation, Link } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { AppProvider } from "./contexts/AppContext";
@@ -14,6 +14,24 @@ import PaintingDetail from "./pages/PaintingDetail";
 import CorporateGifting from "./pages/CorporateGifting";
 import NotFound from "@/pages/not-found";
 
+// Gallery footer pages
+import About from "./pages/About";
+import CustomerCare from "./pages/CustomerCare";
+import ShippingInfo from "./pages/ShippingInfo";
+import Returns from "./pages/Returns";
+import CareInstructions from "./pages/CareInstructions";
+import Contact from "./pages/Contact";
+
+// Corporate footer pages
+import CorporateSolutions from "./pages/CorporateSolutions";
+import BulkOrders from "./pages/BulkOrders";
+import CustomBranding from "./pages/CustomBranding";
+import Enterprise from "./pages/Enterprise";
+import VolumePricing from "./pages/VolumePricing";
+import CorporateReturns from "./pages/CorporateReturns";
+import Customization from "./pages/Customization";
+import AccountManager from "./pages/AccountManager";
+
 function Router() {
   return (
     <Switch>
@@ -23,6 +41,25 @@ function Router() {
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/cart" component={Cart} />
       <Route path="/admin" component={Admin} />
+      
+      {/* Gallery footer pages */}
+      <Route path="/about" component={About} />
+      <Route path="/customer-care" component={CustomerCare} />
+      <Route path="/shipping-info" component={ShippingInfo} />
+      <Route path="/returns" component={Returns} />
+      <Route path="/care-instructions" component={CareInstructions} />
+      <Route path="/contact" component={Contact} />
+      
+      {/* Corporate footer pages */}
+      <Route path="/corporate-solutions" component={CorporateSolutions} />
+      <Route path="/bulk-orders" component={BulkOrders} />
+      <Route path="/custom-branding" component={CustomBranding} />
+      <Route path="/enterprise" component={Enterprise} />
+      <Route path="/volume-pricing" component={VolumePricing} />
+      <Route path="/corporate-returns" component={CorporateReturns} />
+      <Route path="/customization" component={Customization} />
+      <Route path="/account-manager" component={AccountManager} />
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -48,19 +85,19 @@ function Footer() {
             <div>
               <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
               <ul className="space-y-2 text-gray-200">
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Corporate Solutions</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Bulk Orders</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Custom Branding</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Enterprise</a></li>
+                <li><Link href="/corporate-solutions" className="hover:text-elegant-gold transition-colors">Corporate Solutions</Link></li>
+                <li><Link href="/bulk-orders" className="hover:text-elegant-gold transition-colors">Bulk Orders</Link></li>
+                <li><Link href="/custom-branding" className="hover:text-elegant-gold transition-colors">Custom Branding</Link></li>
+                <li><Link href="/enterprise" className="hover:text-elegant-gold transition-colors">Enterprise</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-4 text-white">Business Support</h4>
               <ul className="space-y-2 text-gray-200">
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Volume Pricing</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Corporate Returns</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Customization</a></li>
-                <li><a href="#" className="hover:text-elegant-gold transition-colors">Account Manager</a></li>
+                <li><Link href="/volume-pricing" className="hover:text-elegant-gold transition-colors">Volume Pricing</Link></li>
+                <li><Link href="/corporate-returns" className="hover:text-elegant-gold transition-colors">Corporate Returns</Link></li>
+                <li><Link href="/customization" className="hover:text-elegant-gold transition-colors">Customization</Link></li>
+                <li><Link href="/account-manager" className="hover:text-elegant-gold transition-colors">Account Manager</Link></li>
               </ul>
             </div>
             <div>
@@ -105,19 +142,19 @@ function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
             <ul className="space-y-2 text-gray-200">
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Gallery</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Artists</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Collections</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">About</a></li>
+              <li><Link href="/" className="hover:text-elegant-gold transition-colors">Gallery</Link></li>
+              <li><Link href="/about" className="hover:text-elegant-gold transition-colors">About</Link></li>
+              <li><Link href="/contact" className="hover:text-elegant-gold transition-colors">Contact</Link></li>
+              <li><Link href="/customer-care" className="hover:text-elegant-gold transition-colors">Support</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 text-white">Customer Care</h4>
             <ul className="space-y-2 text-gray-200">
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Shipping Info</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Returns</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Care Instructions</a></li>
-              <li><a href="#" className="hover:text-elegant-gold transition-colors">Contact</a></li>
+              <li><Link href="/shipping-info" className="hover:text-elegant-gold transition-colors">Shipping Info</Link></li>
+              <li><Link href="/returns" className="hover:text-elegant-gold transition-colors">Returns</Link></li>
+              <li><Link href="/care-instructions" className="hover:text-elegant-gold transition-colors">Care Instructions</Link></li>
+              <li><Link href="/contact" className="hover:text-elegant-gold transition-colors">Contact</Link></li>
             </ul>
           </div>
           <div>
