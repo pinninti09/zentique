@@ -34,20 +34,20 @@ function Footer() {
 
   if (isCorporatePage) {
     return (
-      <footer className="bg-charcoal text-white py-12 mt-16">
+      <footer className="bg-gray-900 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide">
+              <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide text-white">
                 <span className="text-elegant-gold">🏢</span> Corporate Gifting
               </h3>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-gray-200 leading-relaxed">
                 Elevating business relationships through thoughtfully curated corporate gifts. Making every business gesture meaningful.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-gray-300">
+              <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
+              <ul className="space-y-2 text-gray-200">
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Corporate Solutions</a></li>
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Bulk Orders</a></li>
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Custom Branding</a></li>
@@ -55,8 +55,8 @@ function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Business Support</h4>
-              <ul className="space-y-2 text-gray-300">
+              <h4 className="font-semibold mb-4 text-white">Business Support</h4>
+              <ul className="space-y-2 text-gray-200">
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Volume Pricing</a></li>
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Corporate Returns</a></li>
                 <li><a href="#" className="hover:text-elegant-gold transition-colors">Customization</a></li>
@@ -64,24 +64,24 @@ function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
+              <h4 className="font-semibold mb-4 text-white">Connect</h4>
               <div className="flex space-x-4">
-                <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+                <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                   📷
                 </a>
-                <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+                <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                   📘
                 </a>
-                <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">  
+                <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">  
                   🐦
                 </a>
-                <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+                <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                   📌
                 </a>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
             <p>&copy; 2024 Corporate Gifting Solutions. All rights reserved. Crafted for meaningful business connections.</p>
           </div>
         </div>
@@ -91,20 +91,20 @@ function Footer() {
 
   // Gallery/Art focused footer
   return (
-    <footer className="bg-charcoal text-white py-12 mt-16">
+    <footer className="bg-gray-900 text-white py-12 mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide">
+            <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide text-white">
               <span className="text-elegant-gold">🎨</span> Atelier
             </h3>
-            <p className="text-gray-300 leading-relaxed">
+            <p className="text-gray-200 leading-relaxed">
               Curating exceptional art from talented artists worldwide. Each piece tells a unique story.
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-gray-300">
+            <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
+            <ul className="space-y-2 text-gray-200">
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Gallery</a></li>
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Artists</a></li>
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Collections</a></li>
@@ -112,8 +112,8 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Customer Care</h4>
-            <ul className="space-y-2 text-gray-300">
+            <h4 className="font-semibold mb-4 text-white">Customer Care</h4>
+            <ul className="space-y-2 text-gray-200">
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Shipping Info</a></li>
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Returns</a></li>
               <li><a href="#" className="hover:text-elegant-gold transition-colors">Care Instructions</a></li>
@@ -121,18 +121,18 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Connect</h4>
+            <h4 className="font-semibold mb-4 text-white">Connect</h4>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+              <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                 📷
               </a>
-              <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+              <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                 📘
               </a>
-              <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">  
+              <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">  
                 🐦
               </a>
-              <a href="#" className="text-gray-300 hover:text-elegant-gold transition-colors">
+              <a href="#" className="text-gray-200 hover:text-elegant-gold transition-colors">
                 📌
               </a>
             </div>
