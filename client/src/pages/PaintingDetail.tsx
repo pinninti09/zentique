@@ -52,7 +52,7 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         throw new Error('No session ID available');
       }
       console.log('Adding to cart:', { sessionId, paintingId: painting.id, quantity: 1 });
-      return apiRequest('POST', '/api/cart', {
+      return apiRequest('/api/cart', 'POST', {
         sessionId,
         paintingId: painting.id,
         quantity: 1,
@@ -77,9 +77,9 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
       const newQuantity = Math.max(0, currentItem.quantity + change);
       
       if (newQuantity === 0) {
-        return apiRequest('DELETE', `/api/cart/${sessionId}/${paintingId}`);
+        return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'DELETE');
       } else {
-        return apiRequest('PUT', `/api/cart/${sessionId}/${paintingId}`, { quantity: newQuantity });
+        return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'PUT', { quantity: newQuantity });
       }
     },
     onSuccess: () => {
@@ -93,7 +93,7 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
 
   const removeFromCartMutation = useMutation({
     mutationFn: async (paintingId: string) => {
-      return apiRequest('DELETE', `/api/cart/${sessionId}/${paintingId}`);
+      return apiRequest(`/api/cart/${sessionId}/${paintingId}`, 'DELETE');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cart/${sessionId}`] });
@@ -123,9 +123,9 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
       });
       
       if (isInWishlist) {
-        return apiRequest('DELETE', `/api/wishlist/${sessionId}/${painting.id}`);
+        return apiRequest(`/api/wishlist/${sessionId}/${painting.id}`, 'DELETE');
       } else {
-        return apiRequest('POST', '/api/wishlist', {
+        return apiRequest('/api/wishlist', 'POST', {
           sessionId,
           paintingId: painting.id,
         });
