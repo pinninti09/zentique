@@ -145,6 +145,7 @@ function Footer() {
             <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
             <ul className="space-y-2 text-gray-200">
               <li><Link href="/" className="hover:text-elegant-gold transition-colors">Gallery</Link></li>
+              <li><Link href="/artists" className="hover:text-elegant-gold transition-colors">Artists</Link></li>
               <li><Link href="/about" className="hover:text-elegant-gold transition-colors">About</Link></li>
               <li><Link href="/contact" className="hover:text-elegant-gold transition-colors">Contact</Link></li>
               <li><Link href="/customer-care" className="hover:text-elegant-gold transition-colors">Support</Link></li>
