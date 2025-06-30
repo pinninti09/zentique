@@ -218,7 +218,7 @@ export default function Gallery() {
         </div>
       )}
 
-      {/* Floating Cart Button - Debug version */}
+      {/* Floating Proceed to Checkout Button */}
       {cartItems.length > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <Link href="/cart">
@@ -228,7 +228,7 @@ export default function Gallery() {
             >
               <ShoppingCart size={20} />
               <span className="font-medium">
-                View Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+                Proceed to Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
               </span>
               <ArrowRight size={16} />
             </Button>

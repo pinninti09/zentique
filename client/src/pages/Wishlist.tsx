@@ -239,7 +239,7 @@ export default function Wishlist() {
         )}
       </div>
 
-      {/* Floating Cart Button */}
+      {/* Floating Proceed to Checkout Button */}
       {cartItems.length > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <Link href="/cart">
@@ -249,7 +249,7 @@ export default function Wishlist() {
             >
               <ShoppingCart size={20} />
               <span className="font-medium">
-                View Cart ({cartItems.reduce((sum: any, item: any) => sum + item.quantity, 0)})
+                Proceed to Checkout ({cartItems.reduce((sum: any, item: any) => sum + item.quantity, 0)})
               </span>
               <ArrowRight size={16} />
             </Button>
