@@ -285,10 +285,10 @@ export default function CorporateGifting() {
       {/* Corporate Hero Section */}
       <section className="mb-16 animate-fade-in">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light mb-6 text-rich-brown leading-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-rich-brown leading-tight uppercase tracking-wide">
             Corporate Gifting
           </h1>
-          <p className="text-lg text-sophisticated-gray max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-lg text-sophisticated-gray max-w-2xl mx-auto leading-relaxed mb-8 font-brand">
             We believe gifting is more than a gesture—it's a message. Every hand-selected gift we create is a reminder to your team that they matter, that they're valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.
           </p>
         </div>

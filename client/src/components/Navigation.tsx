@@ -11,11 +11,11 @@ export default function Navigation() {
   const { cartCount } = useApp();
 
   const navItems = [
-    { path: '/corporate', label: 'Corporate Gifting', icon: Building2 },
-    { path: '/', label: 'Gallery', icon: Palette },
-    { path: '/wishlist', label: 'Wishlist', icon: Heart },
-    { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount > 0 ? cartCount : undefined },
-    { path: '/admin', label: 'Admin', icon: Shield },
+    { path: '/corporate', label: 'Corporate Gifting', icon: Building2, isBrand: true },
+    { path: '/', label: 'Gallery', icon: Palette, isBrand: true },
+    { path: '/wishlist', label: 'Wishlist', icon: Heart, isBrand: true },
+    { path: '/cart', label: 'Cart', icon: ShoppingBag, badge: cartCount > 0 ? cartCount : undefined, isBrand: true },
+    { path: '/admin', label: 'Admin', icon: Shield, isBrand: true },
   ];
 
   return (
@@ -23,11 +23,11 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center group">
-            <h1 className="text-2xl font-serif font-light text-rich-brown cursor-pointer flex items-center">
+            <h1 className="text-2xl font-brand font-semibold text-rich-brown cursor-pointer flex items-center uppercase tracking-wide">
               <div className="w-8 h-8 bg-elegant-gold rounded-md flex items-center justify-center mr-3 group-hover:bg-rich-brown transition-colors duration-200">
                 <Palette className="text-white" size={16} />
               </div>
-              Gallery
+              Atelier
             </h1>
           </Link>
           
@@ -41,7 +41,7 @@ export default function Navigation() {
                     location === item.path 
                       ? "bg-elegant-gold/20 text-rich-brown" 
                       : "text-sophisticated-gray hover:bg-elegant-gold/10 hover:text-rich-brown"
-                  }`}
+                  } ${item.isBrand ? "font-brand font-semibold uppercase tracking-wide" : ""}`}
                 >
                   <item.icon className="mr-2" size={16} />
                   {item.label}
@@ -75,7 +75,7 @@ export default function Navigation() {
                 <Link key={item.path} href={item.path}>
                   <Button
                     variant="ghost"
-                    className="w-full justify-start relative"
+                    className={`w-full justify-start relative ${item.isBrand ? "font-brand font-semibold uppercase tracking-wide" : ""}`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="mr-2" size={16} />

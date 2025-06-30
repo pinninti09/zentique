@@ -105,6 +105,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Brand Typography Update
+  - Added Montserrat font family for distinctive brand elements
+  - Updated "ATELIER" and "CORPORATE GIFTING" to use uppercase styling with Montserrat font
+  - Applied brand font to all navigation items and main page headings
+  - Enhanced visual consistency across both gallery and corporate sections
+
 - June 30, 2025: **NEW** - Corporate Sales Overview Tab in Admin Panel
   - Added tabbed interface to admin panel with Gallery Management and Corporate Sales sections
   - Implemented comprehensive corporate metrics dashboard showing revenue, orders, and client tracking

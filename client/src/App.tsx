@@ -38,7 +38,7 @@ function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-serif text-2xl font-bold mb-4">
+              <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide">
                 <span className="text-elegant-gold">🏢</span> Corporate Gifting
               </h3>
               <p className="text-gray-300 leading-relaxed">
@@ -95,7 +95,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-serif text-2xl font-bold mb-4">
+            <h3 className="font-brand text-2xl font-bold mb-4 uppercase tracking-wide">
               <span className="text-elegant-gold">🎨</span> Atelier
             </h3>
             <p className="text-gray-300 leading-relaxed">
