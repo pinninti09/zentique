@@ -107,7 +107,8 @@ Preferred communication style: Simple, everyday language.
 
 - June 30, 2025: **NEW** - Visual Design Enhancement
   - Changed website background from white to warm light beige for elegant appearance
-  - Added beautiful background images to introduction sections (art studio for Gallery, office space for Corporate)
+  - Added stunning "Sunset Over the Ocean" background image to both introduction sections
+  - Made hero sections full-width with screen overflow for dramatic visual impact
   - Enhanced text with white styling and drop shadows for readability over images
   - Expanded introduction text width for better visual balance
   - Added Montserrat font family for distinctive brand elements
