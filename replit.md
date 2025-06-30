@@ -102,6 +102,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **NEW** - Enhanced Admin Panel with Artist Information
+  - Added comprehensive artist fields to painting upload: biography, photo URL, born year, awards/recognitions
+  - Extended admin panel with corporate gift management and dual banner system
+  - Created dynamic footer system that switches between gallery and corporate contexts
+  - Separated banner management for gallery vs corporate promotional content
+
 - June 30, 2025: **NEW** - Corporate Gifting Page Added
   - Created dedicated Corporate Gifting page with bulk ordering functionality
   - Added navigation tab with Building2 icon before Gallery

@@ -28,6 +28,10 @@ export default function Admin() {
     dimensions: '',
     year: '',
     artist: '',
+    artistBio: '',
+    artistImageUrl: '',
+    artistBornYear: '',
+    artistRecognitions: '',
     availableSizes: [] as string[],
     availableFrames: [] as string[],
   });
@@ -96,6 +100,10 @@ export default function Admin() {
         dimensions: '',
         year: '',
         artist: '',
+        artistBio: '',
+        artistImageUrl: '',
+        artistBornYear: '',
+        artistRecognitions: '',
         availableSizes: [],
         availableFrames: [],
       });
@@ -543,7 +551,7 @@ export default function Admin() {
                 />
               </div>
               <div>
-                <Label htmlFor="artist">Artist</Label>
+                <Label htmlFor="artist">Artist Name *</Label>
                 <Input
                   id="artist"
                   placeholder="Artist name"
@@ -562,6 +570,57 @@ export default function Admin() {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={3}
               />
+            </div>
+
+            {/* Artist Information Section */}
+            <div className="border-t pt-4">
+              <Label className="text-base font-medium mb-3 block">Artist Information</Label>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="artistBio">Artist Biography</Label>
+                  <Textarea
+                    id="artistBio"
+                    placeholder="Tell us about the artist's background, style, and career"
+                    value={uploadForm.artistBio}
+                    onChange={(e) => handleInputChange('artistBio', e.target.value)}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="artistImageUrl">Artist Photo URL</Label>
+                    <Input
+                      id="artistImageUrl"
+                      placeholder="https://example.com/artist-photo.jpg"
+                      value={uploadForm.artistImageUrl}
+                      onChange={(e) => handleInputChange('artistImageUrl', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="artistBornYear">Born Year</Label>
+                    <Input
+                      id="artistBornYear"
+                      type="number"
+                      placeholder="1975"
+                      value={uploadForm.artistBornYear}
+                      onChange={(e) => handleInputChange('artistBornYear', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="artistRecognitions">Awards & Recognitions</Label>
+                  <Textarea
+                    id="artistRecognitions"
+                    placeholder="List major awards, exhibitions, or recognitions (e.g., 'Winner of the 2023 National Art Award, Featured in Metropolitan Museum')"
+                    value={uploadForm.artistRecognitions}
+                    onChange={(e) => handleInputChange('artistRecognitions', e.target.value)}
+                    rows={3}
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
