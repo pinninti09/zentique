@@ -108,6 +108,9 @@ export default function Gallery() {
       {/* Hero Section - Ballard Designs Inspired */}
       <section className="mb-16 animate-fade-in">
         <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light mb-6 text-rich-brown leading-tight">
+            Atelier
+          </h1>
           <p className="text-lg text-sophisticated-gray max-w-2xl mx-auto leading-relaxed mb-8">
             An experience of elegance — painted just for you. Each masterwork here isn't simply a painting; it's the exclamation point in a room's story. Curated for those who believe that art is the signature accessory of every interior, our collection turns walls into wonders and corners into conversations.
           </p>

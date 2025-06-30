@@ -99,6 +99,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- June 30, 2025: **COMPLETED** - Size and Frame Dropdown Functionality
+  - Added comprehensive size options (Canvas Print, Framed Print, Metal Print)
+  - Implemented frame options (Gallery Wrap, Black Frame, White Frame, etc.)
+  - Admin panel checkboxes to control available options per painting
+  - Updated database schema with availableSizes and availableFrames arrays
+  - Cart system stores selected size and frame preferences
+  - Updated gallery hero text with elegant new description
+  - Refined navigation branding (Gallery in nav, Atelier on main page)
+
 - June 29, 2025: **NEW** - UI Improvements, Reviews, and Admin Fixes
   - Fixed painting upload functionality with proper FormData handling and admin token authorization
   - Enhanced star ratings with bright yellow fill colors for better visibility
