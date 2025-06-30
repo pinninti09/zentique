@@ -239,23 +239,7 @@ export default function Wishlist() {
         )}
       </div>
 
-      {/* Floating Proceed to Checkout Button */}
-      {cartItems && cartItems.length > 0 && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <Link href="/cart">
-            <Button
-              size="lg"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full px-6 py-4 flex items-center gap-3"
-            >
-              <ShoppingCart size={20} />
-              <span className="font-medium">
-                Proceed to Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-              </span>
-              <ArrowRight size={16} />
-            </Button>
-          </Link>
-        </div>
-      )}
+
 
       {/* Painting Detail Modal */}
       <PaintingDetailModal
