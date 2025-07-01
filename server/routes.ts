@@ -14,6 +14,24 @@ import { upload, uploadArtistPhoto, uploadCorporateGift } from "./cloudinary";
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "secure-admin-token";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for load balancers and monitoring
+  app.get('/health', async (req, res) => {
+    try {
+      // Basic health check - could add database ping if needed
+      res.status(200).json({ 
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        uptime: process.uptime()
+      });
+    } catch (error) {
+      res.status(503).json({ 
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: 'Service unavailable'
+      });
+    }
+  });
   // Public painting routes
   app.get("/api/paintings", async (req, res) => {
     try {
