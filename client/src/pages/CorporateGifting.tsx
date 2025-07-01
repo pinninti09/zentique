@@ -10,7 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/utils';
-import type { Painting, CartItem } from '@shared/schema';
+import type { Painting, CartItem, CorporateGift } from '@shared/schema';
+
+// Type for products that works with both database and hardcoded format
+type ProductType = CorporateGift | typeof corporateProducts[0];
 
 // Corporate gifting products with mug and t-shirt imagery
 const corporateProducts = [
@@ -119,7 +122,7 @@ const corporateProducts = [
 ];
 
 interface CorporateProductCardProps {
-  product: typeof corporateProducts[0];
+  product: any; // Support both database and hardcoded format
   onAddToCart: (productId: string, quantity: number) => void;
 }
 
@@ -231,6 +234,11 @@ export default function CorporateGifting() {
     enabled: !!sessionId,
   });
 
+  // Fetch corporate gifts from database API
+  const { data: corporateGifts = [], isLoading } = useQuery<CorporateGift[]>({
+    queryKey: ['/api/corporate-gifts'],
+  });
+
   // Update cart count in context when cart items change
   useEffect(() => {
     const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -260,23 +268,28 @@ export default function CorporateGifting() {
     addToCartMutation.mutate({ productId, quantity });
   };
 
-  // Filter and sort products
-  const filteredProducts = corporateProducts.filter(product =>
+  // Filter and sort products - use database data or fallback to hardcoded
+  const productsToShow = corporateGifts.length > 0 ? corporateGifts : corporateProducts;
+  const filteredProducts = productsToShow.filter(product =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
     switch (sortBy) {
       case 'price-low':
         return (a.salePrice || a.price) - (b.salePrice || b.price);
       case 'price-high':
         return (b.salePrice || b.price) - (a.salePrice || a.price);
       case 'newest':
-        return b.year - a.year;
+        // Use createdAt for database items, year for hardcoded items
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+        return (b.year || 2024) - (a.year || 2024);
       case 'featured':
       default:
-        return b.averageRating - a.averageRating;
+        return (b.averageRating || 4.5) - (a.averageRating || 4.5);
     }
   });
 
@@ -323,7 +336,7 @@ export default function CorporateGifting() {
             <div className="text-sm text-sophisticated-gray">
               <span className="font-medium">{sortedProducts.length}</span> product{sortedProducts.length !== 1 ? 's' : ''} 
               <span className="mx-2">•</span>
-              <span className="font-medium">{sortedProducts.filter(p => !p.sold).length}</span> available
+              <span className="font-medium">{sortedProducts.filter((p: any) => !p.sold).length}</span> available
             </div>
           </div>
           
