@@ -9,7 +9,7 @@ import PromoBanner from "./components/PromoBanner";
 import Gallery from "./pages/Gallery";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
-import Admin from "./pages/Admin";
+import AdminNew from "./pages/AdminNew";
 import PaintingDetail from "./pages/PaintingDetail";
 import CorporateGifting from "./pages/CorporateGifting";
 import NotFound from "@/pages/not-found";
@@ -41,7 +41,7 @@ function Router() {
       <Route path="/painting/:id" component={PaintingDetail} />
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/cart" component={Cart} />
-      <Route path="/admin" component={Admin} />
+      <Route path="/admin" component={AdminNew} />
       
       {/* Gallery footer pages */}
       <Route path="/about" component={About} />
