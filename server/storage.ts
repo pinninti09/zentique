@@ -674,10 +674,17 @@ export class DatabaseStorage implements IStorage {
   async getAllPaintings(): Promise<Painting[]> {
     try {
       const result = await db.select().from(paintings);
+      // If database is empty, populate with sample data
+      if (result.length === 0) {
+        console.log('Database is empty, initializing with sample paintings...');
+        await this.initializeSamplePaintings();
+        // Return the freshly inserted sample data
+        return await db.select().from(paintings);
+      }
       return result;
     } catch (error) {
       console.error('Error fetching paintings from database:', error);
-      // Fallback to sample data if database is empty
+      // Fallback to sample data if database error occurs
       return this.getSamplePaintings();
     }
   }
@@ -694,11 +701,31 @@ export class DatabaseStorage implements IStorage {
 
   async createPainting(painting: InsertPainting): Promise<Painting> {
     try {
-      const [newPainting] = await db.insert(paintings).values(painting).returning();
+      const paintingWithId = {
+        id: uuidv4(),
+        ...painting
+      };
+      const [newPainting] = await db.insert(paintings).values(paintingWithId).returning();
       return newPainting;
     } catch (error) {
       console.error('Error creating painting:', error);
       throw error;
+    }
+  }
+
+  private async initializeSamplePaintings(): Promise<void> {
+    const samplePaintings = this.getSamplePaintings();
+    
+    for (const painting of samplePaintings) {
+      try {
+        const paintingWithId = {
+          id: uuidv4(),
+          ...painting
+        };
+        await db.insert(paintings).values(paintingWithId);
+      } catch (error) {
+        console.error('Error inserting sample painting:', error);
+      }
     }
   }
 
