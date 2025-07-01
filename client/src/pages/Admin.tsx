@@ -406,7 +406,7 @@ export default function Admin() {
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Gallery Banner Management */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.galleryBanner ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -419,7 +419,9 @@ export default function Admin() {
               {collapsedSections.galleryBanner ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.galleryBanner && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.galleryBanner ? 'max-h-0' : 'max-h-96'
+          }`}>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="banner-text">Banner Text</Label>
@@ -459,11 +461,11 @@ export default function Admin() {
                 {updateBannerMutation.isPending ? 'Updating...' : 'Update Gallery Banner'}
               </Button>
             </CardContent>
-          )}
+          </div>
         </Card>
 
         {/* Corporate Banner Management */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.corporateBanner ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -476,7 +478,9 @@ export default function Admin() {
               {collapsedSections.corporateBanner ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.corporateBanner && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.corporateBanner ? 'max-h-0' : 'max-h-96'
+          }`}>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="corporate-banner-text">Corporate Banner Text</Label>
@@ -516,13 +520,13 @@ export default function Admin() {
                 {updateCorporateBannerMutation.isPending ? 'Updating...' : 'Update Corporate Banner'}
               </Button>
             </CardContent>
-          )}
+          </div>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Upload New Corporate Gift */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.corporateGift ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -535,7 +539,9 @@ export default function Admin() {
               {collapsedSections.corporateGift ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.corporateGift && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.corporateGift ? 'max-h-0' : 'max-h-[800px]'
+          }`}>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -668,11 +674,11 @@ export default function Admin() {
                 Add Corporate Gift
               </Button>
             </CardContent>
-          )}
+          </div>
         </Card>
 
         {/* Upload New Painting */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.painting ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -685,7 +691,9 @@ export default function Admin() {
               {collapsedSections.painting ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.painting && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.painting ? 'max-h-0' : 'max-h-[1000px]'
+          }`}>
             <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -906,13 +914,13 @@ export default function Admin() {
               Upload Painting
             </Button>
             </CardContent>
-          )}
+          </div>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Manage Paintings */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.paintingManagement ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -925,7 +933,9 @@ export default function Admin() {
               {collapsedSections.paintingManagement ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.paintingManagement && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.paintingManagement ? 'max-h-0' : 'max-h-96'
+          }`}>
             <CardContent>
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {paintings.map((painting) => (
@@ -982,11 +992,11 @@ export default function Admin() {
               )}
             </div>
           </CardContent>
-          )}
+          </div>
         </Card>
 
         {/* Manage Corporate Gifts */}
-        <Card>
+        <Card className={`transition-all duration-200 ${collapsedSections.corporateManagement ? 'h-auto' : ''}`}>
           <CardHeader>
             <CardTitle 
               className="flex items-center justify-between cursor-pointer"
@@ -999,7 +1009,9 @@ export default function Admin() {
               {collapsedSections.corporateManagement ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
             </CardTitle>
           </CardHeader>
-          {!collapsedSections.corporateManagement && (
+          <div className={`overflow-hidden transition-all duration-200 ${
+            collapsedSections.corporateManagement ? 'max-h-0' : 'max-h-96'
+          }`}>
             <CardContent>
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {(corporateGifts as any[]).map((gift: any) => (
@@ -1046,12 +1058,12 @@ export default function Admin() {
               )}
             </div>
           </CardContent>
-          )}
+          </div>
         </Card>
       </div>
 
       {/* Sales Analytics */}
-      <Card>
+      <Card className={`transition-all duration-200 ${collapsedSections.analytics ? 'h-auto' : ''}`}>
         <CardHeader>
           <CardTitle 
             className="flex items-center justify-between cursor-pointer"
@@ -1064,7 +1076,9 @@ export default function Admin() {
             {collapsedSections.analytics ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
           </CardTitle>
         </CardHeader>
-        {!collapsedSections.analytics && (
+        <div className={`overflow-hidden transition-all duration-200 ${
+          collapsedSections.analytics ? 'max-h-0' : 'max-h-96'
+        }`}>
           <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center p-6 bg-yellow-50 rounded-xl">
@@ -1093,7 +1107,7 @@ export default function Admin() {
             </div>
           </div>
           </CardContent>
-        )}
+        </div>
       </Card>
         </>
       )}
@@ -1158,7 +1172,7 @@ export default function Admin() {
           {/* Corporate Orders and Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Recent Corporate Orders */}
-            <Card>
+            <Card className={`transition-all duration-200 ${collapsedSections.corporateSales ? 'h-auto' : ''}`}>
               <CardHeader>
                 <CardTitle 
                   className="flex items-center justify-between cursor-pointer"
@@ -1171,7 +1185,9 @@ export default function Admin() {
                   {collapsedSections.corporateSales ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                 </CardTitle>
               </CardHeader>
-              {!collapsedSections.corporateSales && (
+              <div className={`overflow-hidden transition-all duration-200 ${
+                collapsedSections.corporateSales ? 'max-h-0' : 'max-h-96'
+              }`}>
                 <CardContent>
                   <div className="space-y-4">
                     {corporateOrders.map((order) => (
@@ -1200,7 +1216,7 @@ export default function Admin() {
                     ))}
                   </div>
                 </CardContent>
-              )}
+              </div>
             </Card>
 
             {/* Performance Insights */}
