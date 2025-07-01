@@ -796,25 +796,98 @@ export class DatabaseStorage implements IStorage {
   // Keep other methods as in-memory for now (cart, reviews, etc.)
   // Cart methods
   async getCartItems(sessionId: string): Promise<CartItem[]> {
-    // For now, keep cart in memory - can be moved to database later
-    return [];
+    try {
+      const result = await db.select().from(cartItems).where(eq(cartItems.sessionId, sessionId));
+      return result;
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      return [];
+    }
   }
 
   async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
-    // Implementation needed
-    throw new Error("Cart functionality not implemented in DatabaseStorage");
+    try {
+      // Check if item already exists in cart
+      const [existingItem] = await db
+        .select()
+        .from(cartItems)
+        .where(and(
+          eq(cartItems.sessionId, cartItem.sessionId),
+          eq(cartItems.paintingId, cartItem.paintingId)
+        ));
+
+      if (existingItem) {
+        // Update quantity if item exists
+        const [updatedItem] = await db
+          .update(cartItems)
+          .set({ 
+            quantity: existingItem.quantity + (cartItem.quantity || 1)
+          })
+          .where(eq(cartItems.id, existingItem.id))
+          .returning();
+        return updatedItem;
+      } else {
+        // Add new item
+        const cartData = {
+          ...cartItem,
+          id: crypto.randomUUID()
+        };
+        const [newCartItem] = await db
+          .insert(cartItems)
+          .values(cartData)
+          .returning();
+        return newCartItem;
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      throw error;
+    }
   }
 
   async updateCartItemQuantity(sessionId: string, paintingId: string, quantity: number): Promise<CartItem | undefined> {
-    return undefined;
+    try {
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({ 
+          quantity: quantity
+        })
+        .where(and(
+          eq(cartItems.sessionId, sessionId),
+          eq(cartItems.paintingId, paintingId)
+        ))
+        .returning();
+      return updatedItem;
+    } catch (error) {
+      console.error('Error updating cart item quantity:', error);
+      return undefined;
+    }
   }
 
   async removeFromCart(sessionId: string, paintingId: string): Promise<boolean> {
-    return false;
+    try {
+      const result = await db
+        .delete(cartItems)
+        .where(and(
+          eq(cartItems.sessionId, sessionId),
+          eq(cartItems.paintingId, paintingId)
+        ));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      return false;
+    }
   }
 
   async clearCart(sessionId: string): Promise<boolean> {
-    return false;
+    try {
+      const result = await db
+        .delete(cartItems)
+        .where(eq(cartItems.sessionId, sessionId));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      return false;
+    }
   }
 
   // Review methods
