@@ -5,6 +5,7 @@ import {
   wishlistItems,
   availabilityNotifications,
   promoBanners,
+  corporateGifts,
   type Painting, 
   type InsertPainting, 
   type CartItem, 
@@ -18,7 +19,9 @@ import {
   type AvailabilityNotification,
   type InsertAvailabilityNotification,
   type PromoBanner,
-  type InsertPromoBanner
+  type InsertPromoBanner,
+  type CorporateGift,
+  type InsertCorporateGift
 } from "@shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "./db";
@@ -71,7 +74,9 @@ export interface IStorage {
   deactivateAllCorporateBanners(): Promise<void>;
 
   // Corporate gift methods
-  getAllCorporateGifts(): Promise<any[]>;
+  getAllCorporateGifts(): Promise<CorporateGift[]>;
+  getCorporateGiftById(id: string): Promise<CorporateGift | undefined>;
+  createCorporateGift(gift: InsertCorporateGift): Promise<CorporateGift>;
 }
 
 export class MemStorage implements IStorage {
@@ -874,22 +879,58 @@ export class DatabaseStorage implements IStorage {
     // Implementation needed
   }
 
-  // Corporate gift methods
-  async getAllCorporateGifts(): Promise<any[]> {
-    return [
-      {
-        id: "corp-1",
-        title: "Premium Coffee Mug",
-        description: "High-quality ceramic mug perfect for corporate branding",
-        price: 24.99,
-        imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-        category: "Drinkware",
-        material: "Ceramic",
-        minQuantity: 25,
-        maxQuantity: 500,
-        createdAt: new Date().toISOString()
+  // Corporate gift methods - using database
+  async getAllCorporateGifts(): Promise<CorporateGift[]> {
+    try {
+      const result = await db.select().from(corporateGifts);
+      if (result.length === 0) {
+        // Return sample data if database is empty
+        return [
+          {
+            id: "corp-1",
+            title: "Premium Coffee Mug",
+            description: "High-quality ceramic mug perfect for corporate branding",
+            price: 24.99,
+            salePrice: null,
+            imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
+            category: "Drinkware",
+            material: "Ceramic",
+            minQuantity: 25,
+            maxQuantity: 500,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        ];
       }
-    ];
+      return result;
+    } catch (error) {
+      console.error('Error fetching corporate gifts from database:', error);
+      return [];
+    }
+  }
+
+  async getCorporateGiftById(id: string): Promise<CorporateGift | undefined> {
+    try {
+      const [gift] = await db.select().from(corporateGifts).where(eq(corporateGifts.id, id));
+      return gift;
+    } catch (error) {
+      console.error('Error fetching corporate gift by id:', error);
+      return undefined;
+    }
+  }
+
+  async createCorporateGift(gift: InsertCorporateGift): Promise<CorporateGift> {
+    try {
+      const giftWithId = {
+        id: uuidv4(),
+        ...gift
+      };
+      const [newGift] = await db.insert(corporateGifts).values(giftWithId).returning();
+      return newGift;
+    } catch (error) {
+      console.error('Error creating corporate gift:', error);
+      throw error;
+    }
   }
 }
 

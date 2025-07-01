@@ -6,7 +6,8 @@ import {
   insertCartItemSchema, 
   insertReviewSchema,
   insertWishlistItemSchema,
-  insertAvailabilityNotificationSchema 
+  insertAvailabilityNotificationSchema,
+  insertCorporateGiftSchema
 } from "@shared/schema";
 import { z } from "zod";
 import { upload, uploadArtistPhoto, uploadCorporateGift } from "./cloudinary";
@@ -434,14 +435,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxQuantity: req.body.maxQuantity ? parseInt(req.body.maxQuantity) : 500,
       };
 
-      // Since we don't have a corporate gifts schema yet, we'll store it as a basic object
-      // This can be enhanced with proper database schema later
-      const gift = {
-        id: `corp-gift-${Date.now()}`,
-        ...giftData,
-        createdAt: new Date().toISOString(),
-      };
-
+      const validatedData = insertCorporateGiftSchema.parse(giftData);
+      const gift = await storage.createCorporateGift(validatedData);
+      
       res.json(gift);
     } catch (error) {
       console.error("Error creating corporate gift:", error);

@@ -68,6 +68,21 @@ export const promoBanners = pgTable("promo_banners", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const corporateGifts = pgTable("corporate_gifts", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  price: real("price").notNull(),
+  salePrice: real("sale_price"),
+  imageUrl: text("image_url").notNull(),
+  category: text("category").default("Corporate Gift"),
+  material: text("material").default("Premium Quality"),
+  minQuantity: integer("min_quantity").default(1),
+  maxQuantity: integer("max_quantity").default(500),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const paintingsRelations = relations(paintings, ({ many }) => ({
   reviews: many(reviews),
@@ -162,3 +177,13 @@ export const insertPromoBannerSchema = createInsertSchema(promoBanners).omit({
 
 export type InsertPromoBanner = z.infer<typeof insertPromoBannerSchema>;
 export type PromoBanner = typeof promoBanners.$inferSelect;
+
+// Corporate Gift schemas and types
+export const insertCorporateGiftSchema = createInsertSchema(corporateGifts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCorporateGift = z.infer<typeof insertCorporateGiftSchema>;
+export type CorporateGift = typeof corporateGifts.$inferSelect;
