@@ -111,6 +111,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- July 1, 2025: **FIXED** - Restored Wishlist Functionality with Database Persistence
+  - Implemented missing wishlist methods in DatabaseStorage class for full database integration
+  - Fixed wishlist add/remove operations with proper UUID generation and error handling
+  - Restored availability notifications functionality with database persistence
+  - All wishlist operations now work seamlessly: add to wishlist, remove from wishlist, check wishlist status
+  - Wishlist data persists across server restarts and integrates with existing session management
+  - Fixed corporate gifts display to fetch from database instead of hardcoded fallback data
+
 - June 30, 2025: **NEW** - Database Persistence for Paintings
   - Implemented DatabaseStorage class to replace MemStorage for painting data
   - Paintings now persist permanently in PostgreSQL database across server restarts

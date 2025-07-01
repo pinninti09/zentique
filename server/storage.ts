@@ -832,32 +832,103 @@ export class DatabaseStorage implements IStorage {
 
   // Wishlist methods
   async getWishlistItems(sessionId: string): Promise<WishlistItem[]> {
-    return [];
+    try {
+      const result = await db.select().from(wishlistItems).where(eq(wishlistItems.sessionId, sessionId));
+      return result;
+    } catch (error) {
+      console.error('Error fetching wishlist items:', error);
+      return [];
+    }
   }
 
   async addToWishlist(wishlistItem: InsertWishlistItem): Promise<WishlistItem> {
-    throw new Error("Wishlist functionality not implemented in DatabaseStorage");
+    try {
+      const wishlistData = {
+        ...wishlistItem,
+        id: crypto.randomUUID()
+      };
+      const [newWishlistItem] = await db
+        .insert(wishlistItems)
+        .values(wishlistData)
+        .returning();
+      return newWishlistItem;
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      throw error;
+    }
   }
 
   async removeFromWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    return false;
+    try {
+      const result = await db
+        .delete(wishlistItems)
+        .where(and(
+          eq(wishlistItems.sessionId, sessionId),
+          eq(wishlistItems.paintingId, paintingId)
+        ));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      return false;
+    }
   }
 
   async isInWishlist(sessionId: string, paintingId: string): Promise<boolean> {
-    return false;
+    try {
+      const [item] = await db
+        .select()
+        .from(wishlistItems)
+        .where(and(
+          eq(wishlistItems.sessionId, sessionId),
+          eq(wishlistItems.paintingId, paintingId)
+        ));
+      return !!item;
+    } catch (error) {
+      console.error('Error checking wishlist:', error);
+      return false;
+    }
   }
 
   // Availability notification methods
   async createAvailabilityNotification(notification: InsertAvailabilityNotification): Promise<AvailabilityNotification> {
-    throw new Error("Availability notifications not implemented in DatabaseStorage");
+    try {
+      const notificationData = {
+        ...notification,
+        id: crypto.randomUUID()
+      };
+      const [newNotification] = await db
+        .insert(availabilityNotifications)
+        .values(notificationData)
+        .returning();
+      return newNotification;
+    } catch (error) {
+      console.error('Error creating availability notification:', error);
+      throw error;
+    }
   }
 
   async getNotificationsByPaintingId(paintingId: string): Promise<AvailabilityNotification[]> {
-    return [];
+    try {
+      const result = await db
+        .select()
+        .from(availabilityNotifications)
+        .where(eq(availabilityNotifications.paintingId, paintingId));
+      return result;
+    } catch (error) {
+      console.error('Error fetching notifications by painting id:', error);
+      return [];
+    }
   }
 
   async markNotificationsSent(paintingId: string): Promise<void> {
-    // Implementation needed
+    try {
+      await db
+        .update(availabilityNotifications)
+        .set({ notified: true })
+        .where(eq(availabilityNotifications.paintingId, paintingId));
+    } catch (error) {
+      console.error('Error marking notifications as sent:', error);
+    }
   }
 
   // Banner methods
