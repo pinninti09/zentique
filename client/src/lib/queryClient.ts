@@ -14,8 +14,8 @@ export async function apiRequest(
 ): Promise<Response> {
   const isFormData = data instanceof FormData;
   
-  // Get admin token from localStorage if available
-  const adminToken = localStorage.getItem('adminToken');
+  // Get authentication header from user auth
+  const userStr = localStorage.getItem('user');
   
   const headers: Record<string, string> = {};
   
@@ -23,8 +23,14 @@ export async function apiRequest(
     headers["Content-Type"] = "application/json";
   }
   
-  if (adminToken && url.includes('/admin/')) {
-    headers["Authorization"] = `Bearer ${adminToken}`;
+  // Set authorization header for admin routes
+  if (url.includes('/admin/') && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      headers["Authorization"] = `User ${user.id}`;
+    } catch (error) {
+      console.error('Error parsing user data for auth header:', error);
+    }
   }
   
   const res = await fetch(url, {

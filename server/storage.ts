@@ -6,6 +6,8 @@ import {
   availabilityNotifications,
   promoBanners,
   corporateGifts,
+  backgroundImages,
+  users,
   type Painting, 
   type InsertPainting, 
   type CartItem, 
@@ -21,17 +23,34 @@ import {
   type PromoBanner,
   type InsertPromoBanner,
   type CorporateGift,
-  type InsertCorporateGift
+  type InsertCorporateGift,
+  type BackgroundImage,
+  type InsertBackgroundImage
 } from "@shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
+import * as crypto from 'crypto';
+
+// Password hashing utilities
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password: string, hashedPassword: string): boolean {
+  const [salt, hash] = hashedPassword.split(':');
+  const hashToVerify = crypto.scryptSync(password, salt, 64).toString('hex');
+  return hash === hashToVerify;
+}
 
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  authenticateUser(username: string, password: string): Promise<User | null>;
   
   // Painting methods
   getAllPaintings(): Promise<Painting[]>;
@@ -77,6 +96,12 @@ export interface IStorage {
   getAllCorporateGifts(): Promise<CorporateGift[]>;
   getCorporateGiftById(id: string): Promise<CorporateGift | undefined>;
   createCorporateGift(gift: InsertCorporateGift): Promise<CorporateGift>;
+
+  // Background image methods
+  getActiveBackgroundImage(section: string): Promise<BackgroundImage | undefined>;
+  createBackgroundImage(image: InsertBackgroundImage): Promise<BackgroundImage>;
+  updateBackgroundImage(id: string, updates: Partial<BackgroundImage>): Promise<BackgroundImage | undefined>;
+  deactivateAllBackgroundImages(section: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -187,171 +212,9 @@ export class MemStorage implements IStorage {
       this.corporateGifts.set(gift.id, gift);
     });
 
-    // Sample paintings with ratings
-    const samplePaintings: Painting[] = [
-      {
-        id: "1",
-        title: "Sunset Over the Ocean",
-        description: "A breathtaking view of the sun setting over calm ocean waters, painted with warm oranges and deep blues that capture the peaceful moment when day meets night.",
-        price: 1200,
-        salePrice: null,
-        imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: false,
-        medium: "Oil on Canvas",
-        dimensions: "24\" × 36\"",
-        year: 2024,
-        artist: "Elena Rodriguez",
-        artistBio: "Elena Rodriguez is a contemporary landscape artist known for her vibrant seascapes and mastery of light. Born in Barcelona, she spent her childhood summers on the Mediterranean coast, which deeply influenced her artistic vision. She studied at the Royal Academy of Fine Arts and has been painting professionally for over 15 years.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1494790108755-2616b612b789?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1985,
-        artistAwards: "Winner of the International Seascape Competition 2022, Featured in Contemporary Art Magazine's '30 Under 40' Artists, First Place at the Barcelona Art Festival 2021",
-        averageRating: 4.8,
-        totalReviews: 12,
-        availableSizes: ["16\" x 20\"", "20\" x 24\"", "24\" x 30\"", "30\" x 40\""],
-        availableFrames: ["Frameless Stretch", "Black Wood Frame", "White Wood Frame", "Gold Ornate Frame"]
-      },
-      {
-        id: "2",
-        title: "Urban Reflections",
-        description: "A modern cityscape capturing the reflection of glass buildings in rain-soaked streets, showcasing the beauty found in urban environments.",
-        price: 950,
-        salePrice: 750,
-        imageUrl: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: false,
-        medium: "Acrylic on Canvas",
-        dimensions: "20\" × 30\"",
-        year: 2024,
-        artist: "Marcus Chen",
-        artistBio: "Marcus Chen is an urban contemporary artist who finds beauty in the intersection of architecture and human life. His work captures the dynamic energy of city living through bold compositions and innovative use of light. He holds an MFA from the San Francisco Art Institute and has exhibited in galleries across the West Coast.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1988,
-        artistAwards: "Emerging Artist Award at the San Francisco Art Fair 2023, Featured in Urban Arts Quarterly Magazine, Grant recipient from the California Arts Council 2022",
-        averageRating: 4.2,
-        totalReviews: 8,
-        availableSizes: ["12\" x 16\"", "16\" x 20\"", "20\" x 24\"", "24\" x 32\""],
-        availableFrames: ["Frameless Stretch", "Black Metal Frame", "Silver Frame", "Natural Wood Frame"]
-      },
-      {
-        id: "3",
-        title: "Forest Sanctuary",
-        description: "Deep within an ancient forest, this painting captures the mystical quality of light filtering through old-growth trees, creating a sense of peace and wonder.",
-        price: 1450,
-        salePrice: null,
-        imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: false,
-        medium: "Oil on Canvas",
-        dimensions: "30\" × 40\"",
-        year: 2023,
-        artist: "Sarah Thompson",
-        artistBio: "Sarah Thompson is a nature-focused artist who specializes in capturing the spiritual essence of natural landscapes. Growing up in the Pacific Northwest, she developed a deep connection with old-growth forests and wilderness areas. Her work is characterized by masterful use of light and shadow to create atmospheric depth.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1982,
-        artistAwards: "National Park Service Artist-in-Residence 2020, Winner of the Wilderness Art Foundation Award 2021, Featured in Nature Art Magazine's Annual Exhibition",
-        averageRating: 4.9,
-        totalReviews: 15,
-        availableSizes: ["20\" x 24\"", "24\" x 30\"", "30\" x 40\"", "36\" x 48\""],
-        availableFrames: ["Frameless Stretch", "Dark Walnut Frame", "Rustic Wood Frame", "Gallery Float Frame"]
-      },
-      {
-        id: "4",
-        title: "Mountain Majesty",
-        description: "Snow-capped peaks reaching toward dramatic clouds, this landscape painting celebrates the raw power and beauty of mountain wilderness.",
-        price: 1800,
-        salePrice: null,
-        imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: true,
-        medium: "Oil on Canvas",
-        dimensions: "36\" × 48\"",
-        year: 2024,
-        artist: "David Kim",
-        artistBio: "David Kim is a landscape artist renowned for his dramatic mountain scenes and mastery of atmospheric perspective. Born in Colorado, he has spent years hiking and studying the Rocky Mountains, bringing authentic knowledge of high-altitude environments to his work. His paintings capture both the grandeur and intimacy of mountain landscapes.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1980,
-        artistAwards: "Rocky Mountain Art Association Gold Medal 2023, Colorado State Arts Council Fellowship 2021, Best Landscape at the Denver Art Museum Annual Show 2022",
-        averageRating: 4.7,
-        totalReviews: 22,
-        availableSizes: ["24\" x 32\"", "30\" x 40\"", "36\" x 48\"", "40\" x 60\""],
-        availableFrames: ["Frameless Stretch", "Black Wood Frame", "Bronze Frame", "Custom Gallery Frame"]
-      },
-      {
-        id: "5",
-        title: "Abstract Harmony",
-        description: "Bold strokes of color dance across the canvas in this vibrant abstract piece, evoking emotions through pure form and color rather than representation.",
-        price: 800,
-        salePrice: 650,
-        imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: false,
-        medium: "Acrylic on Canvas",
-        dimensions: "16\" × 20\"",
-        year: 2024,
-        artist: "Isabella Martinez",
-        artistBio: "Isabella Martinez is a contemporary abstract artist known for her bold use of color and dynamic compositions. She studied at the Art Institute of Chicago and has been exploring the intersection of emotion and abstract expression for over a decade. Her work is inspired by music, movement, and the energy of urban life.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1990,
-        artistAwards: "Chicago Abstract Art Prize 2023, Emerging Artist Fellowship at the Contemporary Art Museum 2022, Featured in Modern Art Quarterly's Rising Stars Issue",
-        averageRating: 4.1,
-        totalReviews: 6,
-        availableSizes: ["12\" x 16\"", "16\" x 20\"", "20\" x 24\"", "24\" x 30\""],
-        availableFrames: ["Frameless Stretch", "White Frame", "Black Frame", "Colorful Pop Frame"]
-      },
-      {
-        id: "6",
-        title: "Vintage Still Life",
-        description: "Classic arrangement of fruit and pottery rendered in traditional style, showcasing technical mastery and timeless composition principles.",
-        price: 1100,
-        salePrice: null,
-        imageUrl: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-        sold: false,
-        medium: "Oil on Canvas",
-        dimensions: "18\" × 24\"",
-        year: 2023,
-        artist: "Robert Wilson",
-        artistBio: "Robert Wilson is a classical realist artist specializing in traditional still life compositions. Trained at the Florence Academy of Art, he brings centuries-old techniques to contemporary subjects. His work demonstrates exceptional technical skill in capturing light, texture, and form through meticulous observation and traditional oil painting methods.",
-        artistPhotoUrl: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200",
-        artistBornYear: 1975,
-        artistAwards: "Classical Realism Society Excellence Award 2022, Florence Academy Alumni Exhibition First Place 2021, Traditional Arts Magazine Featured Artist 2023",
-        averageRating: 4.5,
-        totalReviews: 10,
-        availableSizes: ["14\" x 18\"", "18\" x 24\"", "24\" x 30\"", "30\" x 36\""],
-        availableFrames: ["Frameless Stretch", "Classic Gold Frame", "Antique Silver Frame", "Traditional Wood Frame"]
-      }
-    ];
+    // No sample paintings - using real data only
 
-    samplePaintings.forEach(painting => {
-      this.paintings.set(painting.id, painting);
-    });
-
-    // Sample reviews
-    const sampleReviews: Review[] = [
-      {
-        id: "r1",
-        paintingId: "1",
-        customerName: "Sarah M.",
-        rating: 5,
-        comment: "Absolutely stunning! The colors are so vibrant and peaceful.",
-        createdAt: new Date("2024-06-15")
-      },
-      {
-        id: "r2", 
-        paintingId: "1",
-        customerName: "John D.",
-        rating: 5,
-        comment: "This painting brings such tranquility to our living room.",
-        createdAt: new Date("2024-06-20")
-      },
-      {
-        id: "r3",
-        paintingId: "3",
-        customerName: "Emma L.",
-        rating: 5,
-        comment: "The detail in this forest scene is incredible. Love it!",
-        createdAt: new Date("2024-06-10")
-      }
-    ];
-
-    sampleReviews.forEach(review => {
-      this.reviews.set(review.id, review);
-    });
+    // No sample reviews - using real data only
   }
 
   // User methods
@@ -654,20 +517,81 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User methods - keeping same as MemStorage for now
+  constructor() {
+    // Initialize default admin users
+    this.initializeDefaultUsers();
+  }
+
+  private async initializeDefaultUsers(): Promise<void> {
+    try {
+      // Check if admin users already exist
+      const yogeshUser = await this.getUserByUsername('yogesh');
+      const gayatriUser = await this.getUserByUsername('gayatri');
+
+      if (!yogeshUser) {
+        await this.createUser({
+          username: 'yogesh',
+          password: hashPassword('pinninti09'),
+          role: 'admin'
+        });
+        console.log('Created default admin user: yogesh');
+      }
+
+      if (!gayatriUser) {
+        await this.createUser({
+          username: 'gayatri', 
+          password: hashPassword('pinninti09'),
+          role: 'admin'
+        });
+        console.log('Created default admin user: gayatri');
+      }
+    } catch (error) {
+      console.error('Error initializing default users:', error);
+    }
+  }
+
+  // User methods
   async getUser(id: number): Promise<User | undefined> {
-    // Implementation can be added later if needed
-    return undefined;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error fetching user by id:', error);
+      return undefined;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    // Implementation can be added later if needed
-    return undefined;
+    try {
+      const [user] = await db.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error fetching user by username:', error);
+      return undefined;
+    }
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    // Implementation can be added later if needed
-    throw new Error("User creation not implemented");
+    try {
+      const [newUser] = await db.insert(users).values(user).returning();
+      return newUser;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  async authenticateUser(username: string, password: string): Promise<User | null> {
+    try {
+      const user = await this.getUserByUsername(username);
+      if (user && verifyPassword(password, user.password)) {
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error authenticating user:', error);
+      return null;
+    }
   }
 
   // Painting methods - using database
@@ -1101,6 +1025,59 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error creating corporate gift:', error);
       throw error;
+    }
+  }
+
+  // Background image methods
+  async getActiveBackgroundImage(section: string): Promise<BackgroundImage | undefined> {
+    try {
+      const [backgroundImage] = await db
+        .select()
+        .from(backgroundImages)
+        .where(and(eq(backgroundImages.section, section), eq(backgroundImages.isActive, true)));
+      return backgroundImage;
+    } catch (error) {
+      console.error('Error fetching active background image:', error);
+      return undefined;
+    }
+  }
+
+  async createBackgroundImage(image: InsertBackgroundImage): Promise<BackgroundImage> {
+    try {
+      const imageWithId = {
+        id: uuidv4(),
+        ...image
+      };
+      const [newImage] = await db.insert(backgroundImages).values(imageWithId).returning();
+      return newImage;
+    } catch (error) {
+      console.error('Error creating background image:', error);
+      throw error;
+    }
+  }
+
+  async updateBackgroundImage(id: string, updates: Partial<BackgroundImage>): Promise<BackgroundImage | undefined> {
+    try {
+      const [updated] = await db
+        .update(backgroundImages)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(backgroundImages.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating background image:', error);
+      return undefined;
+    }
+  }
+
+  async deactivateAllBackgroundImages(section: string): Promise<void> {
+    try {
+      await db
+        .update(backgroundImages)
+        .set({ isActive: false, updatedAt: new Date() })
+        .where(eq(backgroundImages.section, section));
+    } catch (error) {
+      console.error('Error deactivating background images:', error);
     }
   }
 }
