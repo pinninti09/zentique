@@ -158,9 +158,18 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  role: text("role").notNull().default("user"), // "admin" or "user"
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
+  username: true,
+  password: true,
+  role: true,
+});
+
+export const loginUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
@@ -187,3 +196,25 @@ export const insertCorporateGiftSchema = createInsertSchema(corporateGifts).omit
 
 export type InsertCorporateGift = z.infer<typeof insertCorporateGiftSchema>;
 export type CorporateGift = typeof corporateGifts.$inferSelect;
+
+// Background images table for configurable hero backgrounds
+export const backgroundImages = pgTable("background_images", {
+  id: varchar("id").primaryKey().notNull(),
+  section: varchar("section").notNull(), // 'gallery' or 'corporate'
+  imageUrl: varchar("image_url").notNull(),
+  title: varchar("title"),
+  subtitle: varchar("subtitle"),
+  isActive: boolean("is_active").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Background image schemas and types
+export const insertBackgroundImageSchema = createInsertSchema(backgroundImages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBackgroundImage = z.infer<typeof insertBackgroundImageSchema>;
+export type BackgroundImage = typeof backgroundImages.$inferSelect;

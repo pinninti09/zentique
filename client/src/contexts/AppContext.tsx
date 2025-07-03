@@ -5,8 +5,6 @@ interface AppContextType {
   sessionId: string;
   cartCount: number;
   setCartCount: (count: number) => void;
-  adminToken: string | null;
-  setAdminToken: (token: string | null) => void;
   showToast: (message: string, type?: 'success' | 'error') => void;
 }
 
@@ -15,7 +13,6 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [sessionId, setSessionId] = useState<string>('');
   const [cartCount, setCartCount] = useState(0);
-  const [adminToken, setAdminToken] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
@@ -25,11 +22,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('sessionId', storedSessionId);
     }
     setSessionId(storedSessionId);
-
-    const storedAdminToken = localStorage.getItem('adminToken');
-    if (storedAdminToken) {
-      setAdminToken(storedAdminToken);
-    }
   }, []);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -37,22 +29,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleSetAdminToken = (token: string | null) => {
-    setAdminToken(token);
-    if (token) {
-      localStorage.setItem('adminToken', token);
-    } else {
-      localStorage.removeItem('adminToken');
-    }
-  };
-
   return (
     <AppContext.Provider value={{
       sessionId,
       cartCount,
       setCartCount,
-      adminToken,
-      setAdminToken: handleSetAdminToken,
       showToast
     }}>
       {children}

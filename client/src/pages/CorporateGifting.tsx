@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Search, ShoppingCart, ArrowRight } from 'lucide-react';
+import { ArrowDown, Search, ShoppingCart, ArrowRight, Heart } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
@@ -124,9 +124,11 @@ const corporateProducts = [
 interface CorporateProductCardProps {
   product: any; // Support both database and hardcoded format
   onAddToCart: (productId: string, quantity: number) => void;
+  onToggleWishlist: (productId: string) => void;
+  isInWishlist: boolean;
 }
 
-function CorporateProductCard({ product, onAddToCart }: CorporateProductCardProps) {
+function CorporateProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }: CorporateProductCardProps) {
   const [quantity, setQuantity] = useState([1]);
 
   const handleQuantityChange = (value: number[]) => {
@@ -146,6 +148,18 @@ function CorporateProductCard({ product, onAddToCart }: CorporateProductCardProp
             Sale
           </div>
         )}
+        <button
+          onClick={() => onToggleWishlist(product.id)}
+          className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
+            isInWishlist
+              ? 'bg-red-100 text-red-600'
+              : 'bg-white/80 text-gray-400 hover:text-red-500'
+          }`}
+        >
+          <Heart 
+            className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} 
+          />
+        </button>
       </div>
       
       <div className="p-6">
@@ -239,6 +253,18 @@ export default function CorporateGifting() {
     queryKey: ['/api/corporate-gifts'],
   });
 
+  // Wishlist functionality
+  const { data: wishlistItems = [] } = useQuery<any[]>({
+    queryKey: [`/api/wishlist/${sessionId}`],
+    enabled: !!sessionId,
+  });
+
+  // Fetch corporate background image
+  const { data: backgroundImage } = useQuery({
+    queryKey: ['/api/background/corporate'],
+    retry: false,
+  });
+
   // Update cart count in context when cart items change
   useEffect(() => {
     const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -264,8 +290,37 @@ export default function CorporateGifting() {
     },
   });
 
+  const toggleWishlistMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      const isCurrentlyInWishlist = Array.isArray(wishlistItems) && wishlistItems.some((item: any) => item.paintingId === productId);
+      
+      if (isCurrentlyInWishlist) {
+        return apiRequest(`/api/wishlist/${sessionId}/${productId}`, 'DELETE');
+      } else {
+        return apiRequest('/api/wishlist', 'POST', {
+          sessionId,
+          paintingId: productId,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/wishlist/${sessionId}`] });
+    },
+    onError: () => {
+      showToast('Failed to update wishlist', 'error');
+    },
+  });
+
   const handleAddToCart = (productId: string, quantity: number) => {
     addToCartMutation.mutate({ productId, quantity });
+  };
+
+  const handleToggleWishlist = (productId: string) => {
+    toggleWishlistMutation.mutate(productId);
+  };
+
+  const isInWishlist = (productId: string) => {
+    return Array.isArray(wishlistItems) && wishlistItems.some((item: any) => item.paintingId === productId);
   };
 
   // Filter and sort products - use database data or fallback to hardcoded
@@ -295,20 +350,22 @@ export default function CorporateGifting() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Corporate Hero Section with Full Width Sunset Over the Ocean */}
+      {/* Corporate Hero Section with Configurable Background */}
       <section className="mb-16 animate-fade-in relative -mx-4 sm:-mx-6 lg:-mx-8">
         <div 
           className="relative bg-cover bg-center bg-no-repeat min-h-[500px] flex items-center"
           style={{
-            backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')"
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${
+              backgroundImage?.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+            }')`
           }}
         >
           <div className="text-center w-full px-8 py-20">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
-              Corporate Gifting
+              {backgroundImage?.title || 'Corporate Gifting'}
             </h1>
             <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
-              We believe gifting is more than a gesture—it's a message. Every hand-selected gift we create is a reminder to your team that they matter, that they're valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.
+              {backgroundImage?.subtitle || 'We believe gifting is more than a gesture—it\'s a message. Every hand-selected gift we create is a reminder to your team that they matter, that they\'re valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.'}
             </p>
           </div>
         </div>
@@ -360,6 +417,8 @@ export default function CorporateGifting() {
             key={product.id}
             product={product}
             onAddToCart={handleAddToCart}
+            onToggleWishlist={handleToggleWishlist}
+            isInWishlist={isInWishlist(product.id)}
           />
         ))}
       </div>

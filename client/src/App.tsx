@@ -12,6 +12,7 @@ import Wishlist from "./pages/Wishlist";
 import AdminNew from "./pages/AdminNew";
 import PaintingDetail from "./pages/PaintingDetail";
 import CorporateGifting from "./pages/CorporateGifting";
+import AuthPage from "./pages/auth-page";
 import NotFound from "@/pages/not-found";
 
 // Gallery footer pages
@@ -33,15 +34,53 @@ import CorporateReturns from "./pages/CorporateReturns";
 import Customization from "./pages/Customization";
 import AccountManager from "./pages/AccountManager";
 
+// Authentication helper
+function checkAuth() {
+  const userStr = localStorage.getItem("user");
+  return userStr ? JSON.parse(userStr) : null;
+}
+
+// Protected Admin Route
+function ProtectedAdminRoute() {
+  const user = checkAuth();
+  
+  if (!user) {
+    return <AuthPage />;
+  }
+  
+  if (user.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-warm-beige">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-charcoal mb-4">Access Denied</h1>
+          <p className="text-charcoal/70 mb-4">You need admin privileges to access this page.</p>
+          <button 
+            onClick={() => {
+              localStorage.removeItem("user");
+              window.location.reload();
+            }}
+            className="text-elegant-gold hover:underline"
+          >
+            Sign in as different user
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  return <AdminNew />;
+}
+
 function Router() {
   return (
     <Switch>
+      <Route path="/auth" component={AuthPage} />
       <Route path="/corporate" component={CorporateGifting} />
       <Route path="/" component={Gallery} />
       <Route path="/painting/:id" component={PaintingDetail} />
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/cart" component={Cart} />
-      <Route path="/admin" component={AdminNew} />
+      <Route path="/admin" component={ProtectedAdminRoute} />
       
       {/* Gallery footer pages */}
       <Route path="/about" component={About} />

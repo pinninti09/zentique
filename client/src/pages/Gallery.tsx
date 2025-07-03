@@ -27,6 +27,12 @@ export default function Gallery() {
     enabled: !!sessionId,
   });
 
+  // Fetch gallery background image
+  const { data: backgroundImage } = useQuery({
+    queryKey: ['/api/background/gallery'],
+    retry: false,
+  });
+
   // Update cart count in context when cart items change
   useEffect(() => {
     const totalQuantity = cartItems.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -105,20 +111,22 @@ export default function Gallery() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Hero Section with Full Width Sunset Over the Ocean */}
+      {/* Hero Section with Configurable Background */}
       <section className="mb-16 animate-fade-in relative -mx-4 sm:-mx-6 lg:-mx-8">
         <div 
           className="relative bg-cover bg-center bg-no-repeat min-h-[500px] flex items-center"
           style={{
-            backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')"
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${
+              backgroundImage?.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+            }')`
           }}
         >
           <div className="text-center w-full px-8 py-20">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
-              Atelier
+              {backgroundImage?.title || 'Atelier'}
             </h1>
             <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
-              An experience of elegance — painted just for you. Each masterwork here isn't simply a painting; it's the exclamation point in a room's story. Curated for those who believe that art is the signature accessory of every interior, our collection turns walls into wonders and corners into conversations.
+              {backgroundImage?.subtitle || 'An experience of elegance — painted just for you. Each masterwork here isn\'t simply a painting; it\'s the exclamation point in a room\'s story. Curated for those who believe that art is the signature accessory of every interior, our collection turns walls into wonders and corners into conversations.'}
             </p>
           </div>
         </div>

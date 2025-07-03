@@ -32,6 +32,11 @@ export default function Wishlist() {
     queryKey: ['/api/paintings']
   });
 
+  // Fetch corporate gifts data
+  const { data: corporateGifts = [] } = useQuery({
+    queryKey: ['/api/corporate-gifts']
+  });
+
   // Fetch cart items for updating count
   const { data: cartItems = [] } = useQuery<any[]>({
     queryKey: [`/api/cart/${sessionId}`],
@@ -77,12 +82,24 @@ export default function Wishlist() {
     }
   });
 
-  // Combine wishlist items with painting details
-  const wishlistWithPaintings: WishlistItemWithPainting[] = Array.isArray(wishlistItems) && Array.isArray(paintings) 
-    ? (wishlistItems as WishlistItem[]).map((item: WishlistItem) => ({
-        ...item,
-        painting: (paintings as Painting[]).find((p: Painting) => p.id === item.paintingId)
-      })).filter((item: WishlistItemWithPainting) => item.painting)
+  // Combine wishlist items with painting/corporate gift details
+  const wishlistWithPaintings: WishlistItemWithPainting[] = Array.isArray(wishlistItems) 
+    ? (wishlistItems as WishlistItem[]).map((item: WishlistItem) => {
+        // First try to find in paintings
+        let itemData = Array.isArray(paintings) 
+          ? (paintings as Painting[]).find((p: Painting) => p.id === item.paintingId)
+          : null;
+        
+        // If not found in paintings, try corporate gifts
+        if (!itemData && Array.isArray(corporateGifts)) {
+          itemData = (corporateGifts as any[]).find((g: any) => g.id === item.paintingId);
+        }
+        
+        return {
+          ...item,
+          painting: itemData
+        };
+      }).filter((item: WishlistItemWithPainting) => item.painting)
     : [];
 
   const handleQuickView = (painting: Painting) => {

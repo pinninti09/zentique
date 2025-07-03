@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { testDatabaseConnection } from "./db";
 
 const app = express();
 
@@ -88,6 +89,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Test database connection before starting server
+  console.log('Starting server initialization...');
+  const dbConnected = await testDatabaseConnection();
+  
+  if (!dbConnected) {
+    console.warn('Database connection failed, but continuing with server startup...');
+    console.warn('Some features may not work correctly without database access.');
+  }
+  
   const server = await registerRoutes(app);
 
   // Enhanced error handling for production
