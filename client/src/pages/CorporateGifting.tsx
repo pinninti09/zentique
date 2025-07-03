@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/utils';
+import CorporateGiftDetailModal from '@/components/CorporateGiftDetailModal';
 import type { Painting, CartItem, CorporateGift } from '@shared/schema';
 
 // Type for products that works with both database and hardcoded format
@@ -125,10 +126,11 @@ interface CorporateProductCardProps {
   product: any; // Support both database and hardcoded format
   onAddToCart: (productId: string, quantity: number) => void;
   onToggleWishlist: (productId: string) => void;
+  onProductClick: (product: any) => void;
   isInWishlist: boolean;
 }
 
-function CorporateProductCard({ product, onAddToCart, onToggleWishlist, isInWishlist }: CorporateProductCardProps) {
+function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProductClick, isInWishlist }: CorporateProductCardProps) {
   const [quantity, setQuantity] = useState([1]);
 
   const handleQuantityChange = (value: number[]) => {
@@ -137,7 +139,7 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, isInWish
 
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-      <div className="relative">
+      <div className="relative cursor-pointer" onClick={() => onProductClick(product)}>
         <img
           src={product.imageUrl}
           alt={product.title}
@@ -241,6 +243,8 @@ export default function CorporateGifting() {
   const { sessionId, cartCount, setCartCount, showToast } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('featured');
+  const [selectedGift, setSelectedGift] = useState<CorporateGift | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: cartItems = [] } = useQuery<CartItem[]>({
@@ -321,6 +325,16 @@ export default function CorporateGifting() {
 
   const isInWishlist = (productId: string) => {
     return Array.isArray(wishlistItems) && wishlistItems.some((item: any) => item.paintingId === productId);
+  };
+
+  const handleGiftClick = (gift: CorporateGift) => {
+    setSelectedGift(gift);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedGift(null);
   };
 
   // Filter and sort products - use database data or fallback to hardcoded
@@ -418,6 +432,7 @@ export default function CorporateGifting() {
             product={product}
             onAddToCart={handleAddToCart}
             onToggleWishlist={handleToggleWishlist}
+            onProductClick={handleGiftClick}
             isInWishlist={isInWishlist(product.id)}
           />
         ))}
@@ -434,6 +449,14 @@ export default function CorporateGifting() {
           </Button>
         </div>
       )}
+
+      {/* Corporate Gift Detail Modal */}
+      <CorporateGiftDetailModal
+        gift={selectedGift}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onAddToCart={handleAddToCart}
+      />
     </main>
   );
 }

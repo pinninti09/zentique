@@ -57,6 +57,7 @@ export interface IStorage {
   getPaintingById(id: string): Promise<Painting | undefined>;
   createPainting(painting: InsertPainting): Promise<Painting>;
   updatePainting(id: string, updates: Partial<Painting>): Promise<Painting | undefined>;
+  deletePainting(id: string): Promise<boolean>;
   
   // Cart methods
   getCartItems(sessionId: string): Promise<CartItem[]>;
@@ -96,6 +97,8 @@ export interface IStorage {
   getAllCorporateGifts(): Promise<CorporateGift[]>;
   getCorporateGiftById(id: string): Promise<CorporateGift | undefined>;
   createCorporateGift(gift: InsertCorporateGift): Promise<CorporateGift>;
+  updateCorporateGift(id: string, updates: Partial<CorporateGift>): Promise<CorporateGift | undefined>;
+  deleteCorporateGift(id: string): Promise<boolean>;
 
   // Background image methods
   getActiveBackgroundImage(section: string): Promise<BackgroundImage | undefined>;
@@ -598,18 +601,10 @@ export class DatabaseStorage implements IStorage {
   async getAllPaintings(): Promise<Painting[]> {
     try {
       const result = await db.select().from(paintings);
-      // If database is empty, populate with sample data
-      if (result.length === 0) {
-        console.log('Database is empty, initializing with sample paintings...');
-        await this.initializeSamplePaintings();
-        // Return the freshly inserted sample data
-        return await db.select().from(paintings);
-      }
       return result;
     } catch (error) {
       console.error('Error fetching paintings from database:', error);
-      // Fallback to sample data if database error occurs
-      return this.getSamplePaintings();
+      return [];
     }
   }
 
@@ -664,6 +659,18 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error updating painting:', error);
       return undefined;
+    }
+  }
+
+  async deletePainting(id: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(paintings)
+        .where(eq(paintings.id, id));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error deleting painting:', error);
+      return false;
     }
   }
 
@@ -816,15 +823,71 @@ export class DatabaseStorage implements IStorage {
 
   // Review methods
   async getReviewsByPaintingId(paintingId: string): Promise<Review[]> {
-    return [];
+    try {
+      const result = await db.select().from(reviews).where(eq(reviews.paintingId, paintingId));
+      return result;
+    } catch (error) {
+      console.error('Error fetching reviews by painting id:', error);
+      return [];
+    }
   }
 
   async createReview(review: InsertReview): Promise<Review> {
-    throw new Error("Review functionality not implemented in DatabaseStorage");
+    try {
+      const reviewData = {
+        ...review,
+        id: crypto.randomUUID(),
+        createdAt: new Date()
+      };
+      const [newReview] = await db
+        .insert(reviews)
+        .values(reviewData)
+        .returning();
+      
+      // Update painting rating after creating review
+      await this.updatePaintingRating(review.paintingId);
+      
+      return newReview;
+    } catch (error) {
+      console.error('Error creating review:', error);
+      throw error;
+    }
   }
 
   async updatePaintingRating(paintingId: string): Promise<void> {
-    // Implementation needed
+    try {
+      // Get all reviews for this painting
+      const paintingReviews = await db.select().from(reviews).where(eq(reviews.paintingId, paintingId));
+      
+      if (paintingReviews.length === 0) {
+        // No reviews, set defaults
+        await db
+          .update(paintings)
+          .set({ 
+            averageRating: 0, 
+            totalReviews: 0,
+            updatedAt: new Date() 
+          })
+          .where(eq(paintings.id, paintingId));
+        return;
+      }
+
+      // Calculate average rating
+      const totalRating = paintingReviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / paintingReviews.length;
+
+      // Update painting with new rating and review count
+      await db
+        .update(paintings)
+        .set({ 
+          averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+          totalReviews: paintingReviews.length,
+          updatedAt: new Date() 
+        })
+        .where(eq(paintings.id, paintingId));
+    } catch (error) {
+      console.error('Error updating painting rating:', error);
+    }
   }
 
   // Wishlist methods
@@ -1025,6 +1088,32 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error creating corporate gift:', error);
       throw error;
+    }
+  }
+
+  async updateCorporateGift(id: string, updates: Partial<CorporateGift>): Promise<CorporateGift | undefined> {
+    try {
+      const [updatedGift] = await db
+        .update(corporateGifts)
+        .set(updates)
+        .where(eq(corporateGifts.id, id))
+        .returning();
+      return updatedGift;
+    } catch (error) {
+      console.error('Error updating corporate gift:', error);
+      return undefined;
+    }
+  }
+
+  async deleteCorporateGift(id: string): Promise<boolean> {
+    try {
+      const result = await db
+        .delete(corporateGifts)
+        .where(eq(corporateGifts.id, id));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error('Error deleting corporate gift:', error);
+      return false;
     }
   }
 

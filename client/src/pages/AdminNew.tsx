@@ -22,7 +22,9 @@ import {
   LogOut,
   Megaphone,
   BarChart3,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Settings,
+  Trash2
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from '@/hooks/use-toast';
@@ -142,7 +144,10 @@ function BackgroundImageForm({ section }: { section: string }) {
 export default function AdminNew() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    'manage-paintings': true,
+    'manage-corporate-gifts': true
+  });
 
   const queryClient = useQueryClient();
 
@@ -367,6 +372,88 @@ export default function AdminNew() {
       });
     }
   });
+
+  // Painting management mutations
+  const togglePaintingSoldMutation = useMutation({
+    mutationFn: async ({ id, sold }: { id: string, sold: boolean }) => {
+      const response = await apiRequest(`/api/admin/paintings/${id}/sold`, 'PUT', { sold });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
+      toast({
+        title: "Success",
+        description: "Painting status updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update painting status",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const deletePaintingMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest(`/api/admin/paintings/${id}`, 'DELETE');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
+      toast({
+        title: "Success",
+        description: "Painting deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete painting",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Corporate gift management mutations
+  const deleteCorporateGiftMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest(`/api/admin/corporate-gifts/${id}`, 'DELETE');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/corporate-gifts'] });
+      toast({
+        title: "Success",
+        description: "Corporate gift deleted successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete corporate gift",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Handler functions
+  const togglePaintingSold = (id: string, sold: boolean) => {
+    togglePaintingSoldMutation.mutate({ id, sold });
+  };
+
+  const deletePainting = (id: string) => {
+    if (confirm('Are you sure you want to delete this painting? This action cannot be undone.')) {
+      deletePaintingMutation.mutate(id);
+    }
+  };
+
+  const deleteCorporateGift = (id: string) => {
+    if (confirm('Are you sure you want to delete this corporate gift? This action cannot be undone.')) {
+      deleteCorporateGiftMutation.mutate(id);
+    }
+  };
 
   // Show loading while checking authentication
   if (!user) {
@@ -825,6 +912,67 @@ export default function AdminNew() {
               </CardContent>
             )}
           </Card>
+
+          {/* Manage Paintings */}
+          <Card>
+            <CardHeader 
+              className="cursor-pointer"
+              onClick={() => toggleSection('manage-paintings')}
+            >
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Settings className="mr-2 text-blue-600" size={20} />
+                  Manage Paintings
+                </div>
+                {collapsedSections['manage-paintings'] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              </CardTitle>
+            </CardHeader>
+            {!collapsedSections['manage-paintings'] && (
+              <CardContent>
+                <div className="space-y-4">
+                  {paintings.map((painting: any) => (
+                    <div key={painting.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <img 
+                          src={painting.imageUrl} 
+                          alt={painting.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div>
+                          <h4 className="font-medium">{painting.title}</h4>
+                          <p className="text-sm text-gray-600">${painting.price}</p>
+                          <span className={`inline-block px-2 py-1 text-xs rounded ${
+                            painting.sold 
+                              ? 'bg-red-100 text-red-800' 
+                              : 'bg-green-100 text-green-800'
+                          }`}>
+                            {painting.sold ? 'Sold' : 'Available'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => togglePaintingSold(painting.id, !painting.sold)}
+                          className={painting.sold ? 'text-green-600 hover:text-green-700' : 'text-orange-600 hover:text-orange-700'}
+                        >
+                          {painting.sold ? 'Mark Available' : 'Mark Sold'}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deletePainting(painting.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            )}
+          </Card>
         </div>
       </div>
 
@@ -1043,6 +1191,53 @@ export default function AdminNew() {
                 >
                   {corporateBannerMutation.isPending ? 'Creating...' : 'Create Corporate Banner'}
                 </Button>
+              </CardContent>
+            )}
+          </Card>
+
+          {/* Manage Corporate Gifts */}
+          <Card>
+            <CardHeader 
+              className="cursor-pointer"
+              onClick={() => toggleSection('manage-corporate-gifts')}
+            >
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Settings className="mr-2 text-purple-600" size={20} />
+                  Manage Corporate Gifts
+                </div>
+                {collapsedSections['manage-corporate-gifts'] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              </CardTitle>
+            </CardHeader>
+            {!collapsedSections['manage-corporate-gifts'] && (
+              <CardContent>
+                <div className="space-y-4">
+                  {corporateGifts.map((gift: any) => (
+                    <div key={gift.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <img 
+                          src={gift.imageUrl} 
+                          alt={gift.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                        <div>
+                          <h4 className="font-medium">{gift.title}</h4>
+                          <p className="text-sm text-gray-600">${gift.price}</p>
+                          <p className="text-xs text-gray-500">Min: {gift.minQuantity}, Max: {gift.maxQuantity}</p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deleteCorporateGift(gift.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             )}
           </Card>

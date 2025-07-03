@@ -549,6 +549,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin painting management routes
+  app.put("/api/admin/paintings/:id/sold", requireAuth, async (req, res) => {
+    try {
+      const { sold } = req.body;
+      const painting = await storage.updatePainting(req.params.id, { sold });
+      
+      if (!painting) {
+        return res.status(404).json({ error: "Painting not found" });
+      }
+      
+      res.json(painting);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update painting status" });
+    }
+  });
+
+  app.delete("/api/admin/paintings/:id", requireAuth, async (req, res) => {
+    try {
+      const success = await storage.deletePainting(req.params.id);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Painting not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete painting" });
+    }
+  });
+
+  // Admin corporate gift management routes
+  app.put("/api/admin/corporate-gifts/:id", requireAuth, async (req, res) => {
+    try {
+      const updates = req.body;
+      const gift = await storage.updateCorporateGift(req.params.id, updates);
+      
+      if (!gift) {
+        return res.status(404).json({ error: "Corporate gift not found" });
+      }
+      
+      res.json(gift);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update corporate gift" });
+    }
+  });
+
+  app.delete("/api/admin/corporate-gifts/:id", requireAuth, async (req, res) => {
+    try {
+      const success = await storage.deleteCorporateGift(req.params.id);
+      
+      if (!success) {
+        return res.status(404).json({ error: "Corporate gift not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete corporate gift" });
+    }
+  });
+
   const server = createServer(app);
   return server;
 }
