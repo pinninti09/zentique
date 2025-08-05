@@ -12,6 +12,7 @@ import Wishlist from "./pages/Wishlist";
 import AdminNew from "./pages/AdminNew";
 import PaintingDetail from "./pages/PaintingDetail";
 import CorporateGifting from "./pages/CorporateGifting";
+import CorporateGiftDetail from "./pages/CorporateGiftDetail";
 import AuthPage from "./pages/auth-page";
 import NotFound from "@/pages/not-found";
 
@@ -76,6 +77,7 @@ function Router() {
     <Switch>
       <Route path="/auth" component={AuthPage} />
       <Route path="/corporate" component={CorporateGifting} />
+      <Route path="/corporate-gift/:id" component={CorporateGiftDetail} />
       <Route path="/" component={Gallery} />
       <Route path="/painting/:id" component={PaintingDetail} />
       <Route path="/wishlist" component={Wishlist} />

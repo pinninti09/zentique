@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Search, ShoppingCart, ArrowRight, Heart } from 'lucide-react';
+import { ArrowDown, Search, ShoppingCart, ArrowRight, Heart, Check } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/utils';
-import CorporateGiftDetailModal from '@/components/CorporateGiftDetailModal';
+
 import type { Painting, CartItem, CorporateGift } from '@shared/schema';
 
 // Type for products that works with both database and hardcoded format
@@ -145,11 +148,18 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProduc
           alt={product.title}
           className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {product.salePrice && (
-          <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-            Sale
-          </div>
-        )}
+        <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {product.salePrice && (
+            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Sale
+            </div>
+          )}
+          {product.sold && (
+            <div className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              Sold
+            </div>
+          )}
+        </div>
         <button
           onClick={() => onToggleWishlist(product.id)}
           className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
@@ -229,10 +239,23 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProduc
         
         <Button
           onClick={() => onAddToCart(product.id, quantity[0])}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium transition-colors duration-200"
+          disabled={product.sold || false}
+          className={product.sold ? 
+            "w-full bg-gray-300 text-gray-600 cursor-not-allowed py-3 rounded-lg font-medium" : 
+            "w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium transition-colors duration-200"
+          }
         >
-          <ShoppingCart className="mr-2" size={16} />
-          Add {quantity[0]} to Cart
+          {product.sold ? (
+            <>
+              <Check className="mr-2" size={16} />
+              Sold Out
+            </>
+          ) : (
+            <>
+              <ShoppingCart className="mr-2" size={16} />
+              Add {quantity[0]} to Cart
+            </>
+          )}
         </Button>
       </div>
     </div>
@@ -243,8 +266,8 @@ export default function CorporateGifting() {
   const { sessionId, cartCount, setCartCount, showToast } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('featured');
-  const [selectedGift, setSelectedGift] = useState<CorporateGift | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
   const queryClient = useQueryClient();
 
   const { data: cartItems = [] } = useQuery<CartItem[]>({
@@ -327,22 +350,50 @@ export default function CorporateGifting() {
     return Array.isArray(wishlistItems) && wishlistItems.some((item: any) => item.paintingId === productId);
   };
 
+  const [, setLocation] = useLocation();
+  
   const handleGiftClick = (gift: CorporateGift) => {
-    setSelectedGift(gift);
-    setIsModalOpen(true);
+    setLocation(`/corporate-gift/${gift.id}`);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedGift(null);
-  };
+
 
   // Filter and sort products - use database data or fallback to hardcoded
   const productsToShow = corporateGifts.length > 0 ? corporateGifts : corporateProducts;
-  const filteredProducts = productsToShow.filter(product =>
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = productsToShow.filter(product => {
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategories.length === 0 || 
+      selectedCategories.some(category => {
+        const categoryLower = category.toLowerCase();
+        const titleLower = product.title?.toLowerCase() || '';
+        const descriptionLower = product.description?.toLowerCase() || '';
+        const mediumLower = product.medium?.toLowerCase() || '';
+        
+        // Handle special cases for better matching
+        if (categoryLower === 'waterbottles') {
+          return titleLower.includes('water bottle') || titleLower.includes('bottle') ||
+                 descriptionLower.includes('water bottle') || descriptionLower.includes('bottle');
+        }
+        if (categoryLower === 'tshirt') {
+          return titleLower.includes('t-shirt') || titleLower.includes('tshirt') || titleLower.includes('shirt') ||
+                 descriptionLower.includes('t-shirt') || descriptionLower.includes('tshirt') || descriptionLower.includes('shirt');
+        }
+        if (categoryLower === 'ondesk') {
+          return titleLower.includes('notebook') || titleLower.includes('desk') || titleLower.includes('office') ||
+                 descriptionLower.includes('notebook') || descriptionLower.includes('desk') || descriptionLower.includes('office') ||
+                 descriptionLower.includes('executive');
+        }
+        
+        // Default exact match for other categories
+        return titleLower.includes(categoryLower) ||
+               descriptionLower.includes(categoryLower) ||
+               mediumLower.includes(categoryLower);
+      });
+    
+    return matchesSearch && matchesCategory;
+  });
 
   const sortedProducts = [...filteredProducts].sort((a: any, b: any) => {
     switch (sortBy) {
@@ -404,10 +455,57 @@ export default function CorporateGifting() {
               </Select>
             </div>
             
-            <div className="text-sm text-sophisticated-gray">
-              <span className="font-medium">{sortedProducts.length}</span> product{sortedProducts.length !== 1 ? 's' : ''} 
-              <span className="mx-2">•</span>
-              <span className="font-medium">{sortedProducts.filter((p: any) => !p.sold).length}</span> available
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium text-rich-brown tracking-wide">Filter by</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-52 border-soft-taupe/50 focus:border-elegant-gold bg-white justify-between">
+                    {selectedCategories.length === 0 
+                      ? "All Categories" 
+                      : `${selectedCategories.length} selected`
+                    }
+                    <ArrowDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-3">
+                  <div className="space-y-3">
+                    <div className="font-medium text-sm text-rich-brown">Select Categories</div>
+                    {['tshirt', 'mugs', 'ondesk', 'waterbottles'].map((category) => (
+                      <div key={category} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`corp-${category}`}
+                          checked={selectedCategories.includes(category)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedCategories([...selectedCategories, category]);
+                            } else {
+                              setSelectedCategories(selectedCategories.filter(c => c !== category));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`corp-${category}`} className="text-sm cursor-pointer">
+                          {category === 'tshirt' ? 'T-Shirt' : 
+                           category === 'mugs' ? 'Mugs' : 
+                           category === 'ondesk' ? 'On Desk' : 
+                           category === 'waterbottles' ? 'Water Bottles' : category}
+                        </Label>
+                      </div>
+                    ))}
+                    {selectedCategories.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setSelectedCategories([])}
+                          className="w-full text-xs"
+                        >
+                          Clear All
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
@@ -450,13 +548,7 @@ export default function CorporateGifting() {
         </div>
       )}
 
-      {/* Corporate Gift Detail Modal */}
-      <CorporateGiftDetailModal
-        gift={selectedGift}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onAddToCart={handleAddToCart}
-      />
+
     </main>
   );
 }

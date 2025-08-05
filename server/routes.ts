@@ -146,6 +146,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/cart", async (req, res) => {
     try {
       const cartItemData = insertCartItemSchema.parse(req.body);
+      
+      // Check if the item is sold before adding to cart
+      const painting = await storage.getPaintingById(cartItemData.paintingId);
+      if (painting && painting.sold) {
+        return res.status(400).json({ error: "Cannot add sold item to cart" });
+      }
+      
+      // For corporate gifts, check if they have a sold status
+      if (!painting) {
+        const corporateGift = await storage.getCorporateGiftById(cartItemData.paintingId);
+        if (corporateGift && (corporateGift as any).sold) {
+          return res.status(400).json({ error: "Cannot add sold item to cart" });
+        }
+      }
+      
       const cartItem = await storage.addToCart(cartItemData);
       res.json(cartItem);
     } catch (error) {

@@ -4,7 +4,7 @@ export default function About() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-12">
           <h1 className="font-brand text-4xl font-bold text-gray-900 mb-4 uppercase tracking-wide">
-            About <span className="text-elegant-gold">Atelier</span>
+            About <span className="text-elegant-gold">Zentique</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Curating exceptional art from talented artists worldwide. Each piece tells a unique story.
@@ -16,7 +16,7 @@ export default function About() {
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Our Story</h2>
             <div className="space-y-4 text-gray-700">
               <p>
-                Founded with a passion for discovering and showcasing extraordinary artistic talent, Atelier has become a premier destination for art collectors and enthusiasts seeking authentic, high-quality paintings.
+                Founded with a passion for discovering and showcasing extraordinary artistic talent, Zentique has become a premier destination for art collectors and enthusiasts seeking authentic, high-quality paintings.
               </p>
               <p>
                 We believe that art has the power to transform spaces and inspire emotions. Our carefully curated collection features works from both emerging and established artists, each selected for their unique voice and exceptional craftsmanship.

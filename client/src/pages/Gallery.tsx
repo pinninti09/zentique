@@ -8,6 +8,9 @@ import PaintingCard from '@/components/PaintingCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Painting, CartItem } from '@shared/schema';
 
@@ -15,6 +18,7 @@ export default function Gallery() {
   const { sessionId, cartCount, setCartCount, showToast } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('featured');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
@@ -64,11 +68,18 @@ export default function Gallery() {
     addToCartMutation.mutate(paintingId);
   };
 
-  const filteredPaintings = paintings.filter(painting =>
-    painting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    painting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    painting.artist?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPaintings = paintings.filter(painting => {
+    const matchesSearch = painting.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      painting.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      painting.artist?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategories.length === 0 || 
+      selectedCategories.some(category => 
+        painting.category?.toLowerCase() === category.toLowerCase()
+      );
+    
+    return matchesSearch && matchesCategory;
+  });
 
   const sortedPaintings = [...filteredPaintings].sort((a, b) => {
     switch (sortBy) {
@@ -123,7 +134,7 @@ export default function Gallery() {
         >
           <div className="text-center w-full px-8 py-20">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
-              {backgroundImage?.title || 'Atelier'}
+              {backgroundImage?.title || 'Zentique'}
             </h1>
             <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
               {backgroundImage?.subtitle || 'An experience of elegance — painted just for you. Each masterwork here isn\'t simply a painting; it\'s the exclamation point in a room\'s story. Curated for those who believe that art is the signature accessory of every interior, our collection turns walls into wonders and corners into conversations.'}
@@ -151,10 +162,54 @@ export default function Gallery() {
               </Select>
             </div>
             
-            <div className="text-sm text-sophisticated-gray">
-              <span className="font-medium">{sortedPaintings.length}</span> artwork{sortedPaintings.length !== 1 ? 's' : ''} 
-              <span className="mx-2">•</span>
-              <span className="font-medium">{sortedPaintings.filter(p => !p.sold).length}</span> available
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium text-rich-brown tracking-wide">Filter by</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-52 border-soft-taupe/50 focus:border-elegant-gold bg-white justify-between">
+                    {selectedCategories.length === 0 
+                      ? "All Categories" 
+                      : `${selectedCategories.length} selected`
+                    }
+                    <ArrowDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-3">
+                  <div className="space-y-3">
+                    <div className="font-medium text-sm text-rich-brown">Select Categories</div>
+                    {['cartoon', 'devotional', 'abstract', 'scenaries', 'flowers'].map((category) => (
+                      <div key={category} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={category}
+                          checked={selectedCategories.includes(category)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedCategories([...selectedCategories, category]);
+                            } else {
+                              setSelectedCategories(selectedCategories.filter(c => c !== category));
+                            }
+                          }}
+                        />
+                        <Label htmlFor={category} className="text-sm capitalize cursor-pointer">
+                          {category}
+                        </Label>
+                      </div>
+                    ))}
+                    {selectedCategories.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setSelectedCategories([])}
+                          className="w-full text-xs"
+                        >
+                          Clear All
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           
