@@ -127,7 +127,7 @@ export default function AuthPage() {
         <div className="flex items-center justify-center">
           <Card className="w-full max-w-md">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-brand text-charcoal">Welcome to Atelier</CardTitle>
+              <CardTitle className="text-2xl font-brand text-charcoal">Welcome to Zentique</CardTitle>
               <CardDescription>
                 Sign in to access your account or create a new one
               </CardDescription>
@@ -245,7 +245,7 @@ export default function AuthPage() {
         <div className="hidden lg:flex items-center justify-center">
           <div className="text-center space-y-6">
             <h1 className="text-4xl font-brand font-bold text-charcoal uppercase tracking-wide">
-              Atelier
+              Zentique
             </h1>
             <p className="text-lg text-charcoal/80 max-w-md">
               Discover curated contemporary paintings and innovative corporate gifting solutions. 

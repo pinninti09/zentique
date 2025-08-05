@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Shield, 
   Upload, 
@@ -200,6 +201,7 @@ export default function AdminNew() {
     artistPhoto: '',
     artistBornYear: '',
     artistAwards: '',
+    category: '',
     availableSizes: [] as string[],
     availableFrames: [] as string[]
   });
@@ -274,6 +276,7 @@ export default function AdminNew() {
         artistPhoto: '',
         artistBornYear: '',
         artistAwards: '',
+        category: '',
         availableSizes: [],
         availableFrames: []
       });
@@ -498,6 +501,7 @@ export default function AdminNew() {
     formData.append('artistPhoto', uploadForm.artistPhoto);
     formData.append('artistBornYear', uploadForm.artistBornYear);
     formData.append('artistAwards', uploadForm.artistAwards);
+    formData.append('category', uploadForm.category);
     formData.append('availableSizes', JSON.stringify(uploadForm.availableSizes));
     formData.append('availableFrames', JSON.stringify(uploadForm.availableFrames));
     
@@ -679,7 +683,7 @@ export default function AdminNew() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="medium">Medium</Label>
                     <Input
@@ -697,6 +701,24 @@ export default function AdminNew() {
                       onChange={(e) => setUploadForm(prev => ({ ...prev, dimensions: e.target.value }))}
                       placeholder="e.g., 24x36 inches"
                     />
+                  </div>
+                  <div>
+                    <Label htmlFor="painting-category">Category</Label>
+                    <Select 
+                      value={uploadForm.category} 
+                      onValueChange={(value) => setUploadForm(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cartoon">Cartoon</SelectItem>
+                        <SelectItem value="devotional">Devotional</SelectItem>
+                        <SelectItem value="abstract">Abstract</SelectItem>
+                        <SelectItem value="scenaries">Scenaries</SelectItem>
+                        <SelectItem value="flowers">Flowers</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
@@ -1085,12 +1107,20 @@ export default function AdminNew() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="gift-category">Category</Label>
-                    <Input
-                      id="gift-category"
-                      value={giftForm.category}
-                      onChange={(e) => setGiftForm(prev => ({ ...prev, category: e.target.value }))}
-                      placeholder="e.g., Office Supplies"
-                    />
+                    <Select 
+                      value={giftForm.category} 
+                      onValueChange={(value) => setGiftForm(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tshirt">T-Shirt</SelectItem>
+                        <SelectItem value="mugs">Mugs</SelectItem>
+                        <SelectItem value="ondesk">On Desk</SelectItem>
+                        <SelectItem value="waterbottles">Water Bottles</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="gift-min-quantity">Minimum Quantity</Label>

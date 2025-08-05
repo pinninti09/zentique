@@ -83,7 +83,7 @@ export default function Navigation() {
               <div className="w-8 h-8 bg-elegant-gold rounded-md flex items-center justify-center mr-3 group-hover:bg-rich-brown transition-colors duration-200">
                 <Palette className="text-white" size={16} />
               </div>
-              Atelier
+              Zentique
             </h1>
           </Link>
           

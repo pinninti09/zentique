@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ArrowLeft, Star, Heart, Plus, Minus, Package, Shield, Truck, ShoppingCart, X } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,6 +22,11 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
   const queryClient = useQueryClient();
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedFrame, setSelectedFrame] = useState<string>('');
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [params.id]);
 
   const { data: painting, isLoading } = useQuery<Painting>({
     queryKey: [`/api/paintings/${params.id}`],
