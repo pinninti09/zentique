@@ -5,6 +5,7 @@ import { relations } from "drizzle-orm";
 
 export const paintings = pgTable("paintings", {
   id: text("id").primaryKey(),
+  sku: text("sku").notNull().unique(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   price: real("price").notNull(),
@@ -19,6 +20,7 @@ export const paintings = pgTable("paintings", {
   artistPhotoUrl: text("artist_photo_url"),
   artistBornYear: integer("artist_born_year"),
   artistAwards: text("artist_awards"),
+  category: text("category"),
   averageRating: real("average_rating").default(0),
   totalReviews: integer("total_reviews").default(0),
   availableSizes: text("available_sizes").array().default([]),
@@ -70,6 +72,7 @@ export const promoBanners = pgTable("promo_banners", {
 
 export const corporateGifts = pgTable("corporate_gifts", {
   id: text("id").primaryKey(),
+  sku: text("sku").notNull().unique(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   price: real("price").notNull(),
@@ -79,8 +82,19 @@ export const corporateGifts = pgTable("corporate_gifts", {
   material: text("material").default("Premium Quality"),
   minQuantity: integer("min_quantity").default(1),
   maxQuantity: integer("max_quantity").default(500),
+  averageRating: real("average_rating").default(0),
+  totalReviews: integer("total_reviews").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const corporateGiftReviews = pgTable("corporate_gift_reviews", {
+  id: text("id").primaryKey(),
+  corporateGiftId: text("corporate_gift_id").notNull(),
+  customerName: text("customer_name").notNull(),
+  rating: integer("rating").notNull(),
+  comment: text("comment"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Relations
@@ -108,6 +122,17 @@ export const availabilityNotificationsRelations = relations(availabilityNotifica
   painting: one(paintings, {
     fields: [availabilityNotifications.paintingId],
     references: [paintings.id],
+  }),
+}));
+
+export const corporateGiftsRelations = relations(corporateGifts, ({ many }) => ({
+  reviews: many(corporateGiftReviews),
+}));
+
+export const corporateGiftReviewsRelations = relations(corporateGiftReviews, ({ one }) => ({
+  corporateGift: one(corporateGifts, {
+    fields: [corporateGiftReviews.corporateGiftId],
+    references: [corporateGifts.id],
   }),
 }));
 
@@ -190,12 +215,23 @@ export type PromoBanner = typeof promoBanners.$inferSelect;
 // Corporate Gift schemas and types
 export const insertCorporateGiftSchema = createInsertSchema(corporateGifts).omit({
   id: true,
+  averageRating: true,
+  totalReviews: true,
   createdAt: true,
   updatedAt: true,
 });
 
+export const insertCorporateGiftReviewSchema = createInsertSchema(corporateGiftReviews).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  rating: z.number().min(1).max(5),
+});
+
 export type InsertCorporateGift = z.infer<typeof insertCorporateGiftSchema>;
 export type CorporateGift = typeof corporateGifts.$inferSelect;
+export type InsertCorporateGiftReview = z.infer<typeof insertCorporateGiftReviewSchema>;
+export type CorporateGiftReview = typeof corporateGiftReviews.$inferSelect;
 
 // Background images table for configurable hero backgrounds
 export const backgroundImages = pgTable("background_images", {
