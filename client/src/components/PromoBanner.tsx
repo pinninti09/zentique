@@ -19,12 +19,13 @@ export default function PromoBanner() {
 
   // Determine which banner to show based on current page
   const isCorporatePage = location === '/corporate' || location.startsWith('/corporate');
-  const bannerEndpoint = isCorporatePage ? '/api/corporate-banner/active' : '/api/banner/active';
-
-  // Debug logging (remove after testing)
-  // console.log('Current location:', location);
-  // console.log('Is corporate page:', isCorporatePage);
-  // console.log('Banner endpoint:', bannerEndpoint);
+  const isPaintingPage = location.startsWith('/painting/');
+  const isCorporateGiftPage = location.startsWith('/corporate-gift/');
+  
+  // Show corporate banner on corporate pages and corporate gift detail pages
+  // Show regular banner on gallery (/) and painting detail pages
+  const showCorporateBanner = isCorporatePage || isCorporateGiftPage;
+  const bannerEndpoint = showCorporateBanner ? '/api/corporate-banner/active' : '/api/banner/active';
 
   // Fetch appropriate banner from API
   const { data: banner } = useQuery<BannerData>({

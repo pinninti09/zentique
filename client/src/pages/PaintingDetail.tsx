@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { ArrowLeft, Star, Heart, Plus, Minus, Package, Shield, Truck, ShoppingCart, X } from 'lucide-react';
+import { ArrowLeft, Star, Heart, Plus, Minus, Package, Shield, Truck, Leaf, ShoppingCart, X, Globe, Smile, Gift } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -262,8 +262,21 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
                   </span>
                 </div>
 
-                <div className="text-4xl font-light text-gray-900 mb-8">
-                  {formatPrice(painting.price)}
+                <div className="mb-8">
+                  {painting.salePrice ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-light text-gray-400 line-through">
+                        {formatPrice(painting.price)}
+                      </span>
+                      <span className="text-4xl font-light text-red-600">
+                        {formatPrice(painting.salePrice)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="text-4xl font-light text-gray-900">
+                      {formatPrice(painting.price)}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -356,46 +369,54 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
                   </div>
                 </div>
               ) : (
-                <Button
-                  onClick={() => addToCartMutation.mutate()}
-                  disabled={addToCartMutation.isPending}
-                  className="w-full bg-black hover:bg-gray-800 text-white py-6 text-lg font-medium"
-                >
-                  <ShoppingCart className="mr-3" size={22} />
-                  {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => addToCartMutation.mutate()}
+                    disabled={addToCartMutation.isPending}
+                    className="w-full bg-black hover:bg-gray-800 text-white py-6 text-lg font-medium"
+                  >
+                    <ShoppingCart className="mr-3" size={22} />
+                    {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
+                  </Button>
+                  <button
+                    onClick={() => toggleWishlistMutation.mutate()}
+                    disabled={toggleWishlistMutation.isPending}
+                    className={`w-full text-center py-2 transition-all duration-200 hover:underline ${
+                      isInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  </button>
+                </div>
               )}
 
-              <Button
-                variant="outline"
-                onClick={() => toggleWishlistMutation.mutate()}
-                disabled={toggleWishlistMutation.isPending}
-                className={`w-full py-6 text-lg border-2 ${
-                  isInWishlist
-                    ? 'bg-red-50 border-red-300 text-red-700 hover:bg-red-100'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <Heart 
-                  className={`mr-3 ${isInWishlist ? 'fill-current' : ''}`} 
-                  size={22} 
-                />
-                {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              </Button>
+              {/* Wishlist link when item is in cart */}
+              {cartQuantity > 0 && (
+                <button
+                  onClick={() => toggleWishlistMutation.mutate()}
+                  disabled={toggleWishlistMutation.isPending}
+                  className={`w-full text-center py-2 transition-all duration-200 hover:underline ${
+                    isInWishlist ? 'text-red-500' : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  {isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                </button>
+              )}
 
               {/* Product Details */}
-              <div className="border-t pt-8 mt-8">
+              <div className="bg-gray-50 border rounded-lg p-6 mt-8">
+                <h4 className="font-semibold text-gray-800 mb-4 text-lg">Key Features</h4>
                 <div className="space-y-4 text-gray-600">
                   <div className="flex items-center gap-4">
-                    <Package size={20} />
+                    <Package size={20} className="text-elegant-gold" />
                     <span className="text-lg">Free shipping worldwide</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Shield size={20} />
+                    <Shield size={20} className="text-elegant-gold" />
                     <span className="text-lg">30-day return policy</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Truck size={20} />
+                    <Truck size={20} className="text-elegant-gold" />
                     <span className="text-lg">Delivered in 5-7 business days</span>
                   </div>
                 </div>
@@ -408,6 +429,73 @@ export default function PaintingDetail({ params }: PaintingDetailProps) {
         <div className="border-t bg-gray-50">
           <div className="p-8 lg:p-12">
             <ReviewsSection painting={painting} />
+          </div>
+        </div>
+      </div>
+
+      {/* Trust Banner - Outside Container - Full Width */}
+      <div className="bg-gray-400 border-t border-soft-taupe/30 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            {/* Global Reach */}
+            <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+              <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+                <Globe size={28} className="text-rich-brown" />
+              </div>
+              <div className="text-left md:text-center">
+                <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                  Global Reach
+                </h3>
+                <p className="text-rich-brown/70 text-xs leading-relaxed">
+                  USA, Sweden & India
+                </p>
+              </div>
+            </div>
+
+            {/* Happy Clients */}
+            <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+              <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+                <Smile size={28} className="text-rich-brown" />
+              </div>
+              <div className="text-left md:text-center">
+                <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                  Happy Clients
+                </h3>
+                <p className="text-rich-brown/70 text-xs leading-relaxed">
+                  Corporate humour products
+                </p>
+              </div>
+            </div>
+
+            {/* Workplace Friendly */}
+            <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+              <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+                <Gift size={28} className="text-rich-brown" />
+              </div>
+              <div className="text-left md:text-center">
+                <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                  Workplace Friendly
+                </h3>
+                <p className="text-rich-brown/70 text-xs leading-relaxed">
+                  Work place friendly gifts
+                </p>
+              </div>
+            </div>
+
+            {/* Eco-Friendly Materials */}
+            <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+              <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+                <Leaf size={28} className="text-rich-brown" />
+              </div>
+              <div className="text-left md:text-center">
+                <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                  Eco-Friendly Materials
+                </h3>
+                <p className="text-rich-brown/70 text-xs leading-relaxed">
+                  Eco-friendly paints and oils
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

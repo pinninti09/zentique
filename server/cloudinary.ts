@@ -107,11 +107,49 @@ export const uploadArtistPhoto = multer({
   },
 });
 
+// Configure Cloudinary storage for Background Images - High Quality
+const backgroundImageStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: 'atelier-gallery/backgrounds', // Organize uploads in a folder
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp'], // Restrict file types
+      transformation: [
+        {
+          width: 1920,
+          height: 1080,
+          crop: 'limit',
+          quality: 'auto:best',
+          format: 'auto'
+        }
+      ],
+      public_id: `background-${Date.now()}`, // Unique filename
+    };
+  },
+});
+
 // Configure multer with Cloudinary storage for corporate gifts
 export const uploadCorporateGift = multer({
   storage: corporateGiftStorage,
   limits: {
     fileSize: 8 * 1024 * 1024, // 8MB limit for corporate gift images
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file type
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      const error = new Error('Only image files are allowed!') as any;
+      cb(error);
+    }
+  },
+});
+
+// Configure multer with Cloudinary storage for background images - High Quality
+export const uploadBackgroundImage = multer({
+  storage: backgroundImageStorage,
+  limits: {
+    fileSize: 15 * 1024 * 1024, // 15MB limit for high quality background images
   },
   fileFilter: (req, file, cb) => {
     // Check file type

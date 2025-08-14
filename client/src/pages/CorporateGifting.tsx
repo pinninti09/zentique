@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowDown, Search, ShoppingCart, ArrowRight, Heart, Check } from 'lucide-react';
+import { ArrowDown, Search, ShoppingCart, ArrowRight, Heart, Check, LayoutGrid, List, Globe, Smile, Gift, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
@@ -13,6 +13,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Slider } from '@/components/ui/slider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatPrice } from '@/lib/utils';
+import { MostPopularSection } from '@/components/MostPopularSection';
+
 
 import type { Painting, CartItem, CorporateGift } from '@shared/schema';
 
@@ -122,6 +124,23 @@ const corporateProducts = [
     totalReviews: 167,
     availableSizes: null,
     availableFrames: null
+  },
+  {
+    id: 'corp-7',
+    title: 'New Corporate Gift',
+    description: 'Brand new corporate gift item just added to our collection. Be the first to review!',
+    price: 34.99,
+    salePrice: null,
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600',
+    sold: false,
+    medium: 'Premium Materials',
+    dimensions: '10" x 8"',
+    year: 2024,
+    artist: 'New Collection',
+    averageRating: 0,
+    totalReviews: 0,
+    availableSizes: null,
+    availableFrames: null
   }
 ];
 
@@ -141,12 +160,12 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProduc
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
-      <div className="relative cursor-pointer" onClick={() => onProductClick(product)}>
+    <div className="group bg-transparent rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border-0">
+      <div className="relative overflow-hidden bg-warm-cream/30" onClick={() => onProductClick(product)}>
         <img
           src={product.imageUrl}
           alt={product.title}
-          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-80 object-contain transition-all duration-300 group-hover:scale-105"
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           {product.salePrice && (
@@ -160,64 +179,55 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProduc
             </div>
           )}
         </div>
-        <button
-          onClick={() => onToggleWishlist(product.id)}
-          className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
-            isInWishlist
-              ? 'bg-red-100 text-red-600'
-              : 'bg-white/80 text-gray-400 hover:text-red-500'
-          }`}
-        >
-          <Heart 
-            className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} 
-          />
-        </button>
+
       </div>
       
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <span
-                key={i}
-                className={`text-lg ${
-                  i < Math.floor(product.averageRating) ? 'text-yellow-400' : 'text-gray-300'
-                }`}
-              >
-                ★
+      <div className="p-4 bg-warm-cream/50">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-xl font-serif font-semibold text-rich-brown flex-1">
+            {product.title}
+            {product.sku && (
+              <span className="ml-2 text-xs font-normal text-gray-400">
+                {product.sku}
               </span>
-            ))}
-            <span className="ml-2 text-sm text-gray-600">({product.totalReviews})</span>
-          </div>
+            )}
+          </h3>
+          <button
+            onClick={() => onToggleWishlist(product.id)}
+            className={`p-1 ml-2 transition-all duration-200 ${
+              isInWishlist
+                ? 'text-red-600'
+                : 'text-gray-400 hover:text-red-500'
+            }`}
+          >
+            <Heart 
+              className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} 
+            />
+          </button>
         </div>
-        
-        <h3 className="text-xl font-serif font-semibold mb-2 text-rich-brown">
-          {product.title}
-        </h3>
         
         <p className="text-sophisticated-gray text-sm mb-4 line-clamp-2">
           {product.description}
         </p>
         
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            {product.salePrice ? (
-              <>
-                <span className="text-2xl font-bold text-red-600">
-                  {formatPrice(product.salePrice)}
-                </span>
-                <span className="text-lg text-gray-500 line-through">
-                  {formatPrice(product.price)}
-                </span>
-              </>
-            ) : (
-              <span className="text-2xl font-bold text-rich-brown">
-                {formatPrice(product.price)}
+        <div className="flex items-center mb-4">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <span
+                key={i}
+                className={`text-lg ${
+                  i < Math.floor(product.averageRating || 0) ? 'text-yellow-400' : 'text-gray-300'
+                }`}
+              >
+                ★
               </span>
-            )}
+            ))}
+            <span className="ml-2 text-sm text-gray-600">
+              ({(product.totalReviews || 0) === 0 ? '0 reviews' : `${product.totalReviews} review${product.totalReviews !== 1 ? 's' : ''}`})
+            </span>
           </div>
         </div>
-
+        
         {/* Bulk Quantity Slider */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -237,26 +247,45 @@ function CorporateProductCard({ product, onAddToCart, onToggleWishlist, onProduc
           </div>
         </div>
         
-        <Button
-          onClick={() => onAddToCart(product.id, quantity[0])}
-          disabled={product.sold || false}
-          className={product.sold ? 
-            "w-full bg-gray-300 text-gray-600 cursor-not-allowed py-3 rounded-lg font-medium" : 
-            "w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium transition-colors duration-200"
-          }
-        >
-          {product.sold ? (
-            <>
-              <Check className="mr-2" size={16} />
-              Sold Out
-            </>
-          ) : (
-            <>
-              <ShoppingCart className="mr-2" size={16} />
-              Add {quantity[0]} to Cart
-            </>
-          )}
-        </Button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {product.salePrice ? (
+              <>
+                <span className="text-lg font-bold text-red-600">
+                  {formatPrice(product.salePrice)}
+                </span>
+                <span className="text-sm text-gray-500 line-through">
+                  {formatPrice(product.price)}
+                </span>
+              </>
+            ) : (
+              <span className="text-lg font-bold text-rich-brown">
+                {formatPrice(product.price)}
+              </span>
+            )}
+          </div>
+          
+          <Button
+            onClick={() => onAddToCart(product.id, quantity[0])}
+            disabled={product.sold || false}
+            className={product.sold ? 
+              "bg-gray-300 text-gray-600 cursor-not-allowed px-4 py-2 rounded-lg text-sm font-medium" : 
+              "bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200"
+            }
+          >
+            {product.sold ? (
+              <>
+                <Check className="mr-1" size={14} />
+                Sold Out
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="mr-1" size={14} />
+                Add {quantity[0]} to Cart
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -267,6 +296,11 @@ export default function CorporateGifting() {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  
+  const itemsPerPage = 6;
 
   const queryClient = useQueryClient();
 
@@ -413,37 +447,51 @@ export default function CorporateGifting() {
     }
   });
 
+  // Pagination calculations
+  const totalItems = sortedProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = sortedProducts.slice(startIndex, endIndex);
+
+  // Reset to first page when search/filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategories, sortBy]);
+
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Corporate Hero Section with Configurable Background */}
-      <section className="mb-16 animate-fade-in relative -mx-4 sm:-mx-6 lg:-mx-8">
-        <div 
-          className="relative bg-cover bg-center bg-no-repeat min-h-[500px] flex items-center"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${
-              backgroundImage?.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
-            }')`
-          }}
-        >
-          <div className="text-center w-full px-8 py-20">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
-              {backgroundImage?.title || 'Corporate Gifting'}
-            </h1>
-            <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
-              {backgroundImage?.subtitle || 'We believe gifting is more than a gesture—it\'s a message. Every hand-selected gift we create is a reminder to your team that they matter, that they\'re valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.'}
-            </p>
-          </div>
+    <>
+    {/* Corporate Hero Section with Configurable Background - Full Width */}
+    <section className="mb-16 animate-fade-in relative w-full">
+      <div 
+        className="relative bg-cover bg-center bg-no-repeat min-h-[500px] flex items-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${
+            backgroundImage?.imageUrl || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'
+          }')`
+        }}
+      >
+        <div className="text-center w-full px-8 py-20">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-brand font-bold mb-6 text-white leading-tight uppercase tracking-wide drop-shadow-lg">
+            {backgroundImage?.title || 'Corporate Gifting'}
+          </h1>
+          <p className="text-lg text-white max-w-5xl mx-auto leading-relaxed mb-8 font-brand drop-shadow-md">
+            {backgroundImage?.subtitle || 'We believe gifting is more than a gesture—it\'s a message. Every hand-selected gift we create is a reminder to your team that they matter, that they\'re valued, and that your company always remembers the hearts behind the hard work. Gifting nurtures bonds, enriches workplace culture, and turns everyday routines into shared celebrations. Because when a company cares, every employee feels it—wrapped up, ribbon-tied, and ready to inspire.'}
+          </p>
         </div>
-      </section>
+      </div>
+    </section>
+
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
       {/* Filter Section */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-soft-taupe/40 p-6 mb-12">
+      <div className="p-6 mb-12">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className="flex items-center space-x-3">
               <span className="text-sm font-medium text-rich-brown tracking-wide">Sort by</span>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-52 border-soft-taupe/50 focus:border-elegant-gold bg-white">
+                <SelectTrigger className="w-52 border-soft-taupe/30 focus:border-elegant-gold bg-white/40 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200">
                   <SelectValue placeholder="Choose sorting option" />
                 </SelectTrigger>
                 <SelectContent>
@@ -459,7 +507,7 @@ export default function CorporateGifting() {
               <span className="text-sm font-medium text-rich-brown tracking-wide">Filter by</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-52 border-soft-taupe/50 focus:border-elegant-gold bg-white justify-between">
+                  <Button variant="outline" className="w-52 border-soft-taupe/30 focus:border-elegant-gold bg-white/40 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 justify-between">
                     {selectedCategories.length === 0 
                       ? "All Categories" 
                       : `${selectedCategories.length} selected`
@@ -509,34 +557,207 @@ export default function CorporateGifting() {
             </div>
           </div>
           
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <Input
-              type="text"
-              placeholder="Search corporate gifts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64 border-soft-taupe/50 focus:border-elegant-gold"
-            />
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search corporate gifts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-64 border-soft-taupe/30 focus:border-elegant-gold bg-white/40 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sophisticated-gray" size={16} />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sophisticated-gray hover:text-rich-brown transition-colors"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            
+            {/* View Toggle */}
+            <div className="flex items-center border border-soft-taupe/30 rounded-lg bg-white/40 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className={`rounded-r-none border-0 ${viewMode === 'grid' ? 'bg-elegant-gold text-rich-brown shadow-sm' : 'text-sophisticated-gray hover:text-rich-brown hover:bg-elegant-gold/10'}`}
+              >
+                <LayoutGrid size={16} />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className={`rounded-l-none border-0 ${viewMode === 'list' ? 'bg-elegant-gold text-rich-brown shadow-sm' : 'text-sophisticated-gray hover:text-rich-brown hover:bg-elegant-gold/10'}`}
+              >
+                <List size={16} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {sortedProducts.map((product) => (
-          <CorporateProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={handleAddToCart}
-            onToggleWishlist={handleToggleWishlist}
-            onProductClick={handleGiftClick}
-            isInWishlist={isInWishlist(product.id)}
-          />
-        ))}
-      </div>
+      {/* Products Display - Grid or List */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {currentProducts.map((product) => (
+            <CorporateProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              onProductClick={handleGiftClick}
+              isInWishlist={isInWishlist(product.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {currentProducts.map((product) => (
+            <div key={product.id} className="bg-transparent border-0 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300">
+              <div className="flex flex-col md:flex-row">
+                {/* Image */}
+                <div className="md:w-80 h-64 md:h-48 relative overflow-hidden">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+                    onClick={() => handleGiftClick(product)}
+                  />
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    {product.salePrice && (
+                      <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Sale
+                      </div>
+                    )}
+                    {product.sold && (
+                      <div className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Sold
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleWishlist(product.id);
+                    }}
+                    className={`absolute top-4 right-4 p-2 rounded-full transition-all duration-200 ${
+                      isInWishlist(product.id)
+                        ? 'bg-red-100 text-red-600'
+                        : 'bg-white/80 text-gray-400 hover:text-red-500'
+                    }`}
+                  >
+                    <Heart 
+                      className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} 
+                    />
+                  </button>
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 p-6 flex flex-col justify-between">
+                  <div>
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="text-xl font-serif font-medium text-rich-brown mb-1">
+                          {product.title}
+                          {product.sku && (
+                            <span className="ml-2 text-xs font-normal text-gray-400">
+                              {product.sku}
+                            </span>
+                          )}
+                        </h3>
+                        <p className="text-sophisticated-gray text-sm mb-2">
+                          by {product.artist}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {product.salePrice ? (
+                          <div>
+                            <p className="text-2xl font-light text-elegant-gold mb-1">
+                              ${product.salePrice}
+                            </p>
+                            <p className="text-sm text-gray-500 line-through">
+                              ${product.price}
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="text-2xl font-light text-elegant-gold mb-1">
+                            ${product.price}
+                          </p>
+                        )}
+                        <p className="text-xs text-sophisticated-gray">
+                          {product.dimensions}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sophisticated-gray text-sm mb-4 line-clamp-2">
+                      {product.description}
+                    </p>
+                    
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`text-sm ${i < Math.round(product.averageRating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}>
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-xs text-sophisticated-gray">
+                          ({(product.totalReviews || 0) === 0 ? '0 reviews' : `${product.totalReviews} review${product.totalReviews !== 1 ? 's' : ''}`})
+                        </span>
+                      </div>
+                      <span className="text-xs bg-elegant-gold/10 text-rich-brown px-2 py-1 rounded-full">
+                        {product.material || 'Premium Quality'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="flex gap-3 items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-rich-brown">Qty:</span>
+                      <div className="flex items-center border border-soft-taupe/50 rounded-lg">
+                        <button className="px-3 py-1 hover:bg-gray-100">-</button>
+                        <span className="px-3 py-1 border-x border-soft-taupe/50">1</span>
+                        <button className="px-3 py-1 hover:bg-gray-100">+</button>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      onClick={() => handleAddToCart(product.id, 1)}
+                      disabled={product.sold}
+                      className={
+                        product.sold 
+                          ? "flex-1 bg-gray-400 text-white cursor-not-allowed"
+                          : "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors duration-200"
+                      }
+                    >
+                      {product.sold ? (
+                        <>
+                          <Check className="mr-2" size={16} />
+                          Sold Out
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="mr-2" size={16} />
+                          Add to Cart
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {sortedProducts.length === 0 && (
+      {totalItems === 0 && !isLoading && (
         <div className="text-center py-16">
           <p className="text-xl text-muted-foreground mb-6">No products found matching your search.</p>
           <Button 
@@ -548,7 +769,110 @@ export default function CorporateGifting() {
         </div>
       )}
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-3 border-t border-soft-taupe/30 pt-12 mb-16">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="p-2 text-rich-brown hover:text-elegant-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-8 h-8 text-sm font-medium transition-colors ${
+                  page === currentPage 
+                    ? 'text-elegant-gold border-b-2 border-elegant-gold' 
+                    : 'text-rich-brown hover:text-elegant-gold'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+          
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="p-2 text-rich-brown hover:text-elegant-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      )}
 
     </main>
+
+    {/* Most Popular Section */}
+    <MostPopularSection
+      type="corporate-gifts"
+      sessionId={sessionId}
+      onQuickView={(gift) => setLocation(`/corporate-gift/${gift.id}`)}
+      onAddToCart={(giftId) => handleAddToCart(giftId, 1)}
+      onToggleWishlist={handleToggleWishlist}
+      wishlistItems={wishlistItems}
+      cartItems={cartItems}
+    />
+    
+    {/* Trust Banner - Outside main container for full width */}
+    <div className="bg-gray-400 border-t border-soft-taupe/30 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          {/* Global Reach */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Globe size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Global Reach
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                USA, Sweden & India
+              </p>
+            </div>
+          </div>
+
+          {/* Happy Clients */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Smile size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Happy Clients
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                Corporate humour products
+              </p>
+            </div>
+          </div>
+
+          {/* Workplace Friendly */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Gift size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Workplace Friendly
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                Work place friendly gifts
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Corporate Gift Detail Modal */}
+
+    </>
   );
 }

@@ -188,9 +188,11 @@ export default function AdminNew() {
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
+    sku: '',
     title: '',
     description: '',
     price: '',
+    salePrice: '',
     imageUrl: '',
     imageFile: null as File | null,
     medium: '',
@@ -206,16 +208,22 @@ export default function AdminNew() {
     availableFrames: [] as string[]
   });
 
+  const [editingPainting, setEditingPainting] = useState<any>(null);
+
   // Corporate gift form state
   const [giftForm, setGiftForm] = useState({
+    sku: '',
     title: '',
     description: '',
     price: '',
+    salePrice: '',
     imageUrl: '',
     imageFile: null as File | null,
     category: '',
     minQuantity: '1'
   });
+
+  const [editingGift, setEditingGift] = useState<any>(null);
 
   // Banner form state
   const [bannerForm, setBannerForm] = useState({
@@ -263,9 +271,11 @@ export default function AdminNew() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
       setUploadForm({
+        sku: '',
         title: '',
         description: '',
         price: '',
+        salePrice: '',
         imageUrl: '',
         imageFile: null,
         medium: '',
@@ -302,9 +312,11 @@ export default function AdminNew() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/corporate-gifts'] });
       setGiftForm({
+        sku: '',
         title: '',
         description: '',
         price: '',
+        salePrice: '',
         imageUrl: '',
         imageFile: null,
         category: '',
@@ -458,6 +470,101 @@ export default function AdminNew() {
     }
   };
 
+  // Edit painting mutation
+  const updatePaintingMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest(`/api/admin/paintings/${editingPainting.id}`, 'PUT', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/paintings'] });
+      setEditingPainting(null);
+      toast({
+        title: "Success",
+        description: "Painting updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error", 
+        description: error.message || "Failed to update painting",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Edit corporate gift mutation
+  const updateCorporateGiftMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest(`/api/admin/corporate-gifts/${editingGift.id}`, 'PUT', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/corporate-gifts'] });
+      setEditingGift(null);
+      toast({
+        title: "Success",
+        description: "Corporate gift updated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update corporate gift",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Edit handlers
+  const startEditingPainting = (painting: any) => {
+    setEditingPainting({
+      ...painting,
+      price: painting.price?.toString() || '',
+      salePrice: painting.salePrice?.toString() || '',
+    });
+  };
+
+  const startEditingGift = (gift: any) => {
+    setEditingGift({
+      ...gift,
+      price: gift.price?.toString() || '',
+      salePrice: gift.salePrice?.toString() || '',
+    });
+  };
+
+  const handleUpdatePainting = () => {
+    const updateData: any = {};
+    
+    if (editingPainting.price && editingPainting.price !== '') {
+      updateData.price = parseFloat(editingPainting.price);
+    }
+    
+    if (editingPainting.salePrice && editingPainting.salePrice !== '') {
+      updateData.salePrice = parseFloat(editingPainting.salePrice);
+    } else {
+      updateData.salePrice = null; // Explicitly set to null to remove sale price
+    }
+    
+    updatePaintingMutation.mutate(updateData);
+  };
+
+  const handleUpdateGift = () => {
+    const updateData: any = {};
+    
+    if (editingGift.price && editingGift.price !== '') {
+      updateData.price = parseFloat(editingGift.price);
+    }
+    
+    if (editingGift.salePrice && editingGift.salePrice !== '') {
+      updateData.salePrice = parseFloat(editingGift.salePrice);
+    } else {
+      updateData.salePrice = null; // Explicitly set to null to remove sale price
+    }
+    
+    updateCorporateGiftMutation.mutate(updateData);
+  };
+
   // Show loading while checking authentication
   if (!user) {
     return (
@@ -471,10 +578,10 @@ export default function AdminNew() {
   }
 
   const handleUpload = () => {
-    if (!uploadForm.title || !uploadForm.description || !uploadForm.price) {
+    if (!uploadForm.sku || !uploadForm.title || !uploadForm.description || !uploadForm.price) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (SKU, Title, Description, Price)",
         variant: "destructive",
       });
       return;
@@ -490,9 +597,13 @@ export default function AdminNew() {
     }
 
     const formData = new FormData();
+    formData.append('sku', uploadForm.sku);
     formData.append('title', uploadForm.title);
     formData.append('description', uploadForm.description);
     formData.append('price', uploadForm.price);
+    if (uploadForm.salePrice && uploadForm.salePrice !== '') {
+      formData.append('salePrice', uploadForm.salePrice);
+    }
     formData.append('medium', uploadForm.medium);
     formData.append('dimensions', uploadForm.dimensions);
     formData.append('year', uploadForm.year);
@@ -515,10 +626,10 @@ export default function AdminNew() {
   };
 
   const handleGiftUpload = () => {
-    if (!giftForm.title || !giftForm.description || !giftForm.price) {
+    if (!giftForm.sku || !giftForm.title || !giftForm.description || !giftForm.price) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (SKU, Title, Description, Price)",
         variant: "destructive",
       });
       return;
@@ -534,9 +645,13 @@ export default function AdminNew() {
     }
 
     const formData = new FormData();
+    formData.append('sku', giftForm.sku);
     formData.append('title', giftForm.title);
     formData.append('description', giftForm.description);
     formData.append('price', giftForm.price);
+    if (giftForm.salePrice && giftForm.salePrice !== '') {
+      formData.append('salePrice', giftForm.salePrice);
+    }
     formData.append('category', giftForm.category);
     formData.append('minQuantity', giftForm.minQuantity);
     
@@ -650,7 +765,16 @@ export default function AdminNew() {
             </CardHeader>
             {!collapsedSections['upload-painting'] && (
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="sku">SKU *</Label>
+                    <Input
+                      id="sku"
+                      value={uploadForm.sku}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, sku: e.target.value }))}
+                      placeholder="e.g., ZEN-PT-009"
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="title">Title *</Label>
                     <Input
@@ -669,6 +793,20 @@ export default function AdminNew() {
                       onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
                       placeholder="Enter price"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="salePrice">Sale Price ($)</Label>
+                    <Input
+                      id="salePrice"
+                      type="number"
+                      value={uploadForm.salePrice}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, salePrice: e.target.value }))}
+                      placeholder="Optional - leave empty for no sale"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">If set, original price will show striked out</p>
                   </div>
                 </div>
 
@@ -935,6 +1073,27 @@ export default function AdminNew() {
             )}
           </Card>
 
+          {/* Gallery Background Image Management */}
+          <Card>
+            <CardHeader 
+              className="cursor-pointer"
+              onClick={() => toggleSection('gallery-background')}
+            >
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <ImageIcon className="mr-2 text-blue-600" size={20} />
+                  Gallery Background Image
+                </div>
+                {collapsedSections['gallery-background'] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              </CardTitle>
+            </CardHeader>
+            {!collapsedSections['gallery-background'] && (
+              <CardContent>
+                <BackgroundImageForm section="gallery" />
+              </CardContent>
+            )}
+          </Card>
+
           {/* Manage Paintings */}
           <Card>
             <CardHeader 
@@ -963,6 +1122,7 @@ export default function AdminNew() {
                         <div>
                           <h4 className="font-medium">{painting.title}</h4>
                           <p className="text-sm text-gray-600">${painting.price}</p>
+                          <p className="text-xs text-gray-500">SKU: {painting.sku || 'N/A'}</p>
                           <span className={`inline-block px-2 py-1 text-xs rounded ${
                             painting.sold 
                               ? 'bg-red-100 text-red-800' 
@@ -973,6 +1133,14 @@ export default function AdminNew() {
                         </div>
                       </div>
                       <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditingPainting(painting)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Edit Price
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -1071,7 +1239,16 @@ export default function AdminNew() {
             </CardHeader>
             {!collapsedSections['upload-gift'] && (
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="gift-sku">SKU *</Label>
+                    <Input
+                      id="gift-sku"
+                      value={giftForm.sku}
+                      onChange={(e) => setGiftForm(prev => ({ ...prev, sku: e.target.value }))}
+                      placeholder="e.g., ZEN-CG-011"
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="gift-title">Title *</Label>
                     <Input
@@ -1090,6 +1267,20 @@ export default function AdminNew() {
                       onChange={(e) => setGiftForm(prev => ({ ...prev, price: e.target.value }))}
                       placeholder="Enter price"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="gift-salePrice">Sale Price ($)</Label>
+                    <Input
+                      id="gift-salePrice"
+                      type="number"
+                      value={giftForm.salePrice}
+                      onChange={(e) => setGiftForm(prev => ({ ...prev, salePrice: e.target.value }))}
+                      placeholder="Optional - leave empty for no sale"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">If set, original price will show striked out</p>
                   </div>
                 </div>
 
@@ -1225,6 +1416,27 @@ export default function AdminNew() {
             )}
           </Card>
 
+          {/* Corporate Background Image Management */}
+          <Card>
+            <CardHeader 
+              className="cursor-pointer"
+              onClick={() => toggleSection('corporate-background')}
+            >
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <ImageIcon className="mr-2 text-purple-600" size={20} />
+                  Corporate Background Image
+                </div>
+                {collapsedSections['corporate-background'] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+              </CardTitle>
+            </CardHeader>
+            {!collapsedSections['corporate-background'] && (
+              <CardContent>
+                <BackgroundImageForm section="corporate" />
+              </CardContent>
+            )}
+          </Card>
+
           {/* Manage Corporate Gifts */}
           <Card>
             <CardHeader 
@@ -1253,10 +1465,19 @@ export default function AdminNew() {
                         <div>
                           <h4 className="font-medium">{gift.title}</h4>
                           <p className="text-sm text-gray-600">${gift.price}</p>
+                          <p className="text-xs text-gray-500">SKU: {gift.sku || 'N/A'}</p>
                           <p className="text-xs text-gray-500">Min: {gift.minQuantity}, Max: {gift.maxQuantity}</p>
                         </div>
                       </div>
                       <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditingGift(gift)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          Edit Price
+                        </Button>
                         <Button
                           variant="destructive"
                           size="sm"
@@ -1273,6 +1494,116 @@ export default function AdminNew() {
           </Card>
         </div>
       </div>
+
+      {/* Edit Painting Price Modal */}
+      {editingPainting && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Edit Painting Price</h3>
+            <div className="space-y-4">
+              <div>
+                <Label>Painting: {editingPainting.title}</Label>
+                <p className="text-sm text-gray-500">SKU: {editingPainting.sku}</p>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-price">Regular Price ($)</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  value={editingPainting.price || ''}
+                  onChange={(e) => setEditingPainting(prev => ({ ...prev, price: e.target.value }))}
+                  placeholder="Enter regular price"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-sale-price">Sale Price ($)</Label>
+                <Input
+                  id="edit-sale-price"
+                  type="number"
+                  value={editingPainting.salePrice || ''}
+                  onChange={(e) => setEditingPainting(prev => ({ ...prev, salePrice: e.target.value }))}
+                  placeholder="Optional - leave empty for no sale"
+                />
+                <p className="text-xs text-gray-500 mt-1">If set, original price will show striked out</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setEditingPainting(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleUpdatePainting}
+                disabled={updatePaintingMutation.isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {updatePaintingMutation.isPending ? 'Updating...' : 'Update Price'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Corporate Gift Price Modal */}
+      {editingGift && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">Edit Corporate Gift Price</h3>
+            <div className="space-y-4">
+              <div>
+                <Label>Gift: {editingGift.title}</Label>
+                <p className="text-sm text-gray-500">SKU: {editingGift.sku}</p>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-gift-price">Regular Price ($)</Label>
+                <Input
+                  id="edit-gift-price"
+                  type="number"
+                  value={editingGift.price || ''}
+                  onChange={(e) => setEditingGift(prev => ({ ...prev, price: e.target.value }))}
+                  placeholder="Enter regular price"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-gift-sale-price">Sale Price ($)</Label>
+                <Input
+                  id="edit-gift-sale-price"
+                  type="number"
+                  value={editingGift.salePrice || ''}
+                  onChange={(e) => setEditingGift(prev => ({ ...prev, salePrice: e.target.value }))}
+                  placeholder="Optional - leave empty for no sale"
+                />
+                <p className="text-xs text-gray-500 mt-1">If set, original price will show striked out</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <Button 
+                variant="outline" 
+                onClick={() => setEditingGift(null)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleUpdateGift}
+                disabled={updateCorporateGiftMutation.isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {updateCorporateGiftMutation.isPending ? 'Updating...' : 'Update Price'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

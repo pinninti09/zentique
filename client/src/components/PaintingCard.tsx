@@ -96,14 +96,14 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
 
   return (
     <Card 
-      className="painting-card group bg-white rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border border-soft-taupe/30"
+      className="painting-card group bg-transparent rounded-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer border-0"
       onClick={() => onQuickView(painting)}
     >
       <div className="relative overflow-hidden bg-warm-cream/30">
         <img 
           src={painting.imageUrl} 
           alt={painting.title}
-          className={`w-full h-80 object-cover transition-all duration-300 group-hover:scale-105 ${
+          className={`w-full h-80 object-contain transition-all duration-300 group-hover:scale-105 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
           onLoad={() => setImageLoaded(true)}
@@ -126,58 +126,58 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           </Button>
         </div>
         
-        <div className="absolute top-4 right-4 flex gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleWishlistToggle}
-            className={`p-2 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all duration-200 ${
-              isInWishlist ? 'text-red-500 bg-red-50' : 'text-sophisticated-gray hover:text-red-500'
-            }`}
-          >
-            <Heart className={`w-4 h-4 transition-all duration-200 ${isInWishlist ? 'fill-red-500 text-red-500 scale-110' : 'hover:scale-105'}`} />
-          </Button>
-          <div className="flex flex-col gap-1">
-            {painting.salePrice && (
-              <Badge className="bg-elegant-gold text-rich-brown font-medium px-3 py-1">
-                Sale
-              </Badge>
-            )}
-            {painting.sold && (
-              <Badge className="bg-sophisticated-gray text-white font-medium px-3 py-1">
-                Sold
-              </Badge>
-            )}
-          </div>
+        <div className="absolute top-4 right-4 flex flex-col gap-1">
+          {painting.salePrice && (
+            <Badge className="bg-elegant-gold text-rich-brown font-medium px-3 py-1">
+              Sale
+            </Badge>
+          )}
+          {painting.sold && (
+            <Badge className="bg-sophisticated-gray text-white font-medium px-3 py-1">
+              Sold
+            </Badge>
+          )}
         </div>
       </div>
       
       <CardContent className="p-6 space-y-3">
-        <div className="border-b border-soft-taupe/20 pb-3">
-          <h3 className="font-serif text-lg font-medium mb-1 text-rich-brown leading-tight">
+        <div className="flex items-start justify-between">
+          <h3 className="font-serif text-lg font-medium mb-1 text-rich-brown leading-tight flex-1">
             {painting.title}
+            {painting.sku && (
+              <span className="ml-2 text-xs font-normal text-gray-400">
+                {painting.sku}
+              </span>
+            )}
           </h3>
-          <p className="text-sm text-sophisticated-gray font-light">
-            {painting.artist || 'Unknown Artist'}
-          </p>
+          <Button
+            variant="ghost"
+            onClick={handleWishlistToggle}
+            className={`px-3 py-2 ml-2 h-10 transition-all duration-200 ${
+              isInWishlist ? 'text-red-500' : 'text-sophisticated-gray hover:text-red-500'
+            }`}
+          >
+            <Heart className={`w-4 h-4 transition-all duration-200 ${isInWishlist ? 'fill-red-500 text-red-500 scale-110' : 'hover:scale-105'}`} />
+          </Button>
         </div>
         
         <div className="space-y-2">
-          <p className="text-sophisticated-gray text-sm leading-relaxed line-clamp-2 font-light">
-            {painting.description}
-          </p>
           
           {/* Star Rating Display */}
-          {painting.averageRating && (painting.totalReviews || 0) > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                {renderStars(painting.averageRating)}
-              </div>
-              <span className="text-xs text-sophisticated-gray">
-                {painting.averageRating.toFixed(1)} ({painting.totalReviews || 0} review{(painting.totalReviews || 0) !== 1 ? 's' : ''})
-              </span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              {painting.averageRating && (painting.totalReviews || 0) > 0 
+                ? renderStars(painting.averageRating)
+                : renderStars(0)
+              }
             </div>
-          )}
+            <span className="text-xs text-sophisticated-gray">
+              {painting.averageRating && (painting.totalReviews || 0) > 0 
+                ? `${painting.averageRating.toFixed(1)} (${painting.totalReviews || 0} review${(painting.totalReviews || 0) !== 1 ? 's' : ''})`
+                : '(0 reviews)'
+              }
+            </span>
+          </div>
           
           <div className="flex items-center text-xs text-sophisticated-gray space-x-4">
             <span>{painting.medium || 'Oil on Canvas'}</span>
@@ -207,10 +207,9 @@ export default function PaintingCard({ painting, onQuickView, onAddToCart }: Pai
           <Button
             onClick={handleAddToCart}
             disabled={painting.sold || false}
-            size="lg"
             className={painting.sold ? 
-              "bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-3" : 
-              "bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-200 font-medium px-6 py-3 shadow-lg hover:shadow-xl"
+              "bg-gray-300 text-gray-600 cursor-not-allowed px-4 py-2 h-10" : 
+              "bg-gray-400 text-white hover:bg-gray-500 transition-all duration-200 font-medium px-4 py-2 h-10 shadow-lg hover:shadow-xl"
             }
           >
             {painting.sold ? (
