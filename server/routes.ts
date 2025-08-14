@@ -8,12 +8,13 @@ import {
   insertWishlistItemSchema,
   insertAvailabilityNotificationSchema,
   insertCorporateGiftSchema,
+  insertCorporateGiftReviewSchema,
   insertBackgroundImageSchema,
   insertUserSchema,
   loginUserSchema
 } from "@shared/schema";
 import { z } from "zod";
-import { upload, uploadArtistPhoto, uploadCorporateGift } from "./cloudinary";
+import { upload, uploadArtistPhoto, uploadCorporateGift, uploadBackgroundImage } from "./cloudinary";
 
 // Authentication middleware
 async function requireAuth(req: any, res: any, next: any) {
@@ -232,6 +233,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update painting's average rating
       await storage.updatePaintingRating(req.params.id);
+      
+      res.json(review);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid review data" });
+      }
+      res.status(500).json({ error: "Failed to create review" });
+    }
+  });
+
+  // Corporate gift reviews routes
+  app.get("/api/corporate-gifts/:id/reviews", async (req, res) => {
+    try {
+      const reviews = await storage.getReviewsByCorporateGiftId(req.params.id);
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch reviews" });
+    }
+  });
+
+  app.post("/api/corporate-gifts/:id/reviews", async (req, res) => {
+    try {
+      const reviewData = insertCorporateGiftReviewSchema.parse({
+        ...req.body,
+        corporateGiftId: req.params.id,
+      });
+      const review = await storage.createCorporateGiftReview(reviewData);
+      
+      // Update corporate gift's average rating
+      await storage.updateCorporateGiftRating(req.params.id);
       
       res.json(review);
     } catch (error) {
@@ -531,9 +562,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/background-images", requireAuth, async (req, res) => {
+  app.post("/api/admin/background-images", requireAuth, uploadBackgroundImage.single("imageFile"), async (req, res) => {
     try {
-      const backgroundData = insertBackgroundImageSchema.parse(req.body);
+      // Get image URL from Cloudinary upload or use provided URL
+      let imageUrl = req.body.imageUrl;
+      
+      if (req.file) {
+        // File was uploaded to Cloudinary, use the secure URL
+        imageUrl = req.file.path;
+      }
+
+      if (!imageUrl) {
+        return res.status(400).json({ error: "Either imageUrl or imageFile is required" });
+      }
+
+      const backgroundData = insertBackgroundImageSchema.parse({
+        ...req.body,
+        imageUrl,
+        isActive: true
+      });
       
       // Deactivate all existing background images for this section
       await storage.deactivateAllBackgroundImages(backgroundData.section);
@@ -568,14 +615,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/paintings/:id/sold", requireAuth, async (req, res) => {
     try {
       const { sold } = req.body;
+      console.log(`Updating painting ${req.params.id} - sold status from request:`, sold, typeof sold);
+      
       const painting = await storage.updatePainting(req.params.id, { sold });
       
       if (!painting) {
         return res.status(404).json({ error: "Painting not found" });
       }
       
+      console.log(`Updated painting ${req.params.id} - new sold status:`, painting.sold);
       res.json(painting);
     } catch (error) {
+      console.error("Error updating painting sold status:", error);
       res.status(500).json({ error: "Failed to update painting status" });
     }
   });

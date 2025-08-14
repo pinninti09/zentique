@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, Star, Heart, Plus, Minus, Package, Shield, Truck, ShoppingCart } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { formatPrice } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
 import { useApp } from '@/contexts/AppContext';
@@ -131,29 +131,35 @@ export default function PaintingDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0 bg-white">
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0 bg-white" aria-describedby="painting-details">
+        <DialogTitle className="sr-only">
+          {painting.title} - Painting Details
+        </DialogTitle>
+        
+        {/* Close button at the top right of the entire modal */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="absolute top-4 right-4 bg-white/90 hover:bg-white text-gray-700 rounded-full h-10 w-10 p-0 shadow-lg z-50"
+        >
+          <X size={20} />
+        </Button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
           {/* Large Image Section */}
-          <div className="relative bg-gray-50 flex items-center justify-center">
-            <div className="w-full h-full max-h-[700px] overflow-hidden">
+          <div className="bg-gray-50 flex items-center justify-center min-h-[400px] lg:min-h-[700px]">
+            <div className="w-full h-full p-4">
               <img
                 src={painting.imageUrl}
                 alt={painting.title}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain max-h-[400px] lg:max-h-[700px]"
               />
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="absolute top-6 right-6 bg-white/90 hover:bg-white text-gray-700 rounded-full h-12 w-12 p-0 shadow-lg"
-            >
-              <X size={24} />
-            </Button>
           </div>
 
           {/* Product Information Section */}
-          <div className="p-8 lg:p-12 flex flex-col justify-between">
+          <div className="p-6 lg:p-8 flex flex-col justify-start overflow-y-auto max-h-[700px]">
             <div>
               {/* Title and Rating */}
               <div className="mb-8">
@@ -257,7 +263,7 @@ export default function PaintingDetailModal({
                 <Button
                   onClick={() => addToCartMutation.mutate()}
                   disabled={addToCartMutation.isPending}
-                  className="w-full bg-black hover:bg-gray-800 text-white py-6 text-lg font-medium"
+                  className="w-full bg-gray-400 hover:bg-gray-500 text-white py-6 text-lg font-medium"
                 >
                   <ShoppingCart className="mr-3" size={22} />
                   {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}

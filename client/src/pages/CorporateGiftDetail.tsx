@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
+import CorporateGiftReviewsSection from '@/components/CorporateGiftReviewsSection';
 import { 
   Heart, 
   ShoppingCart, 
@@ -14,10 +15,17 @@ import {
   Package, 
   Star,
   Minus,
-  Plus
+  Plus,
+  Shield,
+  Truck,
+  Leaf,
+  Globe,
+  Smile,
+  Gift
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from '@/hooks/use-toast';
+import type { CorporateGift } from '@shared/schema';
 
 export default function CorporateGiftDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,16 +48,18 @@ export default function CorporateGiftDetail() {
   }, [id]);
 
   // Fetch corporate gift data
-  const { data: gift, isLoading } = useQuery({
+  const { data: gift, isLoading } = useQuery<CorporateGift>({
     queryKey: [`/api/corporate-gifts/${id}`],
     enabled: !!id
   });
 
   // Check if item is in wishlist
-  const { data: isInWishlist = false } = useQuery({
+  const { data: wishlistData } = useQuery<{ isInWishlist: boolean }>({
     queryKey: [`/api/wishlist/${sessionId}/${id}/check`],
     enabled: !!sessionId && !!id
   });
+  
+  const isInWishlist = wishlistData?.isInWishlist ?? false;
 
   // Add to cart mutation
   const addToCartMutation = useMutation({
@@ -151,12 +161,13 @@ export default function CorporateGiftDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-warm-beige">
+    <>
+      <div className="min-h-screen bg-warm-beige">
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          onClick={() => setLocation('/corporate-gifting')}
+          onClick={() => setLocation('/corporate')}
           className="mb-6 text-purple-600 hover:text-purple-700"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -203,9 +214,22 @@ export default function CorporateGiftDetail() {
                 )}
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">{gift.title}</h1>
-              <p className="text-2xl font-semibold text-purple-600 mb-4">
-                ${gift.price}
-              </p>
+              <div className="mb-4">
+                {gift.salePrice ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl font-semibold text-gray-400 line-through">
+                      ${gift.price}
+                    </span>
+                    <span className="text-2xl font-semibold text-red-600">
+                      ${gift.salePrice}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-semibold text-purple-600">
+                    ${gift.price}
+                  </p>
+                )}
+              </div>
             </div>
 
             <Separator />
@@ -215,26 +239,9 @@ export default function CorporateGiftDetail() {
               <p className="text-gray-700 leading-relaxed">{gift.description}</p>
             </div>
 
-            {gift.category && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Category</h3>
-                <Badge variant="outline" className="border-purple-200 text-purple-800">
-                  {gift.category}
-                </Badge>
-              </div>
-            )}
 
-            {gift.minQuantity && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Minimum Order Quantity
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-gray-600" />
-                  <span className="text-gray-700">{gift.minQuantity} units</span>
-                </div>
-              </div>
-            )}
+
+
 
             <Separator />
 
@@ -284,11 +291,11 @@ export default function CorporateGiftDetail() {
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold text-gray-900">Total:</span>
                   <span className="text-2xl font-bold text-purple-600">
-                    ${(gift.price * quantity).toFixed(2)}
+                    ${((gift.salePrice || gift.price) * quantity).toFixed(2)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">
-                  {quantity} × ${gift.price} each
+                  {quantity} × ${gift.salePrice || gift.price} each
                 </p>
               </CardContent>
             </Card>
@@ -326,6 +333,25 @@ export default function CorporateGiftDetail() {
               </Button>
             </div>
 
+            {/* Product Features */}
+            <div className="bg-gray-50 border rounded-lg p-4 mt-6">
+              <h4 className="font-semibold text-gray-800 mb-3">Key Features</h4>
+              <div className="space-y-3 text-gray-600">
+                <div className="flex items-center gap-3">
+                  <Package size={18} className="text-purple-600" />
+                  <span>Free shipping worldwide</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Shield size={18} className="text-purple-600" />
+                  <span>30-day return policy</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Truck size={18} className="text-purple-600" />
+                  <span>Delivered in 5-7 business days</span>
+                </div>
+              </div>
+            </div>
+
             {/* Bulk Order Info */}
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-4">
@@ -341,6 +367,81 @@ export default function CorporateGiftDetail() {
           </div>
         </div>
       </div>
+
+      {/* Reviews Section - Full Width */}
+      <div className="border-t bg-gray-50">
+        <div className="p-8 lg:p-12">
+          <CorporateGiftReviewsSection corporateGift={gift} />
+        </div>
+      </div>
     </div>
+
+    {/* Trust Banner - Outside Container - Full Width */}
+    <div className="bg-gray-400 border-t border-soft-taupe/30 w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+          {/* Global Reach */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Globe size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Global Reach
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                USA, Sweden & India
+              </p>
+            </div>
+          </div>
+
+          {/* Happy Clients */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Smile size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Happy Clients
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                Corporate humour products
+              </p>
+            </div>
+          </div>
+
+          {/* Workplace Friendly */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Gift size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Workplace Friendly
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                Work place friendly gifts
+              </p>
+            </div>
+          </div>
+
+          {/* Eco-Friendly Materials */}
+          <div className="flex items-center justify-center space-x-3 md:flex-col md:space-x-0 md:space-y-2">
+            <div className="w-14 h-14 bg-rich-brown/20 rounded-full flex items-center justify-center">
+              <Leaf size={28} className="text-rich-brown" />
+            </div>
+            <div className="text-left md:text-center">
+              <h3 className="text-base font-serif font-medium text-rich-brown mb-1">
+                Eco-Friendly Materials
+              </h3>
+              <p className="text-rich-brown/70 text-xs leading-relaxed">
+                Eco-friendly paints and oils
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </>
   );
 }

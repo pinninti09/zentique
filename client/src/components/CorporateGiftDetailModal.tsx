@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { X, Star, Heart, Plus, Minus, Package, Shield, Truck, ShoppingCart, Building2 } from 'lucide-react';
+import CorporateGiftReviewsSection from './CorporateGiftReviewsSection';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
 import { formatPrice } from '@/lib/utils';
 import { apiRequest } from '@/lib/queryClient';
@@ -156,14 +157,18 @@ export default function CorporateGiftDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0" aria-describedby="gift-details">
+        <DialogTitle className="sr-only">
+          {gift.title} - Corporate Gift Details
+        </DialogTitle>
+        
         <div className="relative">
           {/* Close Button */}
           <Button
             onClick={onClose}
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white rounded-full shadow-sm"
+            className="absolute top-4 right-4 z-50 bg-white/90 hover:bg-white rounded-full shadow-lg h-10 w-10"
           >
             <X size={20} />
           </Button>
@@ -171,12 +176,14 @@ export default function CorporateGiftDetailModal({
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Image Section */}
-            <div className="relative bg-gray-100 aspect-square lg:aspect-[4/5]">
-              <img
-                src={gift.imageUrl}
-                alt={gift.title}
-                className="w-full h-full object-cover"
-              />
+            <div className="bg-gray-100 flex items-center justify-center min-h-[400px] lg:min-h-[600px]">
+              <div className="w-full h-full p-4">
+                <img
+                  src={gift.imageUrl}
+                  alt={gift.title}
+                  className="w-full h-full object-contain max-h-[400px] lg:max-h-[600px]"
+                />
+              </div>
               {gift.salePrice && (
                 <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                   Sale
@@ -196,7 +203,32 @@ export default function CorporateGiftDetailModal({
                 </div>
                 <h1 className="text-3xl lg:text-4xl font-serif font-bold text-charcoal mb-4">
                   {gift.title}
+                  {gift.sku && (
+                    <span className="ml-3 text-lg font-normal text-gray-400">
+                      {gift.sku}
+                    </span>
+                  )}
                 </h1>
+
+                {/* Rating */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={20}
+                        className={`${
+                          star <= (gift.averageRating || 0) 
+                            ? 'fill-yellow-400 text-yellow-400' 
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-gray-600">
+                    {(gift.averageRating || 0).toFixed(1)} ({gift.totalReviews || 0} {(gift.totalReviews || 0) === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
 
                 {/* Pricing */}
                 <div className="flex items-center gap-3 mb-4">
@@ -291,7 +323,7 @@ export default function CorporateGiftDetailModal({
                 ) : (
                   <Button
                     onClick={handleAddToCart}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white h-12 text-lg font-medium"
+                    className="w-full bg-gray-400 hover:bg-gray-500 text-white h-12 text-lg font-medium"
                     disabled={addToCartMutation.isPending}
                   >
                     <ShoppingCart size={20} className="mr-2" />
@@ -339,6 +371,13 @@ export default function CorporateGiftDetailModal({
                   <li>• Flexible payment terms</li>
                 </ul>
               </div>
+            </div>
+          </div>
+
+          {/* Reviews Section - Full Width */}
+          <div className="border-t bg-gray-50">
+            <div className="p-8 lg:p-12">
+              <CorporateGiftReviewsSection corporateGift={gift} />
             </div>
           </div>
         </div>

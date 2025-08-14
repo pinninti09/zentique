@@ -6,6 +6,7 @@ import {
   availabilityNotifications,
   promoBanners,
   corporateGifts,
+  corporateGiftReviews,
   backgroundImages,
   users,
   type Painting, 
@@ -24,12 +25,14 @@ import {
   type InsertPromoBanner,
   type CorporateGift,
   type InsertCorporateGift,
+  type CorporateGiftReview,
+  type InsertCorporateGiftReview,
   type BackgroundImage,
   type InsertBackgroundImage
 } from "@shared/schema";
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import * as crypto from 'crypto';
 
 // Password hashing utilities
@@ -99,6 +102,11 @@ export interface IStorage {
   createCorporateGift(gift: InsertCorporateGift): Promise<CorporateGift>;
   updateCorporateGift(id: string, updates: Partial<CorporateGift>): Promise<CorporateGift | undefined>;
   deleteCorporateGift(id: string): Promise<boolean>;
+
+  // Corporate gift review methods
+  getReviewsByCorporateGiftId(corporateGiftId: string): Promise<CorporateGiftReview[]>;
+  createCorporateGiftReview(review: InsertCorporateGiftReview): Promise<CorporateGiftReview>;
+  updateCorporateGiftRating(corporateGiftId: string): Promise<void>;
 
   // Background image methods
   getActiveBackgroundImage(section: string): Promise<BackgroundImage | undefined>;
@@ -650,11 +658,13 @@ export class DatabaseStorage implements IStorage {
 
   async updatePainting(id: string, updates: Partial<Painting>): Promise<Painting | undefined> {
     try {
+      console.log(`Storage: Updating painting ${id} with updates:`, updates);
       const [updatedPainting] = await db
         .update(paintings)
         .set(updates)
         .where(eq(paintings.id, id))
         .returning();
+      console.log(`Storage: Updated painting result:`, updatedPainting?.sold);
       return updatedPainting;
     } catch (error) {
       console.error('Error updating painting:', error);
@@ -890,6 +900,75 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Corporate gift review methods
+  async getReviewsByCorporateGiftId(corporateGiftId: string): Promise<CorporateGiftReview[]> {
+    try {
+      const result = await db.select().from(corporateGiftReviews).where(eq(corporateGiftReviews.corporateGiftId, corporateGiftId));
+      return result;
+    } catch (error) {
+      console.error('Error fetching reviews by corporate gift id:', error);
+      return [];
+    }
+  }
+
+  async createCorporateGiftReview(review: InsertCorporateGiftReview): Promise<CorporateGiftReview> {
+    try {
+      const reviewData = {
+        ...review,
+        id: crypto.randomUUID(),
+        createdAt: new Date()
+      };
+      const [newReview] = await db
+        .insert(corporateGiftReviews)
+        .values(reviewData)
+        .returning();
+      
+      // Update corporate gift rating after creating review
+      await this.updateCorporateGiftRating(review.corporateGiftId);
+      
+      return newReview;
+    } catch (error) {
+      console.error('Error creating corporate gift review:', error);
+      throw error;
+    }
+  }
+
+  async updateCorporateGiftRating(corporateGiftId: string): Promise<void> {
+    try {
+      // Get all reviews for this corporate gift
+      const giftReviews = await db.select().from(corporateGiftReviews).where(eq(corporateGiftReviews.corporateGiftId, corporateGiftId));
+      
+      if (giftReviews.length === 0) {
+        // No reviews, set defaults
+        await db
+          .update(corporateGifts)
+          .set({ 
+            averageRating: 0, 
+            totalReviews: 0,
+            updatedAt: new Date() 
+          })
+          .where(eq(corporateGifts.id, corporateGiftId));
+        return;
+      }
+
+      // Calculate average rating
+      const totalRating = giftReviews.reduce((sum, review) => sum + review.rating, 0);
+      const averageRating = totalRating / giftReviews.length;
+
+      // Update corporate gift with new rating and review count
+      await db
+        .update(corporateGifts)
+        .set({ 
+          averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
+          totalReviews: giftReviews.length,
+          updatedAt: new Date() 
+        })
+        .where(eq(corporateGifts.id, corporateGiftId));
+    } catch (error) {
+      console.error('Error updating corporate gift rating:', error);
+    }
+  }
+
   // Wishlist methods
   async getWishlistItems(sessionId: string): Promise<WishlistItem[]> {
     try {
@@ -993,48 +1072,143 @@ export class DatabaseStorage implements IStorage {
 
   // Banner methods
   async getActiveBanner(): Promise<PromoBanner | undefined> {
-    return {
-      id: "july4-2024",
-      text: "🇺🇸 July 4th Special: 25% OFF All Paintings! Use code JULY4 - Free Shipping on Orders Over $200",
-      isActive: true,
-      backgroundColor: "#1e40af",
-      textColor: "#f8fafc",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    try {
+      const result = await db
+        .select()
+        .from(promoBanners)
+        .where(eq(promoBanners.isActive, true))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching active banner:', error);
+      return undefined;
+    }
   }
 
   async createBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
-    throw new Error("Banner creation not implemented in DatabaseStorage");
+    try {
+      const bannerData = {
+        ...banner,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      const [newBanner] = await db
+        .insert(promoBanners)
+        .values(bannerData)
+        .returning();
+      return newBanner;
+    } catch (error) {
+      console.error('Error creating banner:', error);
+      throw error;
+    }
   }
 
   async updateBanner(id: string, updates: Partial<PromoBanner>): Promise<PromoBanner | undefined> {
-    return undefined;
+    try {
+      const updateData = {
+        ...updates,
+        updatedAt: new Date()
+      };
+      const [updatedBanner] = await db
+        .update(promoBanners)
+        .set(updateData)
+        .where(eq(promoBanners.id, id))
+        .returning();
+      return updatedBanner;
+    } catch (error) {
+      console.error('Error updating banner:', error);
+      return undefined;
+    }
   }
 
   async deactivateAllBanners(): Promise<void> {
-    // Implementation needed
+    try {
+      await db
+        .update(promoBanners)
+        .set({ 
+          isActive: false, 
+          updatedAt: new Date() 
+        });
+    } catch (error) {
+      console.error('Error deactivating all banners:', error);
+      throw error;
+    }
   }
 
   // Corporate banner methods
   async getActiveCorporateBanner(): Promise<PromoBanner | undefined> {
-    return {
-      id: "corporate-2024",
-      text: "🎁 Corporate Gifting: Strengthen workplace relationships with meaningful gifts that show you value your team",
-      isActive: true,
-      backgroundColor: "#059669",
-      textColor: "#f0fdf4",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    try {
+      const result = await db.select()
+        .from(promoBanners)
+        .where(and(
+          eq(promoBanners.isActive, true),
+          sql`${promoBanners.id} LIKE 'corp-banner-%'`
+        ))
+        .limit(1);
+      
+      if (result.length > 0) {
+        return result[0];
+      }
+      
+      // Fallback to default if no active corporate banner found
+      return {
+        id: "corporate-2024",
+        text: "🎁 Corporate Gifting: Strengthen workplace relationships with meaningful gifts that show you value your team",
+        isActive: true,
+        backgroundColor: "#059669",
+        textColor: "#f0fdf4",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    } catch (error) {
+      console.error('Error fetching active corporate banner:', error);
+      // Return fallback banner on error
+      return {
+        id: "corporate-2024",
+        text: "🎁 Corporate Gifting: Strengthen workplace relationships with meaningful gifts that show you value your team",
+        isActive: true,
+        backgroundColor: "#059669",
+        textColor: "#f0fdf4",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
   }
 
   async createCorporateBanner(banner: InsertPromoBanner): Promise<PromoBanner> {
-    throw new Error("Corporate banner creation not implemented in DatabaseStorage");
+    try {
+      const id = `corp-banner-${Date.now()}`;
+      const newBanner = {
+        id,
+        text: banner.text,
+        isActive: true,
+        backgroundColor: banner.backgroundColor || "#059669",
+        textColor: banner.textColor || "#f0fdf4",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      const [result] = await db.insert(promoBanners).values(newBanner).returning();
+      return result;
+    } catch (error) {
+      console.error('Error creating corporate banner:', error);
+      throw error;
+    }
   }
 
   async deactivateAllCorporateBanners(): Promise<void> {
-    // Implementation needed
+    try {
+      await db.update(promoBanners)
+        .set({ 
+          isActive: false, 
+          updatedAt: new Date() 
+        })
+        .where(sql`${promoBanners.id} LIKE 'corp-banner-%'`);
+    } catch (error) {
+      console.error('Error deactivating corporate banners:', error);
+      throw error;
+    }
   }
 
   // Corporate gift methods - using database
